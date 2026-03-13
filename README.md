@@ -48,9 +48,9 @@ OpenChaosTD/
     │   └── victory_state.hpp/.cpp       - Victory state display score ✏️
     │
     ├── core/                           Core engine responsible for global functionality
-    │   └── asset_manager.hpp/.cpp      - Load/cache textures, sounds, fonts
-    │   └── renderer.hpp/.cpp           - Wrap all the rendering and letterbox scaling
-    │   └── input_manager.hpp/.cpp      - Keybinding, virtual mouse and mouse consumption
+    │   ├── asset_manager.hpp/.cpp      - Load/cache textures, sounds, fonts
+    │   ├── renderer.hpp/.cpp           - Wrap all the rendering and letterbox scaling
+    │   ├── input_manager.hpp/.cpp      - Keybinding, virtual mouse and mouse consumption
     │   └── jsonio.hpp/.cpp             - Cross-platform JSON read/write
     │
     ├── world/                          Grid, wave and paths

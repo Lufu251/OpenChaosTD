@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <filesystem>
+#include <nlohmann/json.hpp>
 
 // Constructor / Destructor
 Game::Game() {
@@ -18,7 +19,16 @@ Game::Game() {
 
     LoadAssets();
     LoadActions();
+
     m_json.SetRootPath(SearchFolderParentPath("assets", 5).parent_path());
+
+    nlohmann::json j;
+    j["pi"] = 3.141;
+    j["happy"] = true;
+    j["name"] = "Niels";
+
+    m_json.Save("saves/slot1", j);
+    m_json.Delete("saves/slot1");
 
     // Start with menu state
     m_currentState = std::make_unique<MenuState>();

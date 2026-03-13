@@ -13,19 +13,19 @@ void JsonIO::SetRootPath(const std::string& rootPath) {
 #if defined(PLATFORM_WEB)
     // No filesystem on web — root path is unused
     m_rootPath = "";
-    std::cout << "Storage: initialized (web — using localStorage)\n";
+    std::cout << "jsonio: initialized (web — using localStorage)\n";
 #else
     // Derive project root from the parent of assets/
     std::filesystem::path root = std::filesystem::path(rootPath);
     m_rootPath = root.string();
-    std::cout << "Storage: root set to '" << m_rootPath << "'\n";
+    std::cout << "jsonio: root set to '" << m_rootPath << "'\n";
 #endif
 }
 
 // Private: path resolution (native only)
 std::string JsonIO::ResolvePath(const std::string& path) const {
     if (m_rootPath.empty())
-        throw std::runtime_error("Storage: Init() must be called before any file operations");
+        throw std::runtime_error("jsonio: SetRootPath() must be called before any file operations");
 
     return (std::filesystem::path(m_rootPath) / (path + ".json")).string();
 }
@@ -38,7 +38,7 @@ void JsonIO::Save(const std::string& path, const nlohmann::json& data) {
     EM_ASM({
         localStorage.setItem(UTF8ToString($0), UTF8ToString($1));
     }, path.c_str(), jsonStr.c_str());
-    std::cout << "Storage: saved '" << path << "' to localStorage\n";
+    std::cout << "jsonio: saved '" << path << "' to localStorage\n";
 
 #else
 
@@ -49,11 +49,11 @@ void JsonIO::Save(const std::string& path, const nlohmann::json& data) {
 
     std::ofstream file(fullPath);
     if (!file.is_open()) {
-        std::cerr << "Storage: could not write '" << fullPath << "'\n";
+        std::cerr << "jsonio: could not write '" << fullPath << "'\n";
         return;
     }
     file << data.dump(4) << "\n";
-    std::cout << "Storage: saved '" << fullPath << "'\n";
+    std::cout << "jsonio: saved '" << fullPath << "'\n";
 
 #endif
 }
@@ -72,7 +72,7 @@ nlohmann::json JsonIO::Load(const std::string& path) {
     }, path.c_str());
 
     if (!raw) {
-        std::cout << "Storage: no data found for '" << path << "' in localStorage\n";
+        std::cout << "jsonio: no data found for '" << path << "' in localStorage\n";
         return {};
     }
 
@@ -82,7 +82,7 @@ nlohmann::json JsonIO::Load(const std::string& path) {
     try {
         return nlohmann::json::parse(jsonStr);
     } catch (const nlohmann::json::parse_error& e) {
-        std::cerr << "Storage: parse error loading '" << path << "': " << e.what() << "\n";
+        std::cerr << "jsonio: parse error loading '" << path << "': " << e.what() << "\n";
         return {};
     }
 
@@ -91,7 +91,7 @@ nlohmann::json JsonIO::Load(const std::string& path) {
     std::string fullPath = ResolvePath(path);
     std::ifstream file(fullPath);
     if (!file.is_open()) {
-        std::cout << "Storage: no file found at '" << fullPath << "'\n";
+        std::cout << "jsonio: no file found at '" << fullPath << "'\n";
         return {};
     }
 
@@ -100,7 +100,7 @@ nlohmann::json JsonIO::Load(const std::string& path) {
         file >> data;
         return data;
     } catch (const nlohmann::json::parse_error& e) {
-        std::cerr << "Storage: parse error loading '" << fullPath << "': " << e.what() << "\n";
+        std::cerr << "jsonio: parse error loading '" << fullPath << "': " << e.what() << "\n";
         return {};
     }
 
