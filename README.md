@@ -64,7 +64,7 @@ OpenChaosTD/
     │   ├── tower.hpp/.cpp              - Range, damage, fire rate ✏️
     │   └── projectile.hpp/.cpp         - Damage, status ✏️
     │
-    ├── systems/                        Implement functionality to the entities
+    ├── systems/                        Implement lokal functionality
     │   ├── collision_system.hpp/.cpp   - Detecting collisions ✏️
     │   └── render_system.hpp/.cpp      - Drawing entities ✏️
     │
