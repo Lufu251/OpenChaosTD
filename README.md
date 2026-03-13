@@ -42,10 +42,10 @@ OpenChaosTD/
     │
     ├── states/                         Divide screens into individual states
     │   ├── game_state.hpp              - Base class (input, logic, drawing)
-    │   ├── menu_state.hpp/.cpp          - Pre playing state
-    │   ├── play_state.hpp/.cpp       - Playing state
-    │   ├── gameover_state.hpp/.cpp      - Gameover state display score and start new ✏️
-    │   └── victory_state.hpp/.cpp       - Victory state display score ✏️
+    │   ├── menu_state.hpp/.cpp         - Pre playing state
+    │   ├── play_state.hpp/.cpp         - Playing state
+    │   ├── gameover_state.hpp/.cpp     - Gameover state display score and start new ✏️
+    │   └── victory_state.hpp/.cpp      - Victory state display score ✏️
     │
     ├── core/                           Core engine responsible for global functionality
     │   ├── asset_manager.hpp/.cpp      - Load/cache textures, sounds, fonts
