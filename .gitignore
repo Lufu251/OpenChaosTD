@@ -1,0 +1,13 @@
+# General
+.vscode
+.cache
+
+# Build folder
+build
+build-web
+
+# Game specific
+saves
+
+# Custom
+ToDo.md
