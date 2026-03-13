@@ -1,8 +1,7 @@
 # OpenChaosTD
 This is an open-map 2D Tower Defense game made in c++ with raylib that is still a work in progress. Towers can be placed anywhere on a grid, and enemies will search for the best path.
 
-## Media
-* (Add a screenshot or GIF of your project here)
+
 
 ## Building
 
@@ -29,26 +28,30 @@ This is an open-map 2D Tower Defense game made in c++ with raylib that is still 
     cd tools
     ./build_web.sh
     ```
-    Now there should be a HTTP Server running under port 8000 to test your project. The URL should be visible in the active terminal.
+    Now there will be a HTTP Server running under port 8000 to test your project. The URL should be visible in the active terminal.
+
+## Media
+* (Add a screenshot or GIF of your project here)
 
 ## Project Structure
 ```
-tower-defense/
+OpenChaosTD/
 └── src/                                Root
     ├── main.cpp                        - Run game
     ├── game.hpp / game.cpp             - Window creation, FPS, resizing
     │
     ├── states/                         Divide screens into individual states
-    │   ├── IGameState.hpp              - Base class (input, logic, drawing)
-    │   ├── MenuState.hpp/.cpp          - Pre playing state
-    │   ├── PlayingState.hpp/.cpp       - Playing state
-    │   ├── GameOverState.hpp/.cpp      - Gameover state display score and start new ✏️
-    │   └── VictoryState.hpp/.cpp       - Victory state display score ✏️
+    │   ├── game_state.hpp              - Base class (input, logic, drawing)
+    │   ├── menu_state.hpp/.cpp          - Pre playing state
+    │   ├── play_state.hpp/.cpp       - Playing state
+    │   ├── gameover_state.hpp/.cpp      - Gameover state display score and start new ✏️
+    │   └── victory_state.hpp/.cpp       - Victory state display score ✏️
     │
-    ├── core/                           Core functionality that is needed for the hole game
+    ├── core/                           Core engine responsible for global functionality
     │   └── asset_manager.hpp/.cpp      - Load/cache textures, sounds, fonts
     │   └── renderer.hpp/.cpp           - Wrap all the rendering and letterbox scaling
     │   └── input_manager.hpp/.cpp      - Keybinding, virtual mouse and mouse consumption
+    │   └── jsonio.hpp/.cpp             - Cross-platform JSON read/write
     │
     ├── world/                          Grid, wave and paths
     │   ├── map.hpp/.cpp                - Tile grid + path definition ✏️
