@@ -6,6 +6,7 @@
 #include <core/renderer.hpp>
 #include <core/input_manager.hpp>
 #include <core/jsonio.hpp>
+#include <core/performance_monitor.hpp>
 #include <memory>
 
 struct GameConfig {
@@ -65,6 +66,7 @@ private:
     AssetManager m_assets;
     Renderer m_renderer;
     JsonIO m_json;
+    PerformanceMonitor monitor;
     InputManager m_input;
 
     // Game status

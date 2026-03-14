@@ -41,6 +41,7 @@ Game::~Game() {
 
     CloseAudioDevice();
     CloseWindow();
+    monitor.Print();
 }
 
 // Run
@@ -49,14 +50,18 @@ void Game::Run() {
         const float dt = GetFrameTime();
 
         // Update
-        m_input.Update(m_renderer);
-        m_currentState->ProcessInput(*this);
-        m_currentState->Update(*this, dt);
+        monitor.Begin("Update");
+            m_input.Update(m_renderer);
+            m_currentState->ProcessInput(*this);
+            m_currentState->Update(*this, dt);
+        monitor.End("Update");
 
         // Draw
-        m_renderer.BeginFrame();
-            m_currentState->Draw(*this);
-        m_renderer.EndFrame();
+        monitor.Begin("Draw");
+            m_renderer.BeginFrame();
+                m_currentState->Draw(*this);
+            m_renderer.EndFrame();
+        monitor.End("Draw");
 
         // Swap State
         ApplyPendingState();
