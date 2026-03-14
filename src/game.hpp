@@ -37,40 +37,36 @@ public:
 
     // State machine
     void ChangeState(std::unique_ptr<GameState> newState);
-
-    // Accessors for states
+    
     const GameConfig& GetGameConfig() const {return m_gameConfig;}
+    GameData& GetGameData() {return m_gameData;}
+
+    // Accessors for managers
     AssetManager& GetAssets() {return m_assets;}
     Renderer& GetRenderer() {return m_renderer;}
     InputManager& GetInput() {return m_input;}
-
-    int GetLives() const {return m_data.lives;}
-    int GetGold() const {return m_data.gold;}
-    int GetScore() const {return m_data.score;}
-
-    void SetLives(int v) {m_data.lives = v;}
-    void SetGold(int v) {m_data.gold  = v;}
-    void AddScore(int v) {m_data.score += v;}
-
-    // Resets gameplay data
-    void Reset();
+    JsonIO& GetJsonIO(){return m_jsonio;}
+    PerformanceMonitor& GetMonitor() {return m_monitor;}
 
 private:
-    void ApplyPendingState(); // Swaps in m_pendingState at safe point
+    bool m_running = true;
+
     void LoadAssets();
     void LoadActions();
 
+    // Data and config
     GameConfig m_gameConfig;
-    GameData m_data;
+    GameData m_gameData;
 
+    // Core managers
     AssetManager m_assets;
     Renderer m_renderer;
-    JsonIO m_json;
-    PerformanceMonitor monitor;
     InputManager m_input;
+    JsonIO m_jsonio;
+    PerformanceMonitor m_monitor;
 
-    // Game status
-    bool m_running = true;
+    // Gamestate management
     std::unique_ptr<GameState> m_currentState;
     std::unique_ptr<GameState> m_pendingState;
+    void ApplyPendingState(); // Swaps in m_pendingState at safe point
 };

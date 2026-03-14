@@ -49,8 +49,6 @@ void Renderer::UpdateScale() {
     // Black bar rectangles (one pair: top+bottom or left+right)
     m_barA = { 0.0f,            0.0f,   screenW, offsetY };  // top   or left
     m_barB = { 0.0f, offsetY + scaledH, screenW, offsetY };  // bottom or right
-    // Note: for pillarboxing (vertical bars) these overlap slightly but
-    // ClearBackground(BLACK) before drawing covers the rest.
 }
 
 // Frame

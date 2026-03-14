@@ -17,20 +17,12 @@ Game::Game() {
 
     m_renderer.Init(m_gameConfig.gameWidth, m_gameConfig.gameHeight);
 
+    m_jsonio.SetRootPath(SearchFolderParentPath("assets", 5).parent_path());
+
     LoadAssets();
     LoadActions();
 
-    m_json.SetRootPath(SearchFolderParentPath("assets", 5).parent_path());
-
-    nlohmann::json j;
-    j["pi"] = 3.141;
-    j["happy"] = true;
-    j["name"] = "Niels";
-
-    m_json.Save("saves/slot1", j);
-    m_json.Delete("saves/slot1");
-
-    // Start with menu state
+    // Init initial state
     m_currentState = std::make_unique<MenuState>();
     m_currentState->OnEnter(*this);
 }
@@ -41,7 +33,7 @@ Game::~Game() {
 
     CloseAudioDevice();
     CloseWindow();
-    monitor.Print();
+    m_monitor.Print();
 }
 
 // Run
@@ -50,18 +42,18 @@ void Game::Run() {
         const float dt = GetFrameTime();
 
         // Update
-        monitor.Begin("Update");
+        m_monitor.Begin("Update");
             m_input.Update(m_renderer);
             m_currentState->ProcessInput(*this);
             m_currentState->Update(*this, dt);
-        monitor.End("Update");
+        m_monitor.End("Update");
 
         // Draw
-        monitor.Begin("Draw");
+        m_monitor.Begin("Draw");
             m_renderer.BeginFrame();
                 m_currentState->Draw(*this);
             m_renderer.EndFrame();
-        monitor.End("Draw");
+        m_monitor.End("Draw");
 
         // Swap State
         ApplyPendingState();
@@ -120,10 +112,4 @@ void Game::ApplyPendingState() {
 
     m_currentState = std::move(m_pendingState);
     m_currentState->OnEnter(*this);
-}
-
-void Game::Reset() {
-    m_data.lives = 20;
-    m_data.gold  = 150;
-    m_data.score = 0;
 }
