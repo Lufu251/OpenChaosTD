@@ -1,7 +1,6 @@
 #include <states/play_state.hpp>
 #include <game.hpp>
 #include <raylib.h>
-#include <iostream>
 
 void PlayingState::OnEnter(Game& game) {
 

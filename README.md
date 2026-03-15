@@ -48,14 +48,16 @@ OpenChaosTD/
     │   └── victory_state.hpp/.cpp      - Victory state display score ✏️
     │
     ├── core/                           Core engine responsible for global functionality
+    │   ├── Grid2D.h                    - Header-only resizable 2D array template
     │   ├── asset_manager.hpp/.cpp      - Load/cache textures, sounds, fonts
-    │   ├── renderer.hpp/.cpp           - Wrap all the rendering and letterbox scaling
+    │   ├── renderer.hpp/.cpp           - Rendering and letterbox scaling
     │   ├── input_manager.hpp/.cpp      - Keybinding, virtual mouse and mouse consumption
-    │   └── jsonio.hpp/.cpp             - Cross-platform JSON read/write
+    │   ├── jsonio.hpp/.cpp             - Cross-platform JSON read/write
+    │   └── PerformanceMonitor.h/.cpp   - Performance profiling avg, last, peak timings
     │
     ├── world/                          Grid, wave and paths
-    │   ├── map.hpp/.cpp                - Tile grid + path definition ✏️
-    │   ├── tile.hpp/.cpp               - Tile type (grass, path, buildable) ✏️
+    │   ├── map.hpp/.cpp                - Grid2D, path calculation
+    │   ├── tile.hpp                    - Bass class tile
     │   └── wave_manager.hpp/.cpp       - Spawn timing, wave definitions ✏️
     │
     ├── entities/                       Entities only hold data
@@ -65,7 +67,7 @@ OpenChaosTD/
     │   └── projectile.hpp/.cpp         - Damage, status ✏️
     │
     ├── systems/                        Implement lokal functionality
-    │   ├── collision_system.hpp/.cpp   - Detecting collisions ✏️
+    │   ├── entity_system.hpp/.cpp      - Controling behaviour of entities ✏️
     │   └── render_system.hpp/.cpp      - Drawing entities ✏️
     │
     └── ui/                             User interface
