@@ -90,6 +90,8 @@ void Game::LoadAssets() {
     m_assets.LoadTexture("tower_freezer", "textures/tower_freezer.png");
     m_assets.LoadTexture("tower_sniper", "textures/tower_sniper.png");
     m_assets.LoadTexture("tower_wall", "textures/tower_wall.png");
+
+    m_assets.LoadTexture("tile_grass", "textures/tile_grass.png");
 }
 
 // Action loading

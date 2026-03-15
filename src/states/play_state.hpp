@@ -14,4 +14,5 @@ public:
 
 private:
     RenderSystem m_renderSystem;
+    Vector2 mousePositionLast;
 };

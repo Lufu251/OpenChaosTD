@@ -8,6 +8,8 @@
 #include <core/jsonio.hpp>
 #include <core/performance_monitor.hpp>
 #include <world/map.hpp>
+#include <entities/enemy.hpp>
+#include <entities/tower.hpp>
 #include <memory>
 
 struct GameConfig {
@@ -22,6 +24,8 @@ struct GameData {
     int gold  = 150;
     int score = 0;
     Map map;
+    std::vector<Tower> towers;
+    std::vector<Enemy> enemies;
 };
 
 class Game {
