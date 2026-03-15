@@ -7,6 +7,7 @@
 #include <core/input_manager.hpp>
 #include <core/jsonio.hpp>
 #include <core/performance_monitor.hpp>
+#include <world/map.hpp>
 #include <memory>
 
 struct GameConfig {
@@ -20,9 +21,7 @@ struct GameData {
     int lives = 20;
     int gold  = 150;
     int score = 0;
-    // std::unique_ptr<Map>         map;
-    // std::unique_ptr<WaveManager> waveManager;
-    // std::unique_ptr<HUD>         hud;
+    Map map;
 };
 
 class Game {

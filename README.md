@@ -68,7 +68,7 @@ OpenChaosTD/
     │
     ├── systems/                        Implement lokal functionality
     │   ├── entity_system.hpp/.cpp      - Controling behaviour of entities ✏️
-    │   └── render_system.hpp/.cpp      - Drawing entities ✏️
+    │   └── render_system.hpp/.cpp      - Drawing entities and world
     │
     └── ui/                             User interface
         ├── hud.hpp/.cpp                - Lives, gold, score, wave counter ✏️

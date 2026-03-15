@@ -20,6 +20,7 @@ public:
     bool WorldToTile(Vector2 worldPos, int& outX, int& outY) const;
 
     // TODO:
+    void Generate(int cols, int rows, int tileSize);
     // void check if placement is allowed
     // void calculate path
 
