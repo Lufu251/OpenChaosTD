@@ -13,6 +13,7 @@ Game::Game() {
 
     InitWindow(m_gameConfig.gameWidth, m_gameConfig.gameHeight, m_gameConfig.title);
     SetTargetFPS(m_gameConfig.fps);
+    SetExitKey(KEY_NULL);
     InitAudioDevice();
 
     m_renderer.Init(m_gameConfig.gameWidth, m_gameConfig.gameHeight);
