@@ -7,7 +7,7 @@
 
 class InputManager {
 public:
-    InputManager()  = default;
+    InputManager() = default;
     ~InputManager() { Shutdown(); }
     
     // Non-copyable
@@ -19,14 +19,15 @@ public:
 
     // Keyboard actions
     bool IsPressed(std::string action) const;
-    bool IsDown(std::string action)    const;
+    bool IsDown(std::string action) const;
     bool IsReleased(std::string action) const;
 
     // Mouse buttons
-    bool IsMouseLeftPressed()  const;
+    bool IsMouseLeftPressed() const;
     bool IsMouseRightPressed() const;
-    bool IsMouseLeftDown()     const;
-    bool IsMouseRightDown()    const;
+    bool IsMouseLeftDown() const;
+    bool IsMouseRightDown() const;
+    float IsMouseWheelMoved() const;
 
     // Mouse position (virtual / letterbox-corrected)
     Vector2 GetMousePosition() const { return m_virtualMouse; }
@@ -44,6 +45,6 @@ public:
 private:
     std::unordered_map<std::string, KeyboardKey> m_bindings;
 
-    Vector2            m_virtualMouse  = {};
-    bool               m_mouseConsumed = false;
+    Vector2 m_virtualMouse  = {};
+    bool m_mouseConsumed = false;
 };

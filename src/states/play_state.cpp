@@ -2,15 +2,16 @@
 #include <game.hpp>
 #include <raylib.h>
 #include <raymath.h>
+#include <iostream>
 #include <entities/tower.hpp>
 #include <entities/enemy.hpp>
 
 void PlayingState::OnEnter(Game& game) {
     game.GetGameData().map.Generate(16, 16, 32);
 
+    // Center the map in the middle of the screen
     m_renderSystem.camera.target = {-static_cast<float>(game.GetRenderer().GetGameWidth()) / 2.f, -static_cast<float>(game.GetRenderer().GetGameHeight()) / 2.f};
     m_renderSystem.camera.offset = {-(game.GetGameData().map.GetCols() * game.GetGameData().map.GetTileSize()) / 2.f, -(game.GetGameData().map.GetRows() * game.GetGameData().map.GetTileSize()) / 2.f};
-    m_renderSystem.camera.rotation = 0.0f;
     m_renderSystem.camera.zoom = 1.0f;
 }
 
@@ -19,11 +20,9 @@ void PlayingState::OnExit(Game& /*game*/) {
 }
 
 void PlayingState::ProcessInput(Game& game) {
-    if(game.GetInput().IsMouseRightDown()){
-        m_renderSystem.camera.offset += game.GetInput().GetMousePosition() -mousePositionLast;
-    }
+    ControlCamera(m_renderSystem.camera, game);
 
-    mousePositionLast = game.GetInput().GetMousePosition();
+    
 }
 
 void PlayingState::Update(Game& game, float dt) {
@@ -45,4 +44,49 @@ void PlayingState::Draw(Game& game) {
                    game.GetGameData().lives, game.GetGameData().gold, game.GetGameData().score),
         20, game.GetRenderer().GetGameHeight() - 30, 18, RAYWHITE
     );
+}
+
+void PlayingState::ControlCamera(Camera2D& camera, Game& game){
+    // ------------------------------
+    // Moving Camera
+    // ------------------------------
+    Vector2 direction{0,0};
+
+    // Move camera with keyboard
+    if(game.GetInput().IsDown("Up")) direction.y --;
+    if(game.GetInput().IsDown("Down")) direction.y ++;
+    if(game.GetInput().IsDown("Right")) direction.x ++;
+    if(game.GetInput().IsDown("Left")) direction.x --;
+    direction *= 6;
+
+    // Move camera by draging
+    if(game.GetInput().IsMouseRightDown()){
+        direction = (game.GetInput().GetMousePosition() -mousePositionLast) / camera.zoom;
+    }
+
+    camera.target -= direction;
+
+    // Update mousePositionLast
+    mousePositionLast = game.GetInput().GetMousePosition();
+
+    // ------------------------------
+    // Zooming Camera
+    // ------------------------------
+    float wheel = game.GetInput().IsMouseWheelMoved();
+    if(wheel != 0){
+        Vector2 mouseScreen = game.GetInput().GetMousePosition();
+
+        // 1. Where in the world is the mouse RIGHT NOW?
+        Vector2 mouseWorld = GetScreenToWorld2D(mouseScreen, camera);
+
+        // 2. Shift offset to mouse (makes mouse the anchor)
+        camera.offset = mouseScreen;
+        camera.target = mouseWorld;
+
+        // 3. Apply zoom
+        zoomIndex += wheel;
+        zoomIndex = Clamp(zoomIndex, 0, static_cast<int>(sizeof(zoomLevel) / sizeof(zoomLevel[0])) -1);
+
+        camera.zoom = zoomLevel[zoomIndex];
+    }
 }

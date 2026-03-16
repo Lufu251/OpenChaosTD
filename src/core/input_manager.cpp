@@ -24,10 +24,11 @@ bool InputManager::IsReleased(std::string action) const {
 }
 
 // Mouse buttons
-bool InputManager::IsMouseLeftPressed()  const { return IsMouseButtonPressed(MOUSE_LEFT_BUTTON);  }
+bool InputManager::IsMouseLeftPressed() const { return IsMouseButtonPressed(MOUSE_LEFT_BUTTON); }
 bool InputManager::IsMouseRightPressed() const { return IsMouseButtonPressed(MOUSE_RIGHT_BUTTON); }
-bool InputManager::IsMouseLeftDown()     const { return IsMouseButtonDown(MOUSE_LEFT_BUTTON);     }
-bool InputManager::IsMouseRightDown()    const { return IsMouseButtonDown(MOUSE_RIGHT_BUTTON);    }
+bool InputManager::IsMouseLeftDown() const { return IsMouseButtonDown(MOUSE_LEFT_BUTTON); }
+bool InputManager::IsMouseRightDown() const { return IsMouseButtonDown(MOUSE_RIGHT_BUTTON); }
+float InputManager::IsMouseWheelMoved() const { return GetMouseWheelMove(); }
 
 // Mouse consumption
 void InputManager::ConsumeMouseClick() {

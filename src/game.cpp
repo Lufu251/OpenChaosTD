@@ -96,6 +96,11 @@ void Game::LoadAssets() {
 
 // Action loading
 void Game::LoadActions() {
+    m_input.AddAction("Up", KEY_W);
+    m_input.AddAction("Down", KEY_S);
+    m_input.AddAction("Right", KEY_D);
+    m_input.AddAction("Left", KEY_A);
+
     m_input.AddAction("Confirm", KEY_ENTER);
     m_input.AddAction("Cancle", KEY_ESCAPE);
 }
