@@ -3,16 +3,16 @@
 #include <raylib.h>
 #include <raymath.h>
 #include <iostream>
-#include <entities/tower.hpp>
-#include <entities/enemy.hpp>
 
 void PlayingState::OnEnter(Game& game) {
-    game.GetGameData().map.Generate(16, 16, 32);
+    m_worldSystem.GenerateMap(game.GetGameData().map, 15, 19);
 
     // Center the map in the middle of the screen
     m_renderSystem.camera.target = {-static_cast<float>(game.GetRenderer().GetGameWidth()) / 2.f, -static_cast<float>(game.GetRenderer().GetGameHeight()) / 2.f};
     m_renderSystem.camera.offset = {-(game.GetGameData().map.GetCols() * game.GetGameData().map.GetTileSize()) / 2.f, -(game.GetGameData().map.GetRows() * game.GetGameData().map.GetTileSize()) / 2.f};
     m_renderSystem.camera.zoom = 1.0f;
+
+    
 }
 
 void PlayingState::OnExit(Game& /*game*/) {
@@ -20,8 +20,17 @@ void PlayingState::OnExit(Game& /*game*/) {
 }
 
 void PlayingState::ProcessInput(Game& game) {
-    ControlCamera(m_renderSystem.camera, game);
+    
 
+
+    ControlCamera(m_renderSystem.camera, game);
+    Tower tower;
+    tower.m_position = {200, 200};
+
+    if(game.GetInput().IsMouseLeftPressed()){
+        m_worldSystem.PlaceTower(tower, game, m_renderSystem.camera);
+    }
+    
     
 }
 
@@ -34,8 +43,7 @@ void PlayingState::Draw(Game& game) {
 
     BeginMode2D(m_renderSystem.camera);
         m_renderSystem.DrawMap(game.GetGameData().map, game.GetAssets());
-        m_renderSystem.DrawTowers(game.GetGameData().towers, game.GetAssets());
-        m_renderSystem.DrawEnemys(game.GetGameData().enemies, game.GetAssets());
+        m_renderSystem.DrawTower(game.GetGameData().towers, game.GetAssets());
     EndMode2D();
 
     DrawText("PLAYING - map renders here", 20, 20, 20, GREEN);
@@ -53,10 +61,10 @@ void PlayingState::ControlCamera(Camera2D& camera, Game& game){
     Vector2 direction{0,0};
 
     // Move camera with keyboard
-    if(game.GetInput().IsDown("Up")) direction.y --;
-    if(game.GetInput().IsDown("Down")) direction.y ++;
-    if(game.GetInput().IsDown("Right")) direction.x ++;
-    if(game.GetInput().IsDown("Left")) direction.x --;
+    if(game.GetInput().IsDown("Up")) direction.y ++;
+    if(game.GetInput().IsDown("Down")) direction.y --;
+    if(game.GetInput().IsDown("Right")) direction.x --;
+    if(game.GetInput().IsDown("Left")) direction.x ++;
     direction *= 6;
 
     // Move camera by draging

@@ -8,14 +8,14 @@
 #include <core/jsonio.hpp>
 #include <core/performance_monitor.hpp>
 #include <world/map.hpp>
-#include <entities/enemy.hpp>
-#include <entities/tower.hpp>
 #include <memory>
+#include <world/tower.hpp>
+#include <world/enemy.hpp>
 
 struct GameConfig {
     // Initial window size - can be resize freely
-    int gameWidth = 1280; 
-    int gameHeight = 720;
+    int gameWidth = 1080;
+    int gameHeight = 1080;
     int fps = 60;
     const char* title = "OpenChaos TD";
 };

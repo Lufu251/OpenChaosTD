@@ -3,20 +3,26 @@
 void RenderSystem::DrawMap(const Map& map, AssetManager& assets){
     for (int y = 0; y < map.GetRows(); y++) {
         for (int x = 0; x < map.GetCols(); x++) {
-            DrawTexture(assets.GetTexture("tile_grass"), map.TileToWorld(x, y).x, map.TileToWorld(x, y).y, WHITE);
-            //DrawRectangle(map.TileToWorld(x, y).x, map.TileToWorld(x, y).y, map.GetTileSize(), map.GetTileSize(), BLUE);
+            switch (map.Get(x,y).m_type) {
+                case TileType::Grass:
+                    DrawTexture(assets.GetTexture("tile_grass"), map.TileToWorld(x, y).x, map.TileToWorld(x, y).y, WHITE);
+                    break;
+                case TileType::Core:
+                    DrawTexture(assets.GetTexture("tile_core"), map.TileToWorld(x, y).x, map.TileToWorld(x, y).y, WHITE);
+                    break;
+                case TileType::Nest:
+                    DrawTexture(assets.GetTexture("tile_nest"), map.TileToWorld(x, y).x, map.TileToWorld(x, y).y, WHITE);
+                    break;
+                case TileType::Rock:
+                    DrawTexture(assets.GetTexture("tile_rock"), map.TileToWorld(x, y).x, map.TileToWorld(x, y).y, WHITE);
+                    break;
+            }
         }
     }
 }
 
-void RenderSystem::DrawTowers(const std::vector<Tower>& towers, AssetManager& assets){
-    for (int y = 0; y < towers.size(); y++) {
-
-    }
-}
-
-void RenderSystem::DrawEnemys(const std::vector<Enemy>& enemies, AssetManager& assets){
-    for (int y = 0; y < enemies.size(); y++) {
-
+void RenderSystem::DrawTower(const std::vector<Tower>& towers, AssetManager& assets){
+    for (auto& tower : towers) {
+        DrawTexture(assets.GetTexture("tower_freezer"), tower.m_position.x, tower.m_position.y, WHITE);
     }
 }

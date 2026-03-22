@@ -92,6 +92,9 @@ void Game::LoadAssets() {
     m_assets.LoadTexture("tower_wall", "textures/tower_wall.png");
 
     m_assets.LoadTexture("tile_grass", "textures/tile_grass.png");
+    m_assets.LoadTexture("tile_nest", "textures/tile_nest.png");
+    m_assets.LoadTexture("tile_core", "textures/tile_core.png");
+    m_assets.LoadTexture("tile_rock", "textures/tile_rock.png");
 }
 
 // Action loading

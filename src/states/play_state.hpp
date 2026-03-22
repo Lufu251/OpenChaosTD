@@ -3,6 +3,7 @@
 #include <states/game_state.hpp>
 #include <raylib.h>
 #include <systems/render_system.hpp>
+#include <systems/world_system.hpp>
 
 class PlayingState : public GameState {
 public:
@@ -15,6 +16,8 @@ public:
 
 private:
     RenderSystem m_renderSystem;
+    WorldSystem m_worldSystem;
+
     Vector2 mousePositionLast;
 
     void ControlCamera(Camera2D& camera, Game& game);
