@@ -17,6 +17,9 @@ void RenderSystem::DrawMap(const Map& map, AssetManager& assets){
                     DrawTexture(assets.GetTexture("tile_rock"), map.TileToWorld(x, y).x, map.TileToWorld(x, y).y, WHITE);
                     break;
             }
+
+            //if(x == 14 && y == 0)
+                DrawText(TextFormat("%i", map.GetPathMesh().Get(x, y).distance), map.TileToWorld(x, y).x, map.TileToWorld(x, y).y, 16, BLACK);
         }
     }
 }

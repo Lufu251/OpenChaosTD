@@ -2,7 +2,6 @@
 #include <game.hpp>
 #include <raylib.h>
 #include <raymath.h>
-#include <iostream>
 
 void PlayingState::OnEnter(Game& game) {
     m_worldSystem.GenerateMap(game.GetGameData().map, 15, 19);
@@ -12,7 +11,8 @@ void PlayingState::OnEnter(Game& game) {
     m_renderSystem.camera.offset = {-(game.GetGameData().map.GetCols() * game.GetGameData().map.GetTileSize()) / 2.f, -(game.GetGameData().map.GetRows() * game.GetGameData().map.GetTileSize()) / 2.f};
     m_renderSystem.camera.zoom = 1.0f;
 
-    
+
+    game.GetGameData().map.BuildFlowField();
 }
 
 void PlayingState::OnExit(Game& /*game*/) {
@@ -20,9 +20,6 @@ void PlayingState::OnExit(Game& /*game*/) {
 }
 
 void PlayingState::ProcessInput(Game& game) {
-    
-
-
     ControlCamera(m_renderSystem.camera, game);
     Tower tower;
     tower.m_position = {200, 200};

@@ -34,6 +34,10 @@ public:
     }
 
     // Access
+    std::vector<T>& GetVector() {
+        return m_data;
+    }
+
     T& Get(int x, int y) {
         CheckBounds(x, y);
         return m_data[y * m_width + x];
@@ -64,10 +68,10 @@ public:
     }
 
     // Iterators — allows range-based for loops
-    typename std::vector<T>::iterator       begin()       { return m_data.begin(); }
-    typename std::vector<T>::iterator       end()         { return m_data.end();   }
+    typename std::vector<T>::iterator begin() { return m_data.begin(); }
+    typename std::vector<T>::iterator end() { return m_data.end(); }
     typename std::vector<T>::const_iterator begin() const { return m_data.begin(); }
-    typename std::vector<T>::const_iterator end()   const { return m_data.end();   }
+    typename std::vector<T>::const_iterator end() const { return m_data.end(); }
 
 private:
     void CheckBounds(int x, int y) const {

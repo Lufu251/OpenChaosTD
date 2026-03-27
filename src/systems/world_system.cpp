@@ -40,11 +40,12 @@ void WorldSystem::GenerateMap(Map& map, int x, int y){
             if(y == 1 && x == xmid) map.AddNest(x, y);
 
             // Add Rock formation
-            if(y == ymid && x == xmid){
-                map.Get(x, y).m_type = TileType::Rock;
-                map.Get(x, y).m_buildable = false;
-                map.Get(x, y).m_walkable = false;
-            } 
+            Tile rockTile;
+            rockTile.m_type = TileType::Rock;
+            rockTile.m_buildable = false;
+            rockTile.m_walkable = false;
+
+            if(y == ymid && x < map.GetCols() -3) map.Get(x, y) = std::move(rockTile);
 
             //Place Core at the bottom
             if(y == map.GetRows() -2 && x == xmid) map.SetCore(x, y);

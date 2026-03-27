@@ -12,7 +12,6 @@ public:
     // Draw calls
     void DrawMap(const Map& map, AssetManager& assets);
     void DrawTower(const std::vector<Tower>& towers, AssetManager& assets);
-    // void DrawProjectiles
 
 private:
     
