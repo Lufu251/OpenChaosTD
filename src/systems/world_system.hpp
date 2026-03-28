@@ -5,11 +5,11 @@
 
 class WorldSystem{
 public:
-    void PlaceTower(Tower& tower, Game& game, Camera2D& camera);
-    void RemoveTower(Map& map);
+    void PlaceTower(int x, int y, Tower& towerTemplate, GameData& gameData);
+    void RemoveTower(int x, int y, GameData& gameData);
 
     void GenerateMap(Map& map, int x, int y);
 
 private:
-    bool PlaceTowerAllowed(int x, int y, Game& game);
+    bool ValidateTowerPlacement(int x, int y, GameData& gameData);
 };

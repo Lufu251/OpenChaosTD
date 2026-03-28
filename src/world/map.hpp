@@ -30,6 +30,7 @@ public:
 
     // Pathfinding
     void BuildFlowField();
+    bool ValidatePaths();
 
 private:
     Bfs m_pathfinder;

@@ -110,6 +110,7 @@ void Game::LoadActions() {
 
     m_input.AddAction("Confirm", KEY_ENTER);
     m_input.AddAction("Cancle", KEY_ESCAPE);
+    m_input.AddAction("Debug", KEY_GRAVE);
 }
 
 // State machine

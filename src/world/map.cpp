@@ -69,3 +69,13 @@ void Map::BuildFlowField(){
 
     m_pathfinder.solve({m_core.first, m_core.second}, graph);
 }
+
+bool Map::ValidatePaths(){
+    bool valid = true;
+    for (auto& nest : m_nests) {
+        if(m_pathfinder.mesh.Get(nest.first, nest.second).distance == std::numeric_limits<int>::max())
+            valid = false;
+    }
+
+    return valid;
+}

@@ -53,22 +53,19 @@ OpenChaosTD/
     │   ├── renderer.hpp/.cpp           - Rendering and letterbox scaling
     │   ├── input_manager.hpp/.cpp      - Keybinding, virtual mouse and mouse consumption
     │   ├── jsonio.hpp/.cpp             - Cross-platform JSON read/write
-    │   └── PerformanceMonitor.h/.cpp   - Performance profiling avg, last, peak timings
+    │   └── performance_monitor.h/.cpp   - Performance profiling avg, last, peak timings
     │
     ├── world/                          Grid, wave and paths
+    │   ├── enemy.hpp/.cpp              - Enemy shell stores position, values and upgrades
+    │   ├── tower.hpp/.cpp              - Tower shell stores position, values and upgrades
     │   ├── map.hpp/.cpp                - Grid2D, path calculation
-    │   ├── tile.hpp                    - Bass class tile
+    │   └── tile.hpp                    - Tile shell stores type, buildable, walkable
+    │
+    ├── systems/                        State specific systems and functionality
+    │   ├── pathfinder.hpp              - Generic graph with bfs pathfinding used for flowfield of the map
+    │   ├── world_system.hpp/.cpp       - Controling behaviour of world
+    │   ├── render_system.hpp/.cpp      - Drawing entities and world
     │   └── wave_manager.hpp/.cpp       - Spawn timing, wave definitions ✏️
-    │
-    ├── entities/                       Entities only hold data
-    │   ├── entity.hpp                  - Base class ✏️
-    │   ├── enemy.hpp/.cpp              - Health, speed ✏️
-    │   ├── tower.hpp/.cpp              - Range, damage, fire rate ✏️
-    │   └── projectile.hpp/.cpp         - Damage, status ✏️
-    │
-    ├── systems/                        Implement lokal functionality
-    │   ├── entity_system.hpp/.cpp      - Controling behaviour of entities ✏️
-    │   └── render_system.hpp/.cpp      - Drawing entities and world
     │
     └── ui/                             User interface
         ├── hud.hpp/.cpp                - Lives, gold, score, wave counter ✏️

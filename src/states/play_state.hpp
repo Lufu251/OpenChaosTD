@@ -15,12 +15,7 @@ public:
     void Draw(Game& game) override;
 
 private:
+    bool m_debug = false;
     RenderSystem m_renderSystem;
     WorldSystem m_worldSystem;
-
-    Vector2 mousePositionLast;
-
-    void ControlCamera(Camera2D& camera, Game& game);
-    int zoomIndex = 1;
-    float zoomLevel[4] = {0.5, 1, 2, 4};
 };

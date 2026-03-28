@@ -3,28 +3,46 @@
 #include <iostream>
 
 
- void WorldSystem::PlaceTower(Tower& tower, Game& game, Camera2D& camera){
-    int x, y;
-    if(game.GetGameData().map.WorldToTile(GetScreenToWorld2D(game.GetInput().GetMousePosition(), camera), x, y) && PlaceTowerAllowed(x, y, game)){
+ void WorldSystem::PlaceTower(int x, int y, Tower& towerTemplate, GameData& gameData){
+    if(ValidateTowerPlacement(x, y, gameData)){
         // Add tower
-        tower.m_position = game.GetGameData().map.TileToWorld(x, y);
-        game.GetGameData().towers.push_back(std::move(tower));
+        towerTemplate.m_position = gameData.map.TileToWorld(x, y);
+        gameData.towers.push_back(std::move(towerTemplate));
 
-        Tile& tile = game.GetGameData().map.Get(x, y);
+        Tile& tile = gameData.map.Get(x, y);
         tile.m_walkable = false;
         tile.m_buildable = false;
-        std::cout << "Placed Tower" << std::endl;
+
+        std::cout << "Tower placed x: " << x << " y: " << y << std::endl;
     }
  }
 
-bool WorldSystem::PlaceTowerAllowed(int x, int y, Game& game){
-    Tile tile = game.GetGameData().map.Get(x, y);
+ void WorldSystem::RemoveTower(int x, int y, GameData& gameData){
 
-    if(tile.m_buildable){
-        return true;
+ }
+
+bool WorldSystem::ValidateTowerPlacement(int x, int y, GameData& gameData){
+    Tile& tile = gameData.map.Get(x, y);
+
+    // Return if tile not buildable
+    if(!tile.m_buildable){
+        std::cout << "Tower not placed x: " << x << " y: " << y << "  tile is not buildable" << std::endl;
+        return false;
     }
 
-    return false;
+    // Check if paths are still valid after tower placement
+    tile.m_walkable = false;
+    gameData.map.BuildFlowField();
+    if(!gameData.map.ValidatePaths()){
+        tile.m_walkable = true;
+        gameData.map.BuildFlowField();
+        std::cout << "Tower not placed x: " << x << " y: " << y << " blocks path to core" << std::endl;
+        return false;
+    }
+
+
+    // If nothing fails allow tower placement
+    return true;
 }
 
 
@@ -38,6 +56,11 @@ void WorldSystem::GenerateMap(Map& map, int x, int y){
             
             //Add Nest at the top
             if(y == 1 && x == xmid) map.AddNest(x, y);
+            if(y == 1 && x == 1) map.AddNest(x, y);
+            if(y == 1 && x == map.GetCols()-2) map.AddNest(x, y);
+
+            //Place Core at the bottom
+            if(y == map.GetRows() -2 && x == xmid) map.SetCore(x, y);
 
             // Add Rock formation
             Tile rockTile;
@@ -47,8 +70,7 @@ void WorldSystem::GenerateMap(Map& map, int x, int y){
 
             if(y == ymid && x < map.GetCols() -3) map.Get(x, y) = std::move(rockTile);
 
-            //Place Core at the bottom
-            if(y == map.GetRows() -2 && x == xmid) map.SetCore(x, y);
+            
         }
     }
 }
