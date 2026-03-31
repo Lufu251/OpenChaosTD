@@ -1,21 +1,22 @@
 #pragma once
 
 #include <raylib.h>
+#include <memory>
 #include <states/game_state.hpp>
 #include <core/asset_manager.hpp>
 #include <core/renderer.hpp>
 #include <core/input_manager.hpp>
 #include <core/jsonio.hpp>
 #include <core/performance_monitor.hpp>
+#include <lib/slotmap.hpp>
 #include <world/map.hpp>
-#include <memory>
 #include <world/tower.hpp>
 #include <world/enemy.hpp>
 
 struct GameConfig {
     // Initial window size - can be resize freely
-    int gameWidth = 1080;
-    int gameHeight = 1080;
+    int gameWidth = 1200;
+    int gameHeight = 1200;
     int fps = 60;
     const char* title = "OpenChaos TD";
 };

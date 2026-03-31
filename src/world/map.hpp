@@ -1,6 +1,6 @@
 #pragma once
 
-#include <core/grid2d.hpp>
+#include <lib/grid2d.hpp>
 #include <raylib.h>
 #include <world/tile.hpp>
 #include <systems/pathfinder.hpp>

@@ -1,11 +1,10 @@
 #pragma once
 
-#include <core/grid2d.hpp>
+#include <lib/grid2d.hpp>
 #include <vector>
 #include <iostream>
 #include <queue>
 #include <limits>
-#include <algorithm>
 
 // Type Alias
 using Weight = int;

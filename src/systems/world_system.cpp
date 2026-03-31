@@ -26,7 +26,7 @@ bool WorldSystem::ValidateTowerPlacement(int x, int y, GameData& gameData){
 
     // Return if tile not buildable
     if(!tile.m_buildable){
-        std::cout << "Tower not placed x: " << x << " y: " << y << "  tile is not buildable" << std::endl;
+        std::cout << "Tower not placed x: " << x << " y: " << y << " tile is not buildable" << std::endl;
         return false;
     }
 
