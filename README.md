@@ -40,20 +40,23 @@ OpenChaosTD/
     ├── main.cpp                        - Run game
     ├── game.hpp / game.cpp             - Window creation, FPS, resizing
     │
+    ├── core/                           Core engine responsible for global functionality
+    │   ├── asset_manager.hpp/.cpp      - Load/cache textures, sounds, fonts
+    │   ├── renderer.hpp/.cpp           - Rendering and letterbox scaling
+    │   ├── input_manager.hpp/.cpp      - Keybinding, virtual mouse and mouse consumption
+    │   ├── jsonio.hpp/.cpp             - Cross-platform JSON read/write
+    │   └── performance_monitor.h/.cpp  - Performance profiling avg, last, peak timings
+    │
+    ├── lib/                            Core engine responsible for global functionality
+    │   ├── grid2d.hpp                  - Header-only resizable 2D array template
+    │   └── slotmap.hpp                 - Stable id container O(capacity) lookup
+    │
     ├── states/                         Divide screens into individual states
     │   ├── game_state.hpp              - Base class (input, logic, drawing)
     │   ├── menu_state.hpp/.cpp         - Pre playing state
     │   ├── play_state.hpp/.cpp         - Playing state
     │   ├── gameover_state.hpp/.cpp     - Gameover state display score and start new ✏️
     │   └── victory_state.hpp/.cpp      - Victory state display score ✏️
-    │
-    ├── core/                           Core engine responsible for global functionality
-    │   ├── Grid2D.h                    - Header-only resizable 2D array template
-    │   ├── asset_manager.hpp/.cpp      - Load/cache textures, sounds, fonts
-    │   ├── renderer.hpp/.cpp           - Rendering and letterbox scaling
-    │   ├── input_manager.hpp/.cpp      - Keybinding, virtual mouse and mouse consumption
-    │   ├── jsonio.hpp/.cpp             - Cross-platform JSON read/write
-    │   └── performance_monitor.h/.cpp   - Performance profiling avg, last, peak timings
     │
     ├── world/                          Grid, wave and paths
     │   ├── enemy.hpp/.cpp              - Enemy shell stores position, values and upgrades
@@ -62,7 +65,7 @@ OpenChaosTD/
     │   └── tile.hpp                    - Tile shell stores type, buildable, walkable
     │
     ├── systems/                        State specific systems and functionality
-    │   ├── pathfinder.hpp              - Generic graph with bfs pathfinding used for flowfield of the map
+    │   ├── pathfinder.hpp              - Generic graph & pathfinding
     │   ├── world_system.hpp/.cpp       - Controling behaviour of world
     │   ├── render_system.hpp/.cpp      - Drawing entities and world
     │   └── wave_manager.hpp/.cpp       - Spawn timing, wave definitions ✏️
