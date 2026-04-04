@@ -39,9 +39,16 @@ void RenderSystem::DebugDrawMap(const Map& map){
     }
 }
 
-void RenderSystem::DrawTower(const std::vector<Tower>& towers, AssetManager& assets){
+void RenderSystem::DrawTowers(const DenseSlotMap<Tower>& towers, AssetManager& assets){
     for (auto& tower : towers) {
         DrawTexture(assets.GetTexture("tower_freezer"), tower.m_position.x, tower.m_position.y, WHITE);
+    }
+}
+
+void RenderSystem::DrawEnemies(const DenseSlotMap<Enemy>& enemies, AssetManager& assets){
+    for (auto& enemy : enemies) {
+        Texture2D& texture = assets.GetTexture("enemy_voidno");
+        DrawTexture(texture, enemy.m_position.x - static_cast<float>(texture.width) /2, enemy.m_position.y - static_cast<float>(texture.height) /2, WHITE);
     }
 }
 

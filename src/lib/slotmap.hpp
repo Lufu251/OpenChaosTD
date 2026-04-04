@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 #include <cassert>
 #include <cstdint>
@@ -29,11 +31,6 @@ private:
         if (key.index >= m_slots.size()) return false;
         const Slot& slot = m_slots[key.index];
         return slot.occupied && slot.generation == key.generation;
-    }
-
-    bool IsIndexValid(uint32_t index) const {
-        if (index >= m_slots.size()) return false;
-        return true;
     }
 
 public:
@@ -81,14 +78,14 @@ public:
         return &m_slots[key.index].value;
     }
 
-    // Lookup by index no generation validation
-    Key GetKeyFromIndex(uint32_t index){
-        if (IsIndexValid(index)) return INVALID_KEY;
-        return {index, &m_slots[index].generation};
+    size_t Size() const {
+        // Number of live (occupied) elements
+        return m_slots.size() - m_freeList.size();
     }
 
-    T* GetElementFromIndex(uint32_t index){
-        if (IsIndexValid(index)) return nullptr;
-        return &m_slots[index].value;
+    // Clears everything
+    void Clear(){
+        m_slots.clear();
+        m_freeList.clear();
     }
 };

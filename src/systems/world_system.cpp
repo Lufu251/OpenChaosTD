@@ -1,24 +1,39 @@
 #include <systems/world_system.hpp>
 #include <world/tile.hpp>
 #include <iostream>
+#include <raymath.h>
 
 
  void WorldSystem::PlaceTower(int x, int y, Tower& towerTemplate, GameData& gameData){
     if(ValidateTowerPlacement(x, y, gameData)){
+        Tile& tile = gameData.map.Get(x, y);
+
         // Add tower
         towerTemplate.m_position = gameData.map.TileToWorld(x, y);
-        gameData.towers.push_back(std::move(towerTemplate));
-
-        Tile& tile = gameData.map.Get(x, y);
+        DenseSlotMap<Tower>::Key towerKey = gameData.towers.Insert(std::move(towerTemplate));
+        
         tile.m_walkable = false;
         tile.m_buildable = false;
+        tile.m_towerKey = towerKey;
 
         std::cout << "Tower placed x: " << x << " y: " << y << std::endl;
     }
  }
 
  void WorldSystem::RemoveTower(int x, int y, GameData& gameData){
+    Tile& tile = gameData.map.Get(x, y);
 
+    if(tile.m_towerKey != DenseSlotMap<Tower>::INVALID_KEY){
+        // Remove tower
+        gameData.towers.Erase(tile.m_towerKey);
+
+        tile.m_walkable = true;
+        tile.m_buildable = true;
+        tile.m_towerKey = DenseSlotMap<Tower>::INVALID_KEY;
+        std::cout << "Tower removed x: " << x << " y: " << y << std::endl;
+
+        gameData.map.BuildFlowField();
+    }
  }
 
 bool WorldSystem::ValidateTowerPlacement(int x, int y, GameData& gameData){
@@ -45,6 +60,20 @@ bool WorldSystem::ValidateTowerPlacement(int x, int y, GameData& gameData){
     return true;
 }
 
+void WorldSystem::UpdateEnemyMovement(GameData& gameData){
+    for (auto& enemy : gameData.enemies) {
+        int x, y;
+        gameData.map.WorldToTile(enemy.m_position, x, y);
+        std::pair<int, int> nextT = gameData.map.GetPathMesh().Get(x, y).predecessor;
+
+
+        Vector2 nextP = gameData.map.TileToWorld(nextT.first, nextT.second);
+        nextP += {static_cast<float>(gameData.map.GetTileSize()) /2, static_cast<float>(gameData.map.GetTileSize()) /2};
+        Vector2 direction = Vector2Normalize(nextP - enemy.m_position);
+
+        enemy.m_position += direction;
+    }
+}
 
 void WorldSystem::GenerateMap(Map& map, int x, int y){
     map.Create(x, y);

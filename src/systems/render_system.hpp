@@ -5,14 +5,16 @@
 #include <core/input_manager.hpp>
 #include <core/renderer.hpp>
 #include <world/tower.hpp>
-#include <vector>
+#include <world/enemy.hpp>
+#include <lib/dense_slotmap.hpp>
 
 class RenderSystem{
 public:
     // Draw calls
     void DrawMap(const Map& map, AssetManager& assets);
     void DebugDrawMap(const Map& Map);
-    void DrawTower(const std::vector<Tower>& towers, AssetManager& assets);
+    void DrawTowers(const DenseSlotMap<Tower>& towers, AssetManager& assets);
+    void DrawEnemies(const DenseSlotMap<Enemy>& enemies, AssetManager& assets);
     
     void CenterCamera(Map& map, Renderer& renderer);
     void ControlCamera(InputManager& input);

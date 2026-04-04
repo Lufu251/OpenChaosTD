@@ -68,14 +68,17 @@ void Map::BuildFlowField(){
     }
 
     m_pathfinder.solve({m_core.first, m_core.second}, graph);
+    std::cout << "FlowField calculated" << std::endl;
 }
 
 bool Map::ValidatePaths(){
-    bool valid = true;
     for (auto& nest : m_nests) {
-        if(m_pathfinder.mesh.Get(nest.first, nest.second).distance == std::numeric_limits<int>::max())
-            valid = false;
+        if(m_pathfinder.mesh.Get(nest.first, nest.second).distance == std::numeric_limits<int>::max()){
+            std::cout << "Paths are not valid" << std::endl;
+            return false;
+        }
     }
 
-    return valid;
+    std::cout << "Paths are valid" << std::endl;
+    return true;
 }

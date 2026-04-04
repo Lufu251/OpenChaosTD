@@ -34,7 +34,7 @@ include(FetchContent)
 
 if(USE_RAYLIB)
     set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) # don't build the supplied examples
-    set(BUILD_GAMES    OFF CACHE BOOL "" FORCE) # don't build the supplied example games
+    set(BUILD_GAMES OFF CACHE BOOL "" FORCE) # don't build the supplied example games
     set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
     set(CUSTOMIZE_BUILD OFF CACHE BOOL "" FORCE)
 

@@ -8,10 +8,10 @@
 #include <core/input_manager.hpp>
 #include <core/jsonio.hpp>
 #include <core/performance_monitor.hpp>
-#include <lib/slotmap.hpp>
 #include <world/map.hpp>
 #include <world/tower.hpp>
 #include <world/enemy.hpp>
+#include <lib/dense_slotmap.hpp>
 
 struct GameConfig {
     // Initial window size - can be resize freely
@@ -26,8 +26,8 @@ struct GameData {
     int gold  = 150;
     int score = 0;
     Map map;
-    std::vector<Tower> towers;
-    std::vector<Enemy> enemies;
+    DenseSlotMap<Tower> towers;
+    DenseSlotMap<Enemy> enemies;
 };
 
 class Game {

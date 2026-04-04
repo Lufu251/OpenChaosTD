@@ -4,6 +4,7 @@
 #include <string>
 
 class Enemy{
+public:
     std::string m_name;
     Vector2 m_position;
     float m_maxhealth;

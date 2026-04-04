@@ -1,10 +1,9 @@
 #include <game.hpp>
 #include <raylib.h>
-#include <states/menu_state.hpp>
 #include <iostream>
 #include <stdexcept>
 #include <filesystem>
-#include <nlohmann/json.hpp>
+#include <states/menu_state.hpp>
 
 // Constructor / Destructor
 Game::Game() {
@@ -98,7 +97,7 @@ void Game::LoadAssets() {
     m_assets.LoadTexture("tile_rock", "textures/tile_rock.png");
 
     // Enemy textures
-    
+    m_assets.LoadTexture("enemy_voidno", "textures/enemy_voidno.png");
 }
 
 // Action loading
