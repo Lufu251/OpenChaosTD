@@ -29,8 +29,8 @@ public:
     void AddNest(int cols, int rows);
 
     // Pathfinding
-    void BuildFlowField();
-    bool ValidatePaths();
+    void BuildPathMesh();
+    bool ValidatePathMesh();
 
 private:
     Bfs m_pathfinder;

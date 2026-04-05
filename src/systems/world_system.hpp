@@ -10,8 +10,10 @@ public:
 
     void GenerateMap(Map& map, int x, int y);
 
-    void UpdateEnemyMovement(GameData& gameData);
+    void UpdateEnemyTargets(GameData& gameData);
+    void UpdateEnemyPosition(float& dt,GameData& gameData);
 
 private:
     bool ValidateTowerPlacement(int x, int y, GameData& gameData);
+
 };

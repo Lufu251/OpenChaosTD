@@ -9,11 +9,11 @@ void PlayingState::OnEnter(Game& game) {
     // Center the map in the middle of the screen
     m_renderSystem.CenterCamera(game.GetGameData().map, game.GetRenderer());
 
-    game.GetGameData().map.BuildFlowField();
+    game.GetGameData().map.BuildPathMesh();
 
     Enemy enemy;
     enemy.m_position = {static_cast<float>(game.GetGameData().map.GetNests()[0].first), static_cast<float>(game.GetGameData().map.GetNests()[0].second)};
-    enemy.m_speed = 2;
+    enemy.m_speed = 50;
     game.GetGameData().enemies.Insert(enemy);
 }
 
@@ -26,11 +26,10 @@ void PlayingState::ProcessInput(Game& game) {
 
     m_renderSystem.ControlCamera(game.GetInput());
 
-    int x, y;
     // Place tower
+    int x, y;
     if(game.GetInput().IsMouseLeftPressed() && game.GetGameData().map.WorldToTile(GetScreenToWorld2D(game.GetInput().GetMousePosition(), m_renderSystem.GetCamera()), x, y)){
         Tower tower;
-        tower.m_position = {200, 200};
         m_worldSystem.PlaceTower(x, y, tower, game.GetGameData());
     }
 
@@ -41,7 +40,8 @@ void PlayingState::ProcessInput(Game& game) {
 }
 
 void PlayingState::Update(Game& game, float dt) {
-    m_worldSystem.UpdateEnemyMovement(game.GetGameData());
+    m_worldSystem.UpdateEnemyTargets(game.GetGameData());
+    m_worldSystem.UpdateEnemyPosition(dt, game.GetGameData());
 }
 
 void PlayingState::Draw(Game& game) {

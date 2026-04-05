@@ -17,7 +17,7 @@ struct GameConfig {
     // Initial window size - can be resize freely
     int gameWidth = 1200;
     int gameHeight = 1200;
-    int fps = 60;
+    int fps = 120;
     const char* title = "OpenChaos TD";
 };
 

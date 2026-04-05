@@ -1,4 +1,6 @@
 #include <world/map.hpp>
+
+#include <cmath>
 #include <iostream>
 
 Vector2 Map::TileToWorld(int x, int y) const{
@@ -9,8 +11,8 @@ Vector2 Map::TileToWorld(int x, int y) const{
 }
 
 bool Map::WorldToTile(Vector2 worldPos, int& outX, int& outY) const{
-    outX = static_cast<int>(worldPos.x) / m_tileSize;
-    outY = static_cast<int>(worldPos.y) / m_tileSize;
+    outX = static_cast<int>(std::floor(worldPos.x / m_tileSize));
+    outY = static_cast<int>(std::floor(worldPos.y / m_tileSize));
     return m_grid.InBounds(outX, outY);
 }
 
@@ -43,7 +45,7 @@ void Map::AddNest(int cols, int rows){
     std::cout << "Nest placed x: " << cols << " y: " << rows << std::endl;
 }
 
-void Map::BuildFlowField(){
+void Map::BuildPathMesh(){
     static const int dx4[] = { 1, -1,  0,  0 };
     static const int dy4[] = { 0,  0,  1, -1 };
 
@@ -71,7 +73,7 @@ void Map::BuildFlowField(){
     std::cout << "FlowField calculated" << std::endl;
 }
 
-bool Map::ValidatePaths(){
+bool Map::ValidatePathMesh(){
     for (auto& nest : m_nests) {
         if(m_pathfinder.mesh.Get(nest.first, nest.second).distance == std::numeric_limits<int>::max()){
             std::cout << "Paths are not valid" << std::endl;
