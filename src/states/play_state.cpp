@@ -2,6 +2,7 @@
 
 #include <states/end_state.hpp>
 #include <states/menu_state.hpp>
+#include <states/settings_state.hpp>
 #include <world/map_serialization.hpp>
 #include <world/game_paths.hpp>
 #include <game.hpp>
@@ -335,6 +336,11 @@ void PlayingState::SetPaused(bool paused) {
 void PlayingState::HandlePauseSignals(Game& game) {
     if (m_pauseHUD.WasResumeRequested())
         SetPaused(false);
+
+    // Open settings as an overlay; the match stays paused and alive beneath it, so
+    // popping back lands on this same pause menu with all state intact.
+    if (m_pauseHUD.WasSettingsRequested())
+        game.PushState(std::make_unique<SettingsState>());
 
     if (m_pauseHUD.WasSaveRequested())
         SaveGame(game);

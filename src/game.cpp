@@ -1,6 +1,7 @@
 #include <game.hpp>
 #include <engine/core/text.hpp>
 #include <raylib.h>
+#include <cassert>
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
@@ -92,6 +93,8 @@ Game::Game() {
 Game::~Game() {
     if (m_currentState)
         m_currentState->OnExit(*this);
+    for (auto it = m_suspended.rbegin(); it != m_suspended.rend(); ++it)
+        (*it)->OnExit(*this);
 
     Text::Shutdown();
     CloseAudioDevice();
@@ -216,19 +219,50 @@ std::string Game::GetActiveMapsDir() const {
     return root + "/maps";
 }
 
-// State machine
+// State machine — all transitions are deferred and applied at the frame boundary.
 void Game::ChangeState(std::unique_ptr<GameState> newState) {
-    // Store for deferred application — never swap mid-frame
     m_pendingState = std::move(newState);
+    m_pendingOp = PendingOp::Replace;
+}
+
+void Game::PushState(std::unique_ptr<GameState> overlay) {
+    m_pendingState = std::move(overlay);
+    m_pendingOp = PendingOp::Push;
+}
+
+void Game::PopState() {
+    m_pendingOp = PendingOp::Pop;
 }
 
 // Helpers
 void Game::ApplyPendingState() {
-    if (!m_pendingState) return;
-
-    if (m_currentState)
-        m_currentState->OnExit(*this);
-
-    m_currentState = std::move(m_pendingState);
-    m_currentState->OnEnter(*this);
+    switch (m_pendingOp) {
+        case PendingOp::None:
+            return;
+        case PendingOp::Replace:
+            if (m_currentState)
+                m_currentState->OnExit(*this);
+            m_currentState = std::move(m_pendingState);
+            m_currentState->OnEnter(*this);
+            break;
+        case PendingOp::Push:
+            // Suspend the active state (no OnExit so it keeps its live data and music).
+            if (m_currentState)
+                m_suspended.push_back(std::move(m_currentState));
+            m_currentState = std::move(m_pendingState);
+            m_currentState->OnEnter(*this);
+            break;
+        case PendingOp::Pop:
+            // Tear down the overlay and resume the state beneath (no re-OnEnter).
+            assert(!m_suspended.empty() && "PopState with nothing suspended");
+            if (m_suspended.empty())
+                break; // defensive: keep the current state rather than going stateless
+            if (m_currentState)
+                m_currentState->OnExit(*this);
+            m_currentState = std::move(m_suspended.back());
+            m_suspended.pop_back();
+            break;
+    }
+    m_pendingOp = PendingOp::None;
+    m_pendingState.reset();
 }

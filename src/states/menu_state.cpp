@@ -68,7 +68,7 @@ void MenuState::ProcessInput(Game& game, float /*dt*/) {
 
     if (m_settingsButton.IsClicked()) {
         game.GetSoundSystem().PlaySfx("button_click");
-        game.ChangeState(std::make_unique<SettingsState>());
+        game.PushState(std::make_unique<SettingsState>()); // Back pops to this live menu
     }
 
     if (m_editorButton.IsClicked()) {

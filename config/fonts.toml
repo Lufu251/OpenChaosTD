@@ -8,11 +8,12 @@
 # So to use a custom font, drop "MyFont.ttf" into assets/fonts/ and set a kind
 # to "MyFont". Several kinds may share one font; each unique font loads once.
 
+# TEMPORARY ("for now"): every kind forced to VictorMono; restore per-kind fonts later.
 [fonts]
-title   = "EBGaramond"   # menu title, victory / game-over banners
-heading = "EBGaramond"   # section headers, panel titles ("Next Wave", tower name)
-body    = "EBGaramond"   # general UI copy (the default kind)
-label   = "EBGaramond"   # small captions / meta lines
+title   = "VictorMono"   # menu title, victory / game-over banners
+heading = "VictorMono"   # section headers, panel titles ("Next Wave", tower name)
+body    = "VictorMono"   # general UI copy (the default kind)
+label   = "VictorMono"   # small captions / meta lines
 number  = "VictorMono"   # numeric readouts (gold, budget, costs, levels)
-button  = "EBGaramond"   # button captions
-tooltip = "EBGaramond"   # tower / enemy description lines
+button  = "VictorMono"   # button captions
+tooltip = "VictorMono"   # tower / enemy description lines

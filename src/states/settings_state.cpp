@@ -1,7 +1,6 @@
 #include <states/settings_state.hpp>
 #include <engine/core/text.hpp>
 #include <engine/core/draw_helpers.hpp>
-#include <states/menu_state.hpp>
 #include <game.hpp>
 #include <engine/core/input.hpp>
 #include <raylib.h>
@@ -259,7 +258,7 @@ void SettingsState::RequestBack(Game& game) {
     if (IsDirty())
         m_showDialog = true;
     else
-        game.ChangeState(std::make_unique<MenuState>());
+        game.PopState(); // resume whatever pushed us (main menu or the paused match)
 }
 
 // --- Keybinding capture ----------------------------------------------------
@@ -371,7 +370,7 @@ void SettingsState::ProcessDialog(Game& game) {
         game.GetSoundSystem().PlaySfx("button_click");
         Save(game);
         m_showDialog = false;
-        game.ChangeState(std::make_unique<MenuState>());
+        game.PopState();
         return;
     }
     if (m_dlgDiscardBtn.IsClicked()) {
@@ -379,7 +378,7 @@ void SettingsState::ProcessDialog(Game& game) {
         m_working = m_snapshot;
         ApplyLiveAudio(game, m_snapshot); // revert any live audio preview
         m_showDialog = false;
-        game.ChangeState(std::make_unique<MenuState>());
+        game.PopState();
         return;
     }
     if (m_dlgCancelBtn.IsClicked() || game.GetInput().IsPressed("Cancel")) {

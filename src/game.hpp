@@ -2,6 +2,7 @@
 
 #include <raylib.h>
 #include <memory>
+#include <vector>
 #include <states/game_state.hpp>
 #include <engine/core/resources.hpp>
 #include <engine/features/particle_system.hpp>
@@ -43,6 +44,14 @@ public:
 
     // State machine
     void ChangeState(std::unique_ptr<GameState> newState);
+
+    // Overlay stack: push suspends the active state (kept alive, no OnExit) and runs
+    // `overlay` on top; pop tears down the top and resumes the suspended state beneath
+    // (no re-OnEnter). Lets the in-game pause menu open settings without losing the live
+    // match. Applied at the frame boundary like ChangeState.
+    void PushState(std::unique_ptr<GameState> overlay);
+    void PopState();
+
     void Quit() { m_running = false; }
     
     const GameConfig& GetGameConfig() const {return m_gameConfig;}
@@ -90,8 +99,15 @@ private:
     TowerFactory m_towerFactory;
     EnemyFactory m_enemyFactory;
 
-    // Gamestate management
+    // Gamestate management.
+    // Active state is m_currentState (top of the overlay stack); m_suspended holds the
+    // states beneath it, deepest first. Depth is normally 1 (2 while settings is open).
     std::unique_ptr<GameState> m_currentState;
-    std::unique_ptr<GameState> m_pendingState;
-    void ApplyPendingState(); // Swaps in m_pendingState at safe point
+    std::vector<std::unique_ptr<GameState>> m_suspended;
+
+    // Deferred transition requested this frame; applied once at the frame boundary.
+    enum class PendingOp { None, Replace, Push, Pop };
+    PendingOp m_pendingOp = PendingOp::None;
+    std::unique_ptr<GameState> m_pendingState; // payload for Replace / Push
+    void ApplyPendingState();                  // performs the pending op at a safe point
 };

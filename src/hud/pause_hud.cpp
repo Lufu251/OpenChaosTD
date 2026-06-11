@@ -11,9 +11,9 @@ void PauseHUD::Build(float scale, int screenW, int screenH) {
     float gw = static_cast<float>(screenW);
     float gh = static_cast<float>(screenH);
 
-    // Centered panel sized to hold the title and five stacked buttons.
+    // Centered panel sized to hold the title and six stacked buttons.
     float panelW = Scaled(240.0f);
-    float panelH = Scaled(400.0f);
+    float panelH = Scaled(460.0f);
     m_panelRect = { (gw - panelW) / 2.0f, (gh - panelH) / 2.0f, panelW, panelH };
 
     float btnW = Scaled(180.0f);
@@ -25,6 +25,7 @@ void PauseHUD::Build(float scale, int screenW, int screenH) {
     // Order must match the kResume..kMainMenu indices.
     m_buttons.items.clear();
     m_buttons.Add("RESUME");
+    m_buttons.Add("SETTINGS");
     m_buttons.Add("SAVE");
     m_buttons.Add("LOAD");
     m_buttons.Add("RESTART");

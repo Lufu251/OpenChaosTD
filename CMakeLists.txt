@@ -194,6 +194,7 @@ if (${PLATFORM} STREQUAL "Web")
         --shell-file ${CMAKE_CURRENT_LIST_DIR}/tools/minshell.html \
         --preload-file ${CMAKE_CURRENT_LIST_DIR}/resources@resources \
         --preload-file ${CMAKE_CURRENT_LIST_DIR}/datapacks@datapacks \
+        --preload-file ${CMAKE_CURRENT_LIST_DIR}/config@config \
         -s USE_GLFW=3 \
         -s ASSERTIONS=1 \
         -s WASM=1 \
