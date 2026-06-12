@@ -1,6 +1,6 @@
 #include <factory/emitter_presets.hpp>
-#include <engine/core/draw_helpers.hpp>
-#include <engine/util/compact_float.hpp>
+#include <engine/core/text_renderer.hpp>
+#include <engine/util/file_store.hpp>
 #include <toml++/toml.hpp>
 #include <algorithm>
 #include <cstdint>

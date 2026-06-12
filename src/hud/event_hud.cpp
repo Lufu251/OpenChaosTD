@@ -1,7 +1,7 @@
 #include <hud/event_hud.hpp>
 #include <hud/hud_theme.hpp>
 #include <hud/hud_draw.hpp>
-#include <engine/core/text.hpp>
+#include <engine/core/text_renderer.hpp>
 #include <raylib.h>
 #include <algorithm>
 

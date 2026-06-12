@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include <raylib.h>
-#include <engine/features/particle_system.hpp>
+#include <engine/systems/particle_system.hpp>
 #include <world/desc_line.hpp>
 #include <world/stat_module.hpp>
 

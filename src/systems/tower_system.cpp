@@ -5,7 +5,7 @@
 
 #include <world/tower.hpp>
 #include <world/enemy_modules.hpp>
-#include <engine/features/sound_system.hpp>
+#include <engine/systems/sound_system.hpp>
 
 // Cooldown sentinels (seconds). Cooldown counts down each frame; a shot is taken at <= 0.
 constexpr float kIdleRetryCooldown = 0.05f;  // short retry while no target is in range

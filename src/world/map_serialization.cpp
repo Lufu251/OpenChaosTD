@@ -3,7 +3,6 @@
 #include <world/map.hpp>
 #include <world/tile.hpp>
 #include <engine/util/file_store.hpp>
-#include <engine/util/compact_float.hpp>
 
 #include <cstdint>
 #include <iostream>

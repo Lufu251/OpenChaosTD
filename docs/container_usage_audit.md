@@ -89,7 +89,7 @@ Internal storage uses four vectors:
 
 | Property | Detail |
 |---|---|
-| Field | `ParticleSystem::m_emitters` (`src/engine/features/particle_system.hpp:92`) |
+| Field | `ParticleSystem::m_emitters` (`src/engine/systems/particle_system.hpp:92`) |
 | Purpose | Stores continuous particle emitters with stable handles |
 | Handle alias | `EmitterHandle = DenseSlotMap<Emitter>::Key` (`particle_system.hpp:63`) |
 | Key stored in | `Effect::m_emitter` (`src/world/effect.hpp:23`), `ParticleEditorState::m_liveEmitter` (`src/states/particle_editor_state.hpp:101`) |
@@ -241,7 +241,7 @@ provides:
 
 | Property | Detail |
 |---|---|
-| Field | `ParticleSystem::m_particles` (`src/engine/features/particle_system.hpp:91`) |
+| Field | `ParticleSystem::m_particles` (`src/engine/systems/particle_system.hpp:91`) |
 | Capacity | 2048 (`kMaxParticles`, line 85) |
 | Cell type | `Particle` — plain struct with position, velocity, color, lifetime (~160 bytes). Trivially movable. |
 | Purpose | Stores all active particles from burst emissions and continuous emitters |
@@ -390,8 +390,8 @@ them:
 | `src/world/tile.hpp` | Key storage: `Tile::m_towerKey` | 36 |
 | `src/world/attack.hpp` | Key storage: `AttackPayload::m_targetKeys` | 17 |
 | `src/world/effect.hpp` | Key storage: `Effect::m_emitter` | 23 |
-| `src/engine/features/particle_system.hpp` | Ownership: `m_emitters`; handle alias | 63, 92–93 |
-| `src/engine/features/particle_system.cpp` | Emitter insert/update/remove/expire | 75–115 |
+| `src/engine/systems/particle_system.hpp` | Ownership: `m_emitters`; handle alias | 63, 92–93 |
+| `src/engine/systems/particle_system.cpp` | Emitter insert/update/remove/expire | 75–115 |
 | `src/systems/world_system.hpp` | Parameter type: `RemoveEnemy` | 17 |
 | `src/systems/world_system.cpp` | Tower insert/remove, enemy insert, deferred erase | 21, 32–38, 73, 76–153 |
 | `src/systems/tower_system.hpp` | Parameter and return types | 14–16, 21, 25 |
@@ -424,8 +424,8 @@ them:
 | File | Role | Key Lines |
 |---|---|---|
 | `src/engine/lib/object_pool.hpp` | Definition | 1–63 |
-| `src/engine/features/particle_system.hpp` | Ownership: `m_particles`; capacity constant | 85, 91 |
-| `src/engine/features/particle_system.cpp` | Acquire, swap-and-pop release, clear | 42–44, 118–139, 143, 153 |
+| `src/engine/systems/particle_system.hpp` | Ownership: `m_particles`; capacity constant | 85, 91 |
+| `src/engine/systems/particle_system.cpp` | Acquire, swap-and-pop release, clear | 42–44, 118–139, 143, 153 |
 | `src/game.hpp` | Owning class: `Game::m_particles` | 81 |
 
 ---

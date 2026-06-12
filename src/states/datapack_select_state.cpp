@@ -4,8 +4,7 @@
 #include <states/editor_select_state.hpp>
 #include <states/map_select_state.hpp>
 #include <datapack/datapack.hpp>
-#include <engine/core/text.hpp>
-#include <engine/core/draw_helpers.hpp>
+#include <engine/core/text_renderer.hpp>
 #include <game.hpp>
 #include <raylib.h>
 #include <memory>

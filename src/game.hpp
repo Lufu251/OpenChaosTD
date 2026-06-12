@@ -5,8 +5,8 @@
 #include <vector>
 #include <states/game_state.hpp>
 #include <engine/core/resources.hpp>
-#include <engine/features/particle_system.hpp>
-#include <engine/features/sound_system.hpp>
+#include <engine/systems/particle_system.hpp>
+#include <engine/systems/sound_system.hpp>
 #include <engine/core/screen.hpp>
 #include <engine/core/input.hpp>
 #include <engine/util/file_store.hpp>

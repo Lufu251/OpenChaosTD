@@ -1,8 +1,7 @@
 #include <hud/wave_enemy_card.hpp>
 #include <hud/hud_draw.hpp>
 #include <hud/hud_theme.hpp>
-#include <engine/core/text.hpp>
-#include <engine/core/draw_helpers.hpp>
+#include <engine/core/text_renderer.hpp>
 #include <engine/core/resources.hpp>
 #include <raylib.h>
 #include <algorithm>

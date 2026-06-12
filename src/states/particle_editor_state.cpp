@@ -1,7 +1,6 @@
 #include <states/particle_editor_state.hpp>
 #include <states/menu_state.hpp>
-#include <engine/core/text.hpp>
-#include <engine/core/draw_helpers.hpp>
+#include <engine/core/text_renderer.hpp>
 #include <game.hpp>
 #include <raylib.h>
 #include <algorithm>

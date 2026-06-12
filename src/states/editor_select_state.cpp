@@ -2,7 +2,7 @@
 #include <states/particle_editor_state.hpp>
 #include <states/map_editor_state.hpp>
 #include <states/datapack_select_state.hpp>
-#include <engine/core/text.hpp>
+#include <engine/core/text_renderer.hpp>
 #include <game.hpp>
 #include <raylib.h>
 #include <memory>

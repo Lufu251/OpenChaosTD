@@ -3,7 +3,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <engine/features/particle_system.hpp>
+#include <engine/systems/particle_system.hpp>
 #include <engine/util/file_store.hpp>
 
 // Parse a 4-element TOML array [r, g, b, a] into a Color (missing/short entries default to 0).

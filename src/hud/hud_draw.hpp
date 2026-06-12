@@ -2,8 +2,8 @@
 
 #include <raylib.h>
 #include <vector>
-#include <engine/core/text.hpp>
-#include <engine/features/ui_widgets.hpp>
+#include <engine/core/text_renderer.hpp>
+#include <engine/systems/ui_widgets.hpp>
 #include <world/desc_line.hpp>
 
 // Stateless HUD draw helpers for idioms that recur across panels: a filled+bordered box, a

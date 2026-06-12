@@ -1,5 +1,5 @@
 #include <states/menu_state.hpp>
-#include <engine/core/text.hpp>
+#include <engine/core/text_renderer.hpp>
 #include <world/game_paths.hpp>
 #include <game.hpp>
 #include <raylib.h>

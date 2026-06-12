@@ -1,7 +1,7 @@
 #pragma once
 
-#include <engine/core/draw_helpers.hpp>
 #include <raylib.h>
+#include <engine/core/text_renderer.hpp>
 #include <string>
 
 // Transient status message ("toast") shown by editor/settings states: set a message,

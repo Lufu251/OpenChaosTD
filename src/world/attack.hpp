@@ -4,7 +4,7 @@
 #include <vector>
 #include <world/effect.hpp>
 #include <world/attack_style.hpp>
-#include <engine/features/particle_system.hpp>
+#include <engine/systems/particle_system.hpp>
 #include <engine/lib/dense_slotmap.hpp>
 
 // m_targetKeys only references DenseSlotMap<Enemy>::Key, which the template provides without the

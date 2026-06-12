@@ -2,7 +2,11 @@
 
 #include <raylib.h>
 
-#include <engine/core/letterbox.hpp>
+// Pure DPI/letterbox geometry used internally by Screen.
+struct Letterbox {
+    Rectangle destRect; // virtual rect placed on the framebuffer, centered
+    float     scale;    // framebuffer-pixels per virtual unit
+};
 
 // Letterboxed virtual-resolution presenter: maps the fixed virtual coordinate
 // space onto the window via the projection matrix, so everything rasterizes at

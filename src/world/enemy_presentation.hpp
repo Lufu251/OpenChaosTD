@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <engine/features/particle_system.hpp> // EmitterDesc
+#include <engine/systems/particle_system.hpp> // EmitterDesc
 
 // The complete presentation (visuals + audio) of an enemy. Set once by EnemyFactory, never modified at runtime.
 struct EnemyPresentation {

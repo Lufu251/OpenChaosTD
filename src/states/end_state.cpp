@@ -1,5 +1,5 @@
 #include <states/end_state.hpp>
-#include <engine/core/text.hpp>
+#include <engine/core/text_renderer.hpp>
 #include <states/menu_state.hpp>
 #include <states/play_state.hpp>
 #include <game.hpp>

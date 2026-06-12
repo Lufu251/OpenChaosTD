@@ -214,6 +214,7 @@ if(USE_HARFBUZZ AND USE_RAYLIB AND NOT ${PLATFORM} STREQUAL "Web")
         src/engine/core/text_renderer.cpp
     )
     target_include_directories(text_demo PRIVATE ${PROJECT_INCLUDE})
+    target_compile_definitions(text_demo PRIVATE TEXT_DEMO_STANDALONE)
     target_link_libraries(text_demo PRIVATE ${LINK_LIBRARIES})
 endif()
 

@@ -1,5 +1,5 @@
-#include <engine/features/ui_widgets.hpp>
-#include <engine/core/text.hpp>
+#include <engine/systems/ui_widgets.hpp>
+#include <engine/core/text_renderer.hpp>
 #include <algorithm>
 #include <cmath>
 

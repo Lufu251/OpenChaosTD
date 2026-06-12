@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <engine/lib/dense_slotmap.hpp>
-#include <engine/features/particle_system.hpp>
+#include <engine/systems/particle_system.hpp>
 #include <world/tower.hpp>
 #include <world/enemy.hpp>
 #include <world/attack.hpp>

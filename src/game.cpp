@@ -1,5 +1,5 @@
 #include <game.hpp>
-#include <engine/core/text.hpp>
+#include <engine/core/text_renderer.hpp>
 #include <raylib.h>
 #include <cassert>
 #include <algorithm>

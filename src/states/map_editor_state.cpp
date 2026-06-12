@@ -1,7 +1,6 @@
 #include <states/map_editor_state.hpp>
 #include <states/menu_state.hpp>
-#include <engine/core/text.hpp>
-#include <engine/core/draw_helpers.hpp>
+#include <engine/core/text_renderer.hpp>
 #include <world/tile.hpp>
 #include <game.hpp>
 #include <toml++/toml.hpp>

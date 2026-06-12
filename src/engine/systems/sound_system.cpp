@@ -1,4 +1,4 @@
-#include <engine/features/sound_system.hpp>
+#include <engine/systems/sound_system.hpp>
 
 void SoundSystem::Init(Resources& resources) {
     m_resources = &resources;

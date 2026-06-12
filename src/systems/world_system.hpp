@@ -1,7 +1,7 @@
 #pragma once
 
 #include <engine/lib/dense_slotmap.hpp>
-#include <engine/features/particle_system.hpp>
+#include <engine/systems/particle_system.hpp>
 
 struct GameData;
 class Tower;

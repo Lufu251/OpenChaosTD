@@ -1,8 +1,7 @@
 #include <states/map_select_state.hpp>
 #include <states/datapack_select_state.hpp>
 #include <states/play_state.hpp>
-#include <engine/core/text.hpp>
-#include <engine/core/draw_helpers.hpp>
+#include <engine/core/text_renderer.hpp>
 #include <game.hpp>
 #include <toml++/toml.hpp>
 #include <raylib.h>

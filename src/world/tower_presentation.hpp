@@ -3,7 +3,7 @@
 #include <raylib.h>
 #include <string>
 #include <world/attack_style.hpp>
-#include <engine/features/particle_system.hpp> // EmitterDesc
+#include <engine/systems/particle_system.hpp> // EmitterDesc
 
 // Per-frame visual state of a tower (animation), separate from the immutable descriptor below.
 // Lives with the presentation, not the simulation, so the Tower struct holds no rendering fields.

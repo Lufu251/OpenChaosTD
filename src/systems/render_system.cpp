@@ -1,5 +1,5 @@
 #include <systems/render_system.hpp>
-#include <engine/core/text.hpp>
+#include <engine/core/text_renderer.hpp>
 
 #include <raymath.h>
 

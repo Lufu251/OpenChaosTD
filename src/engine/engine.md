@@ -4,8 +4,8 @@ Reusable infrastructure shared across all game states and systems. Located under
 
 ```
 engine/
-├── core/       Windowing, rendering, input, resource loading
-├── features/   Optional gameplay-adjacent systems (particles, sound)
+├── core/       Windowing, rendering, input, resource loading, text
+├── systems/    Optional gameplay-adjacent systems (particles, sound, UI)
 ├── util/       File I/O and profiling helpers
 └── lib/        Generic data structures with no engine dependencies
 ```
@@ -38,7 +38,7 @@ OGG Vorbis is the recommended format for music streaming; WAV is best used with 
 
 ### Screen
 
-Renders the game into a fixed virtual resolution (`RenderTexture2D`) and scales it to fill the window with letterboxing. The virtual size is set once at `Init()` and never changes; only the destination rectangle recalculates on resize.
+Renders the game into a fixed virtual resolution and scales it to fill the window with letterboxing via a custom projection matrix (no intermediate render texture — vector text stays crisp). The virtual size is set once at `Init()` and never changes; only the destination rectangle recalculates on resize. Internal letterbox math (formerly split into `letterbox.hpp`) is kept private inside `screen.cpp`.
 
 ```cpp
 // game loop
@@ -80,9 +80,11 @@ Consumed state resets at the start of each frame in `Update()`.
 
 ---
 
-### TextRenderer
+### TextRenderer + Text facade
 
-GPU-accelerated vector text, independent of raylib's `DrawText`. Text is shaped by HarfBuzz (kerning, ligatures, complex scripts) and rasterized per-fragment on the GPU with the Slug algorithm (harfbuzz-gpu), so it stays pixel-sharp at any size and under any `Camera2D` zoom — no bitmap font atlas. Fonts are plain TTF/OTF files loaded directly through HarfBuzz; FreeType is not involved.
+Single module (`text_renderer.hpp/.cpp`) containing the GPU vector text renderer, the global `Text::` facade, and drawing convenience helpers.
+
+**TextRenderer** — GPU-accelerated vector text, independent of raylib's `DrawText`. Text is shaped by HarfBuzz (kerning, ligatures, complex scripts) and rasterized per-fragment on the GPU with the Slug algorithm (harfbuzz-gpu), so it stays pixel-sharp at any size and under any `Camera2D` zoom — no bitmap font atlas. Fonts are plain TTF/OTF files loaded directly through HarfBuzz; FreeType is not involved.
 
 Errors are reported via `std::expected`; creation requires an open window (OpenGL 3.3 desktop — not available on web builds).
 
@@ -97,13 +99,9 @@ Vector2 size = (*text)->MeasureText(*font, "Hello", 32);
 
 Fonts can also be loaded from memory (`LoadFontFromMemory`), e.g. font data embedded in the binary — the data must outlive the renderer.
 
-Glyph outlines are encoded lazily on first use and cached in a GPU texel-buffer atlas (8 MiB, ~thousands of glyphs); shaping runs per call, so cache the strings if profiling ever shows it. `tools/text_demo.cpp` (`text_demo` target) is a standalone showcase.
+Glyph outlines are encoded lazily on first use and cached in a GPU texel-buffer atlas (8 MiB, ~thousands of glyphs); shaping runs per call. `tools/text_demo.cpp` (`text_demo` target) is a standalone showcase.
 
----
-
-### Text (facade)
-
-Global text drawing used by all game code (`engine/core/text.hpp`). Wraps a `TextRenderer` with VictorMono embedded into the binary at build time (`cmake/embed_resource.cmake` generates `victor_mono_ttf.cpp` from the repo's `VictorMono-Regular.ttf`). Signatures are drop-in for raylib's `DrawText`/`MeasureText`; if the GPU path is unavailable (web builds, shader failure) it falls back to raylib's bitmap font with a warning.
+**Text facade** — global text drawing used by all game code (`Text::` namespace). Wraps a `TextRenderer` with embedded fonts (EB Garamond, Victor Mono) baked into the binary at build time. Signatures are drop-in for raylib's `DrawText`/`MeasureText`; if the GPU path is unavailable (web builds, shader failure) it falls back to raylib's bitmap font with a warning.
 
 ```cpp
 Text::Init();      // Game ctor, after InitWindow()
@@ -113,11 +111,21 @@ Text::Draw("Gold: 42", x, y, fontSize, GOLD);   // top-left anchored, '\n' multi
 int w = Text::Measure("Gold: 42", fontSize);     // widest-line width in px
 ```
 
-Game code must not call raylib's `DrawText`/`MeasureText` directly — always go through `Text::` (or `DrawTextCenteredX` in `hud/hud.hpp`, which is built on it).
+**Draw helpers** — inline convenience functions also in `text_renderer.hpp`:
+
+```cpp
+DrawCenteredText("Title", centerX, y, fontSize, color);      // horizontally centered
+DrawLabelInRow("Label", x, rowY, rowH, fontSize, color);     // vertically centered in row
+std::string t = TruncateToWidth(longText, fontSize, maxW);   // trailing ellipsis
+DrawTextureFitted(tex, region);                              // aspect-fitted in region
+bool eq = ColorEquals(a, b);                                 // component-wise color compare
+```
+
+Game code must not call raylib's `DrawText`/`MeasureText` directly — always go through `Text::` or the helpers above.
 
 ---
 
-## features/
+## systems/
 
 ### ParticleSystem
 
@@ -203,11 +211,17 @@ game.GetSoundSystem().Tick(dt);
 
 ---
 
+### UI Widgets
+
+Immediate-mode GUI widgets for menus and HUDs. Provides `Button`, `Slider`, `Toggle`, `TextInput`, `ProgressBar`, and `ScrollableList` with two built-in style presets (`kDefaultStyle`, `kDisabledStyle`). All widgets render through the `Text::` facade.
+
+---
+
 ## util/
 
 ### FileStore
 
-Cross-platform file read/write for JSON (nlohmann/json) and TOML (toml++). The root path is set once and all subsequent paths are resolved relative to it.
+Cross-platform file read/write for JSON (nlohmann/json) and TOML (toml++). The root path is set once and all subsequent paths are resolved relative to it. Also provides `FormatFloat` for compact decimal serialization (trailing zeros stripped).
 
 ```cpp
 m_fileStore.SetRootPath(projectRoot);

@@ -1,8 +1,8 @@
 #include <hud/hud.hpp>
 #include <hud/hud_theme.hpp>
-#include <engine/core/text.hpp>
+#include <engine/core/text_renderer.hpp>
 #include <engine/core/input.hpp>
-#include <engine/features/sound_system.hpp>
+#include <engine/systems/sound_system.hpp>
 #include <algorithm>
 
 void HUD::PlayClickSound() const {

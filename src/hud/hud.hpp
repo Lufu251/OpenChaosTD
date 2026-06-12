@@ -1,7 +1,6 @@
 #pragma once
 #include <raylib.h>
-#include <engine/core/text.hpp>
-#include <engine/core/draw_helpers.hpp>
+#include <engine/core/text_renderer.hpp>
 
 class Input;
 class SoundSystem;

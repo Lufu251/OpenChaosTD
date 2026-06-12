@@ -1,7 +1,7 @@
 #pragma once
 
 #include <states/game_state.hpp>
-#include <engine/features/ui_widgets.hpp>
+#include <engine/systems/ui_widgets.hpp>
 
 // Intermediate screen between DatapackSelectState and an editor, reached after
 // the player selects a datapack. Offers the choice between the Particle Editor
