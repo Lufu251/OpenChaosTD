@@ -1,6 +1,7 @@
 #pragma once
 
 #include <hud/hud.hpp>
+#include <hud/hud_theme.hpp>
 #include <hud/button_list.hpp>
 #include <raylib.h>
 
@@ -28,6 +29,8 @@ private:
     enum : int { kResume, kSettings, kSave, kLoad, kRestart, kMainMenu };
 
     Hud::ButtonList m_buttons;
+    Hud::PanelMetrics m_metrics;
+    float m_titleOffset = 0.0f; // title baseline below the panel top
     int m_screenW = 0;
     int m_screenH = 0;
 };

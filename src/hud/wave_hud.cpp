@@ -8,12 +8,13 @@
 
 void WaveHUD::Build(float scale, int screenW) {
     HUD::Build(scale);
-    m_metrics   = Hud::PanelMetrics::Scale(scale, 200.0f, 8.0f, 14.0f, 20.0f, 11.0f, 14.0f);
-    m_cardGap   = Scaled(6.0f);
-    m_cardPad   = Scaled(6.0f);
-    m_iconSize  = Scaled(44.0f);
+    m_metrics = Hud::PanelMetrics::Make(scale);
+    m_metrics.panelW = m_metrics.Scaled(200.0f);
+    m_cardGap = m_metrics.Scaled(6.0f);
+    m_cardPad = m_metrics.Scaled(6.0f);
+    m_iconSize = m_metrics.Scaled(44.0f);
     // Sit below the top status bar (its base height) plus a small gap.
-    m_topOffset = Scaled(Hud::kStatusBarBaseHeight + Hud::kWavePanelGap);
+    m_topOffset = m_metrics.Scaled(Hud::kStatusBarBaseHeight + Hud::kWavePanelGap);
     m_screenW = screenW;
     Hide(); // hidden by default; shown via the Waves button or the WaveInfo hotkey
 }
@@ -26,7 +27,7 @@ void WaveHUD::ProcessInput(Input& input) {
 void WaveHUD::Rebuild(const WaveView& view) {
     // One card per enemy entry, so the panel can size itself to their total height (cards grow with
     // their module count, exactly like the tower info panel). Reuse the member vector's capacity.
-    CardMetrics cardMetrics{ m_cardPad, m_iconSize, m_metrics.lineH, m_metrics.fontSm };
+    CardMetrics cardMetrics{ m_cardPad, m_iconSize, m_metrics.lineH, m_metrics.fontBody };
     m_cards.clear();
     m_cards.reserve(view.m_entries.size());
     for (const auto& entry : view.m_entries) {
@@ -52,7 +53,7 @@ void WaveHUD::Draw(const WaveView& view, Resources& assets) {
     if (!m_visible) return;
 
     Rebuild(view);
-    DrawPanelBackground(220, true);
+    DrawWindowBackground();
 
     const float margin = m_metrics.margin;
     float x = m_panelRect.x + margin;
@@ -63,12 +64,12 @@ void WaveHUD::Draw(const WaveView& view, Resources& assets) {
     Text::Draw("Next Wave", static_cast<int>(x), static_cast<int>(y), m_metrics.fontHeader, GOLD, Text::Kind::Heading);
     const char* budgetText = TextFormat("Budget: %d", static_cast<int>(view.m_budget));
     Hud::DrawTextRightAligned(budgetText, m_panelRect.x + m_metrics.panelW - margin,
-                              y + (m_metrics.fontHeader - m_metrics.fontSm), m_metrics.fontSm,
+                              y + (m_metrics.fontHeader - m_metrics.fontBody), m_metrics.fontBody,
                               Hud::kTextMuted);
     y += m_metrics.headerH;
 
     if (m_cards.empty()) {
-        Text::Draw("No enemies", static_cast<int>(x), static_cast<int>(y), m_metrics.fontSm, Hud::kTextMuted);
+        Text::Draw("No enemies", static_cast<int>(x), static_cast<int>(y), m_metrics.fontBody, Hud::kTextMuted);
         return;
     }
 

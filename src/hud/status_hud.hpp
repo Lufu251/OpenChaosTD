@@ -2,6 +2,7 @@
 
 #include <hud/hud.hpp>
 #include <hud/hud_views.hpp>
+#include <hud/hud_theme.hpp>
 #include <engine/features/ui_widgets.hpp>
 #include <raylib.h>
 
@@ -35,5 +36,8 @@ private:
     HudSignal m_autoSignal;
     HudSignal m_speedSignal;
     HudSignal m_waveInfoSignal;
+
+    // Shared scaling + typographic scale; the bar's own button widths stay local in Build().
+    Hud::PanelMetrics m_metrics;
     int m_textY = 10;
 };

@@ -1,4 +1,5 @@
 #include <hud/hud_draw.hpp>
+#include <hud/hud_theme.hpp>
 
 namespace Hud {
 
@@ -24,6 +25,20 @@ float DrawDescLines(const std::vector<DescLine>& lines, float x, float y, float 
 void DrawToggleableButton(const Button& btn, bool enabled, int fontSize, Color enabledColor) {
     btn.Draw(false, enabled ? kDefaultStyle : kDisabledStyle);
     btn.DrawLabel(fontSize, enabled ? enabledColor : DARKGRAY);
+}
+
+void DrawHighlightButton(const Button& btn, bool highlighted, int fontSize,
+                         Color activeColor, Color normalColor) {
+    btn.Draw(highlighted); // selected => gold border from kDefaultStyle
+    btn.DrawLabel(fontSize, highlighted ? activeColor : normalColor);
+}
+
+void DrawOverlayToast(const char* text, Rectangle bg, float textX, float textY, int fontSize,
+                      float fade) {
+    auto faded = [fade](unsigned char a) { return static_cast<unsigned char>(a * fade); };
+    DrawRectangleRec(bg, PanelBg(faded(kOverlayBgAlpha)));
+    Text::Draw(text, static_cast<int>(textX), static_cast<int>(textY), fontSize,
+               EventText(faded(kOverlayTextAlpha)));
 }
 
 } // namespace Hud

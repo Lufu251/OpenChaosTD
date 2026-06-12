@@ -8,16 +8,19 @@
 
 void StatusHUD::Build(float scale, int screenW) {
     HUD::Build(scale);
-    float panelH    = Scaled(36.0f);
-    float btnH      = Scaled(24.0f);
-    float btnWaveW  = Scaled(90.0f);
-    float btnAutoW  = Scaled(48.0f);
-    float btnWavesW = Scaled(56.0f);
-    float margin    = Scaled(6.0f);
+    m_metrics = Hud::PanelMetrics::Make(scale);
+    m_metrics.panelH = m_metrics.Scaled(Hud::kStatusBarBaseHeight);
+    m_metrics.btnH   = m_metrics.Scaled(24.0f);
+    float panelH    = m_metrics.panelH;
+    float btnH      = m_metrics.btnH;
+    float btnWaveW  = m_metrics.Scaled(90.0f);
+    float btnAutoW  = m_metrics.Scaled(48.0f);
+    float btnWavesW = m_metrics.Scaled(56.0f);
+    float margin    = m_metrics.Scaled(6.0f);
     float w = static_cast<float>(screenW);
 
     m_panelRect = { 0.0f, 0.0f, w, panelH };
-    m_textY = static_cast<int>((panelH - Scaled(16.0f)) / 2.0f);
+    m_textY = static_cast<int>((panelH - m_metrics.fontHeader) / 2.0f);
 
     float btnY = (panelH - btnH) / 2.0f;
     m_startWaveBtn.m_label = "Start Wave";
@@ -69,12 +72,12 @@ void StatusHUD::ProcessInput(Input& input, const StatusView& view) {
 void StatusHUD::Draw(const StatusView& view) {
     if (!m_visible) return;
 
-    DrawPanelBackground(200);
+    DrawDockedBackground();
 
-    int fontMain  = ScaledInt(16.0f);
-    int fontBtn   = ScaledInt(12.0f);
-    int marginX   = ScaledInt(6.0f);
-    int gapX      = ScaledInt(16.0f);
+    int fontMain  = m_metrics.fontHeader;
+    int fontBtn   = m_metrics.fontLabel;
+    int marginX   = m_metrics.ScaledInt(6.0f);
+    int gapX      = m_metrics.ScaledInt(16.0f);
 
     // Left cluster: lives, then gold placed after the measured lives width so a large value never
     // runs under the centered readout.
@@ -92,19 +95,21 @@ void StatusHUD::Draw(const StatusView& view) {
 
     // Speed cycle — highlighted when faster than 1x
     m_speedBtn.m_label = TextFormat("%dx", view.m_speed);
-    m_speedBtn.Draw(view.m_speed > 1);
-    m_speedBtn.DrawLabel(fontBtn, view.m_speed > 1 ? GOLD : RAYWHITE);
+    Hud::DrawHighlightButton(m_speedBtn, view.m_speed > 1, fontBtn, Hud::kHighlight, RAYWHITE);
 
     // Auto toggle — highlighted when active
-    m_autoBtn.Draw(view.m_autoSpawn);
-    m_autoBtn.DrawLabel(fontBtn, view.m_autoSpawn ? GOLD : RAYWHITE);
+    Hud::DrawHighlightButton(m_autoBtn, view.m_autoSpawn, fontBtn, Hud::kHighlight, RAYWHITE);
 
     // Start wave button — greyed out while a wave is running
     Hud::DrawToggleableButton(m_startWaveBtn, !view.m_waveActive, fontBtn, RAYWHITE);
 }
 
+// Hand-drawn infinity glyph proportions, relative to the readout font height.
+static constexpr float kInfinityWidthRatio = 1.2f; // total glyph width = ratio * font height
+static constexpr float kInfinityRingRatio  = 0.30f; // ring radius = ratio * font height
+
 void StatusHUD::DrawWaveReadout(const StatusView& view, int centerX) {
-    int font = ScaledInt(16.0f);
+    int font = m_metrics.fontHeader;
 
     // Current wave number ("--" before the first wave).
     char num[16];
@@ -124,8 +129,8 @@ void StatusHUD::DrawWaveReadout(const StatusView& view, int centerX) {
     // hand; the readout is laid out in measured segments so the whole thing stays centered.
     const char* left = TextFormat("Wave: %s / ", num);
     float glyphH = static_cast<float>(font);
-    float glyphW = glyphH * 1.2f;
-    float gap = Scaled(2.0f);
+    float glyphW = glyphH * kInfinityWidthRatio;
+    float gap = m_metrics.Scaled(2.0f);
 
     int leftW = Text::Measure(left, font, Text::Kind::Number);
     float totalW = static_cast<float>(leftW) + gap + glyphW;
@@ -138,8 +143,8 @@ void StatusHUD::DrawWaveReadout(const StatusView& view, int centerX) {
 
 void StatusHUD::DrawInfinity(float x, float yMid, float h, Color color) const {
     // Two ring outlines side by side form the lemniscate; spans [x, x + 4r] = [x, x + 1.2*h].
-    float r = h * 0.30f;
-    float th = Scaled(1.5f);
+    float r = h * kInfinityRingRatio;
+    float th = m_metrics.Scaled(1.5f);
     float inner = r - th;
     if (inner < 0.0f) inner = 0.0f;
     DrawRing({ x + r, yMid },        inner, r, 0.0f, 360.0f, 32, color);

@@ -25,4 +25,14 @@ float DrawDescLines(const std::vector<DescLine>& lines, float x, float y, float 
 // enabled and a uniform DARKGRAY label when not.
 void DrawToggleableButton(const Button& btn, bool enabled, int fontSize, Color enabledColor);
 
+// Draw a button that toggles between an active highlight (gold selected border + active-colored
+// label) and a normal look. Used for stateful toggles like the Status bar Speed/Auto buttons.
+void DrawHighlightButton(const Button& btn, bool highlighted, int fontSize,
+                         Color activeColor, Color normalColor);
+
+// Draw one ephemeral toast: fill `bg` with the standard overlay panel color and draw `text` at
+// (textX, textY), both scaled by `fade` (0..1) so toasts fade out uniformly.
+void DrawOverlayToast(const char* text, Rectangle bg, float textX, float textY, int fontSize,
+                      float fade);
+
 } // namespace Hud

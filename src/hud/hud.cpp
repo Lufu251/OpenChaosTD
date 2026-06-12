@@ -21,6 +21,14 @@ void HUD::DrawPanelBackground(unsigned char alpha, bool border) const {
         DrawRectangleLinesEx(m_panelRect, 1.0f, Hud::kPanelBorder);
 }
 
+void HUD::DrawWindowBackground() const {
+    DrawPanelBackground(Hud::kPanelAlphaWindow, true);
+}
+
+void HUD::DrawDockedBackground() const {
+    DrawPanelBackground(Hud::kPanelAlphaDocked, false);
+}
+
 void HUD::ConsumePanelClick(Input& input) const {
     if (input.IsMousePressed(MOUSE_LEFT_BUTTON) &&
         CheckCollisionPointRec(input.GetMousePosition(), m_panelRect))

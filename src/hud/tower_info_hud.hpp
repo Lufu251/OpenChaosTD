@@ -32,7 +32,6 @@ private:
     float m_sellH     = 0.0f;
     float m_sellGap   = 0.0f;
     float m_anchorGap = 0.0f;
-    int   m_fontDesc  = 0;
 
     // Content snapshot taken in SetTarget (no Tower/Enemy references kept).
     bool m_hasTarget = false;

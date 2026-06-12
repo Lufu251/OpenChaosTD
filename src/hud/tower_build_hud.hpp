@@ -2,6 +2,7 @@
 
 #include <hud/hud.hpp>
 #include <hud/hud_views.hpp>
+#include <hud/hud_theme.hpp>
 #include <engine/features/ui_widgets.hpp>
 #include <raylib.h>
 #include <vector>
@@ -40,4 +41,10 @@ private:
     };
     std::vector<BuildButton> m_buttons;
     std::string m_selectedTower;
+
+    // Shared scaling + typographic scale; button grid geometry stays local to Build().
+    Hud::PanelMetrics m_metrics;
+    float m_iconYOffset = 0.0f; // sprite nudge above the button center
+    float m_nameYOffset = 0.0f; // name baseline above the button bottom
+    float m_costYOffset = 0.0f; // cost baseline above the button bottom
 };

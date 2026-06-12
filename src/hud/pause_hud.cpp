@@ -12,15 +12,23 @@ void PauseHUD::Build(float scale, int screenW, int screenH) {
     float gh = static_cast<float>(screenH);
 
     // Centered panel sized to hold the title and six stacked buttons.
-    float panelW = Scaled(240.0f);
-    float panelH = Scaled(460.0f);
+    m_metrics = Hud::PanelMetrics::Make(scale);
+    m_metrics.panelW = m_metrics.Scaled(240.0f);
+    m_metrics.panelH = m_metrics.Scaled(460.0f);
+    m_metrics.btnW = m_metrics.Scaled(180.0f);
+    m_metrics.btnH = m_metrics.Scaled(44.0f);
+    m_metrics.btnSpacing = m_metrics.Scaled(56.0f);
+    m_titleOffset = m_metrics.Scaled(28.0f);
+
+    float panelW = m_metrics.panelW;
+    float panelH = m_metrics.panelH;
     m_panelRect = { (gw - panelW) / 2.0f, (gh - panelH) / 2.0f, panelW, panelH };
 
-    float btnW = Scaled(180.0f);
-    float btnH = Scaled(44.0f);
+    float btnW = m_metrics.btnW;
+    float btnH = m_metrics.btnH;
     float btnX = (gw - btnW) / 2.0f;
-    float spacing = Scaled(56.0f);
-    float firstY = m_panelRect.y + Scaled(80.0f);
+    float spacing = m_metrics.btnSpacing;
+    float firstY = m_panelRect.y + m_metrics.Scaled(80.0f);
 
     // Order must match the kResume..kMainMenu indices.
     m_buttons.items.clear();
@@ -48,14 +56,14 @@ void PauseHUD::Draw() {
     if (!m_visible) return;
 
     // Dim the whole screen so the map, towers, and enemies stay visible behind the menu.
-    DrawRectangle(0, 0, m_screenW, m_screenH, {0, 0, 0, 120});
+    DrawRectangle(0, 0, m_screenW, m_screenH, Hud::kScreenDim);
 
-    // Panel background reuses the shared HUD style (dark fill + subtle border).
-    DrawPanelBackground(230, true);
+    // Panel background reuses the shared primary-window style (dark fill + subtle border).
+    DrawWindowBackground();
 
     int centerX = static_cast<int>(m_panelRect.x + m_panelRect.width / 2.0f);
-    int titleY = static_cast<int>(m_panelRect.y + Scaled(28.0f));
-    DrawTextCenteredX("PAUSED", centerX, titleY, ScaledInt(28.0f), RAYWHITE);
+    int titleY = static_cast<int>(m_panelRect.y + m_titleOffset);
+    DrawTextCenteredX("PAUSED", centerX, titleY, m_metrics.fontTitle, RAYWHITE);
 
-    m_buttons.Draw(ScaledInt(18.0f), RAYWHITE);
+    m_buttons.Draw(m_metrics.fontLabel, RAYWHITE);
 }

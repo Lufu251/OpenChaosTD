@@ -8,12 +8,12 @@
 
 void TowerInfoHUD::Build(float scale) {
     HUD::Build(scale);
-    m_metrics     = Hud::PanelMetrics::Scale(scale, 160.0f, 8.0f, 15.0f, 20.0f, 11.0f, 14.0f);
-    m_descLineH   = Scaled(13.0f);
-    m_sellH       = Scaled(22.0f);
-    m_sellGap     = Scaled(6.0f);
-    m_anchorGap   = Scaled(20.0f);
-    m_fontDesc    = ScaledInt(10.0f);
+    m_metrics = Hud::PanelMetrics::Make(scale);
+    m_metrics.panelW = m_metrics.Scaled(160.0f);
+    m_descLineH = m_metrics.Scaled(13.0f);
+    m_sellH = m_metrics.Scaled(22.0f);
+    m_sellGap = m_metrics.Scaled(6.0f);
+    m_anchorGap = m_metrics.Scaled(20.0f);
     Hide(); // shown only while a tower is selected or hovered
 }
 
@@ -39,7 +39,7 @@ void TowerInfoHUD::SetContent(const TowerInfoView& view) {
     m_showTargeting = view.m_interactive && view.m_hasAttack;         // retarget any time
     m_showUpgrade   = view.m_interactive && view.m_hasAttack && view.m_upgradeCount > 0;
 
-    m_descLines = Text::Wrap(view.m_description, m_metrics.panelW - m_metrics.margin * 2.0f, m_fontDesc);
+    m_descLines = Text::Wrap(view.m_description, m_metrics.panelW - m_metrics.margin * 2.0f, m_metrics.fontBody);
 }
 
 void TowerInfoHUD::Layout(const TowerInfoView& view) {
@@ -122,7 +122,7 @@ void TowerInfoHUD::ProcessInput(Input& input) {
 void TowerInfoHUD::Draw() {
     if (!m_visible || !m_hasTarget) return;
 
-    DrawPanelBackground(220, true);
+    DrawWindowBackground();
 
     const float margin = m_metrics.margin;
     float x = m_panelRect.x + margin;
@@ -141,31 +141,31 @@ void TowerInfoHUD::Draw() {
 
     // Description (word-wrapped, computed in SetContent)
     for (const auto& line : m_descLines) {
-        Text::Draw(line.c_str(), static_cast<int>(x), static_cast<int>(y), m_fontDesc, Hud::kTextMuted, Text::Kind::Tooltip);
+        Text::Draw(line.c_str(), static_cast<int>(x), static_cast<int>(y), m_metrics.fontBody, Hud::kTextMuted, Text::Kind::Tooltip);
         y += m_descLineH;
     }
 
     // Stat rows from every module (AttackModule core stats + effect lines). Walls add nothing.
-    y = Hud::DrawDescLines(m_statLines, x, y, m_metrics.lineH, m_metrics.fontSm);
+    y = Hud::DrawDescLines(m_statLines, x, y, m_metrics.lineH, m_metrics.fontBody);
 
     if (m_showUpgrade) {
-        Hud::DrawToggleableButton(m_upgradeBtn, m_upgradeReady, m_metrics.fontSm, Hud::kUpgradeReady);
+        Hud::DrawToggleableButton(m_upgradeBtn, m_upgradeReady, m_metrics.fontBody, Hud::kUpgradeReady);
         if (m_hasNextUpgrade && m_upgradeBtn.IsHovered())
             DrawUpgradeTooltip();
     }
 
     if (m_showTargeting) {
         m_targetBtn.Draw();
-        m_targetBtn.DrawLabel(m_metrics.fontSm, SKYBLUE);
+        m_targetBtn.DrawLabel(m_metrics.fontBody, Hud::kTargetLabel);
     }
 
     if (m_showSell)
-        Hud::DrawToggleableButton(m_sellBtn, m_sellEnabled, m_metrics.fontSm, GREEN);
+        Hud::DrawToggleableButton(m_sellBtn, m_sellEnabled, m_metrics.fontBody, Hud::kSellLabel);
 }
 
 void TowerInfoHUD::DrawUpgradeTooltip() {
     const float margin = m_metrics.margin;
-    const int   fontSm = m_metrics.fontSm;
+    const int   fontSm = m_metrics.fontBody;
     const float lineH  = m_metrics.lineH;
 
     // Box sized to the widest of the header and the preview lines
@@ -188,7 +188,7 @@ void TowerInfoHUD::DrawUpgradeTooltip() {
     if (boxY < 0.0f) boxY = 0.0f;
 
     Rectangle box = { boxX, boxY, boxW, boxH };
-    Hud::DrawFramedBox(box, Hud::PanelBg(235), Hud::kTooltipBorder);
+    Hud::DrawFramedBox(box, Hud::PanelBg(Hud::kTooltipBgAlpha), Hud::kTooltipBorder);
 
     float tx = boxX + margin;
     float ty = boxY + margin;

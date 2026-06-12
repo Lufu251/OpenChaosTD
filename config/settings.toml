@@ -1,12 +1,12 @@
-[window]
-width = 1200
-height = 1200
-title = "OpenChaos TD"
+[audio]
+musicVolume = 0.35
+sfxVolume = 0.25
 
 [display]
 fps = 120
 hudScale = 1.75
 
-[audio]
-musicVolume = 0.75
-sfxVolume = 0.6
+[window]
+height = 1200
+title = 'OpenChaos TD'
+width = 1200

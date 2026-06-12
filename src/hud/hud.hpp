@@ -40,6 +40,10 @@ protected:
     void PlayClickSound() const;
 
     void DrawPanelBackground(unsigned char alpha, bool border = false) const;
+    // Semantic panel-class backgrounds (see hud_theme.hpp): primary windows share one opaque,
+    // bordered look; docked bars share a lighter, border-less look. Both build on DrawPanelBackground.
+    void DrawWindowBackground() const;
+    void DrawDockedBackground() const;
     void ConsumePanelClick(Input& input) const;
     void ClampPanelToScreen(int screenW, int screenH);
 

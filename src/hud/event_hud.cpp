@@ -1,5 +1,6 @@
 #include <hud/event_hud.hpp>
 #include <hud/hud_theme.hpp>
+#include <hud/hud_draw.hpp>
 #include <engine/core/text.hpp>
 #include <raylib.h>
 #include <algorithm>
@@ -28,10 +29,12 @@ void EventHUD::Update(float dt) {
 void EventHUD::Draw() {
     if (!m_visible || m_entries.empty()) return;
 
-    const float margin    = Scaled(8.0f);
-    const float lineH     = Scaled(20.0f);
+    // Route the shared margin and toast font through the central metrics/typographic scale.
+    const Hud::PanelMetrics m = Hud::PanelMetrics::Make(m_scale);
+    const float margin    = m.margin;
+    const float lineH     = Scaled(Hud::kToastRowH);
     const float scoreHudH = Scaled(Hud::kStatusBarBaseHeight); // keep messages below the top panel
-    const int   fontSize  = ScaledInt(12.0f);
+    const int   fontSize  = m.fontBody;
 
     int n = static_cast<int>(m_entries.size());
     float baseY = scoreHudH + margin;
@@ -39,18 +42,17 @@ void EventHUD::Draw() {
     for (int i = 0; i < n; i++) {
         const Entry& entry = m_entries[i];
 
-        // Fade alpha during the last kFadeTime seconds
-        float t = std::min(entry.m_timeLeft / kFadeTime, 1.0f);
-        unsigned char textAlpha = static_cast<unsigned char>(t * 220.0f);
-        unsigned char bgAlpha   = static_cast<unsigned char>(t * 160.0f);
+        // Fade both background and text uniformly over the last kFadeTime seconds.
+        float fade = std::min(entry.m_timeLeft / kFadeTime, 1.0f);
 
         // Stack downward: oldest (index 0) at baseY, newer entries below it
         float y = baseY + static_cast<float>(i) * lineH;
 
         int textW = Text::Measure(entry.m_message.c_str(), fontSize);
-        DrawRectangleRec({margin - Scaled(2.0f), y - Scaled(1.0f),
-                          textW + Scaled(10.0f), lineH - Scaled(2.0f)}, Hud::PanelBg(bgAlpha));
-        Text::Draw(entry.m_message.c_str(), static_cast<int>(margin + Scaled(3.0f)),
-                 static_cast<int>(y + Scaled(2.0f)), fontSize, Hud::EventText(textAlpha));
+        Rectangle bg = { margin - Scaled(Hud::kToastPadX), y - Scaled(Hud::kToastPadTop),
+                         textW + Scaled(Hud::kToastPadW), lineH - Scaled(Hud::kToastPadX) };
+        Hud::DrawOverlayToast(entry.m_message.c_str(), bg,
+                              margin + Scaled(Hud::kToastTextX), y + Scaled(Hud::kToastTextY),
+                              fontSize, fade);
     }
 }
