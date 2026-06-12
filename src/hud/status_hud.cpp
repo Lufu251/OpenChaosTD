@@ -1,6 +1,6 @@
 #include <hud/status_hud.hpp>
 #include <hud/hud_theme.hpp>
-#include <hud/hud_draw.hpp>
+#include <hud/hud.hpp>
 #include <engine/core/text_renderer.hpp>
 #include <engine/core/input.hpp>
 #include <raylib.h>

@@ -3,9 +3,9 @@
 #include <states/end_state.hpp>
 #include <states/menu_state.hpp>
 #include <states/settings_state.hpp>
-#include <world/map_serialization.hpp>
-#include <world/game_paths.hpp>
-#include <game.hpp>
+#include <systems/serialization.hpp>
+#include <app/game_paths.hpp>
+#include <app/game.hpp>
 #include <raylib.h>
 #include <raymath.h>
 

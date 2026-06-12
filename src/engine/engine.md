@@ -180,7 +180,7 @@ game.GetParticles().Clear();
 | `tangentialSpeed` | 0 | Spin speed around the anchor |
 | `emitRate` | 0 | Continuous emitter spawns/sec; 0 = burst-only |
 
-Presets are defined in `data/particle_effects.toml` and loaded by `EmitterPresets` (`src/factory/`); the TOML keys match the field names above (`shapeWidth`/`shapeHeight` for the shape extents).
+Presets are defined in `data/particle_effects.toml` and loaded by `EmitterPresets` (`src/content/`); the TOML keys match the field names above (`shapeWidth`/`shapeHeight` for the shape extents).
 
 ---
 

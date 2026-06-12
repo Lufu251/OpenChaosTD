@@ -3,9 +3,9 @@
 #include <states/play_state.hpp>
 #include <states/editor_select_state.hpp>
 #include <states/map_select_state.hpp>
-#include <datapack/datapack.hpp>
+#include <content/datapack.hpp>
 #include <engine/core/text_renderer.hpp>
-#include <game.hpp>
+#include <app/game.hpp>
 #include <raylib.h>
 #include <memory>
 #include <string>

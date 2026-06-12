@@ -74,31 +74,30 @@ OpenChaosTD/
 │   └── *.md                    - Modder schema docs for towers/enemies/waves TOML
 │
 └── src/
-    ├── main                    - Entry point
-    ├── game                    - Game loop, state machine, manager accessors
-    ├── game_config             - Window/display settings loaded from JSON
+    ├── app/                    Bootstrap, global config, and runtime session state
+    │   ├── main                - Entry point
+    │   ├── game                - Game loop, state machine, manager accessors
+    │   ├── game_config         - Window/display settings loaded from JSON
+    │   ├── game_data           - Runtime world state + starting values
+    │   └── game_paths          - Save-file path constants
     │
     ├── engine/                 Reusable engine infrastructure — see engine/engine.md
     │
-    ├── factory/                Data-driven entity construction from TOML
+    ├── content/                Datapack loading + data-driven entity construction from TOML
+    │   ├── datapack            - Datapack metadata struct
+    │   ├── datapack_registry   - Discovers and lists available datapacks
     │   ├── tower_factory       - Builds Tower instances from towers.toml
     │   ├── enemy_factory       - Builds Enemy instances from enemies.toml
     │   └── emitter_presets     - Loads named EmitterDesc presets from particle_effects.toml
     │
     ├── hud/                    In-game HUD elements
-    │   ├── hud                 - HUD base class: visibility, scaling, panel helpers, HudSignal
-    │   ├── hud_views           - Read-only view structs PlayingState feeds to the HUDs
+    │   ├── hud                 - HUD base class (visibility, scaling, panels) + view structs + shared draw helpers
+    │   ├── hud_theme           - Shared palette, fonts, alphas, and panel metrics
     │   ├── status_hud          - Top bar: lives, gold, wave readout, start/auto/speed/waves buttons
-    │   ├── tower_build_hud     - Bottom bar: tower selection with icon and cost
-    │   ├── tower_info_hud      - Floating panel: stats, upgrade, sell, targeting for selected/hovered tower
+    │   ├── tower_hud           - Build bar (tower selection) + floating info panel (stats, upgrade, sell, targeting)
     │   ├── wave_hud            - Side panel: next-wave preview (enemy cards + budget)
-    │   ├── wave_enemy_card     - One enemy entry in the wave preview panel
     │   ├── event_hud           - Message log with timed fade-out
     │   └── pause_hud           - Pause overlay: resume / restart / main menu
-    │
-    ├── datapack/               Datapack registry and metadata
-    │   ├── datapack            - Datapack metadata struct
-    │   └── datapack_registry   - Discovers and lists available datapacks
     │
     ├── states/                 Game screen state machine
     │   ├── game_state          - Abstract base (ProcessInput, Update, Draw)
@@ -109,24 +108,20 @@ OpenChaosTD/
     │   ├── datapack_select_state - Datapack selection screen
     │   └── particle_editor_state - Live particle emitter editor
     │
-    ├── world/                  Entity definitions and data
-    │   ├── game_data           - Runtime world state + starting values
-    │   ├── tower               - Tower entity: simulation state (position, cost, cooldown, modules)
-    │   ├── tower_presentation  - Tower visuals/animation (texture, color, attack style, emitters)
-    │   ├── tower_modules       - Attack/Passive + ArmorPierce, Slow, Burn, ArmorShred, Weakness, Stun, Crit, RampUp
-    │   ├── tower_upgrade       - Tower upgrade tiers (stat deltas + added modules)
-    │   ├── enemy               - Enemy entity: simulation state (position, health, effects, modules)
-    │   ├── enemy_presentation  - Enemy visuals (texture, death sound/burst)
-    │   ├── enemy_modules       - BaseStats + Regeneration, Armor, Immune, Shield, Split
-    │   ├── enemy_upgrade       - Enemy upgrade definition (applied per wave tier)
-    │   ├── attack              - Attack object (combat payload + visual, shared lifetime)
-    │   ├── effect              - Status effect (Burn, Slow, ArmorShred, Stun, Weakness) with duration
+    ├── world/                  Passive entity definitions and data (no systems/UI dependencies)
+    │   ├── tower               - Tower entity: simulation state + presentation (texture, color, style, emitters)
+    │   ├── enemy               - Enemy entity: simulation state + presentation (texture, death sound/burst)
+    │   ├── modules             - Tower modules (Attack/Passive, ArmorPierce, Slow, Burn, Shred, Weakness, Stun, Crit, RampUp) + enemy modules (BaseStats, Regeneration, Armor, Immune, Shield, Split)
+    │   ├── combat              - Attack object, attack style, and status effects (Burn, Slow, ArmorShred, Stun, Weakness)
+    │   ├── upgrade             - Tower & enemy upgrade definitions (stat deltas + added modules)
     │   ├── map                 - Grid, nest/core placement, path construction
-    │   ├── map_generator       - Procedural map generation
+    │   ├── pathfinding         - Path-mesh data types (Node, WalkableMask)
     │   └── tile                - Tile type, walkable/buildable flags, terrain buff modifier
     │
-    └── systems/                Per-frame game logic
+    └── systems/                Per-frame game logic and processes
         ├── pathfinder          - BFS solver over an abstract walkable grid (Pathfinder::Solve -> distance/predecessor mesh)
+        ├── map_generator       - Procedural map generation
+        ├── serialization       - Map TOML files + save-game JSON (de)serialization
         ├── wave_manager        - Procedural budget-based wave generation, auto-spawn, victory detection
         ├── world_system        - Placement, spawning, game-over checks
         ├── tower_system        - Cooldowns, targeting, attack creation and resolution

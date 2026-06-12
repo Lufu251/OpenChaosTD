@@ -1,7 +1,6 @@
 #pragma once
 
 #include <hud/hud.hpp>
-#include <hud/hud_views.hpp>
 #include <hud/hud_theme.hpp>
 #include <engine/systems/ui_widgets.hpp>
 #include <raylib.h>

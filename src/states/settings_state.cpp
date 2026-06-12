@@ -1,6 +1,6 @@
 #include <states/settings_state.hpp>
 #include <engine/core/text_renderer.hpp>
-#include <game.hpp>
+#include <app/game.hpp>
 #include <engine/core/input.hpp>
 #include <raylib.h>
 #include <nlohmann/json.hpp>

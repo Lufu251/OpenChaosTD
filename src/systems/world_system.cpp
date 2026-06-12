@@ -1,7 +1,7 @@
 #include <systems/world_system.hpp>
-#include <world/game_data.hpp>
+#include <app/game_data.hpp>
 #include <world/tile.hpp>
-#include <factory/enemy_factory.hpp>
+#include <content/enemy_factory.hpp>
 #include <engine/systems/sound_system.hpp>
 #include <raymath.h>
 #include <vector>

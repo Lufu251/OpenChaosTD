@@ -6,7 +6,7 @@
 #include <engine/core/screen.hpp>
 #include <world/tower.hpp>
 #include <world/enemy.hpp>
-#include <world/attack.hpp>
+#include <world/combat.hpp>
 #include <engine/lib/dense_slotmap.hpp>
 
 class RenderSystem{

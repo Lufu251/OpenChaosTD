@@ -3,7 +3,7 @@
 #include <engine/lib/grid2d.hpp>
 #include <raylib.h>
 #include <world/tile.hpp>
-#include <systems/pathfinder.hpp>
+#include <world/pathfinding.hpp>
 
 class Map{
 public:

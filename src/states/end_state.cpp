@@ -2,7 +2,7 @@
 #include <engine/core/text_renderer.hpp>
 #include <states/menu_state.hpp>
 #include <states/play_state.hpp>
-#include <game.hpp>
+#include <app/game.hpp>
 #include <raylib.h>
 
 EndState::EndState(bool won) : m_won(won) {}

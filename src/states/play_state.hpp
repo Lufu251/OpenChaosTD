@@ -6,10 +6,9 @@
 #include <systems/world_system.hpp>
 #include <systems/enemy_system.hpp>
 #include <systems/tower_system.hpp>
-#include <world/map_generator.hpp>
-#include <hud/tower_build_hud.hpp>
+#include <systems/map_generator.hpp>
+#include <hud/tower_hud.hpp>
 #include <hud/status_hud.hpp>
-#include <hud/tower_info_hud.hpp>
 #include <hud/wave_hud.hpp>
 #include <hud/event_hud.hpp>
 #include <hud/pause_hud.hpp>

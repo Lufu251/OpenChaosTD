@@ -2,7 +2,7 @@
 #include <states/menu_state.hpp>
 #include <engine/core/text_renderer.hpp>
 #include <world/tile.hpp>
-#include <game.hpp>
+#include <app/game.hpp>
 #include <toml++/toml.hpp>
 #include <raylib.h>
 #include <algorithm>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <systems/world_system.hpp>
-#include <factory/enemy_factory.hpp>
+#include <content/enemy_factory.hpp>
 #include <engine/util/file_store.hpp>
 #include <random>
 #include <string>

@@ -1,5 +1,6 @@
 #include <world/map.hpp>
 
+#include <systems/pathfinder.hpp>
 #include <algorithm>
 #include <cmath>
 #include <limits>

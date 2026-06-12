@@ -5,10 +5,17 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include <world/effect.hpp>
-#include <world/enemy_modules.hpp>
-#include <world/enemy_upgrade.hpp>
-#include <world/enemy_presentation.hpp>
+#include <engine/systems/particle_system.hpp> // EmitterDesc
+#include <world/combat.hpp>  // Effect, EffectType
+#include <world/modules.hpp> // EnemyModule, BaseStatsModule, ShieldModule
+#include <world/upgrade.hpp> // EnemyUpgrade
+
+// The complete presentation (visuals + audio) of an enemy. Set once by EnemyFactory, never modified at runtime.
+struct EnemyPresentation {
+    std::string m_texture;                       // resource key for the enemy sprite
+    std::string m_deathSound = "enemy_death";    // resource key for the death sfx; defaults to enemy_death
+    const EmitterDesc* m_deathDescPtr = nullptr; // stable pointer into EmitterPresets; burst emitted on death
+};
 
 class Enemy {
 public:
@@ -34,7 +41,7 @@ public:
 
     // Patch a stat by key: broadcast to every module (the BaseStatsModule handles the core stats,
     // the rest handle shield, armor, regenRate, splitCount, ...). Mirrors the generic PatchStats
-    // pipeline; ApplyDelta is shared from tower_modules.hpp.
+    // pipeline; ApplyDelta is shared from world/modules.hpp.
     void PatchStats(const std::string& key, float v, bool mul) {
         for (auto& mod : m_modules)
             mod->PatchStats(key, v, mul);

@@ -1,5 +1,5 @@
 #include <systems/wave_manager.hpp>
-#include <world/game_data.hpp>
+#include <app/game_data.hpp>
 #include <algorithm>
 #include <cmath>
 #include <unordered_map>

@@ -5,7 +5,7 @@
 #include <engine/systems/particle_system.hpp>
 #include <world/tower.hpp>
 #include <world/enemy.hpp>
-#include <world/attack.hpp>
+#include <world/combat.hpp>
 
 class SoundSystem;
 
