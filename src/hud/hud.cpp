@@ -82,8 +82,10 @@ float DrawDescLines(const std::vector<DescLine>& lines, float x, float y, float 
 }
 
 void DrawToggleableButton(const Button& btn, bool enabled, int fontSize, Color enabledColor) {
+    // The widget style only swaps the backgrounds; the disabled label reads through the shared
+    // text-disabled role so greyed-out text looks the same on every panel.
     btn.Draw(false, enabled ? kDefaultStyle : kDisabledStyle);
-    btn.DrawLabel(fontSize, enabled ? enabledColor : DARKGRAY);
+    btn.DrawLabel(fontSize, enabled ? enabledColor : kTextDisabled);
 }
 
 void DrawHighlightButton(const Button& btn, bool highlighted, int fontSize,

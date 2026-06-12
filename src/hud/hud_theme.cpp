@@ -1,5 +1,6 @@
 #include <hud/hud_theme.hpp>
 #include <engine/util/file_store.hpp>
+#include <engine/systems/ui_widgets.hpp>
 #include <toml++/toml.hpp>
 
 namespace {
@@ -13,29 +14,43 @@ Color ParseColor(const toml::array& a) {
     };
 }
 
+// Overlay the colors of one [widgets.*] table onto a widget style; absent keys keep their
+// current value, so the engine defaults remain the graceful fallback.
+void ParseWidgetStyle(const toml::table& t, WidgetStyle& style) {
+    if (auto a = t["bgNormal"].as_array()) style.m_bgNormal = ParseColor(*a);
+    if (auto a = t["bgHovered"].as_array()) style.m_bgHovered = ParseColor(*a);
+    if (auto a = t["bgInput"].as_array()) style.m_bgInput = ParseColor(*a);
+    if (auto a = t["bgActive"].as_array()) style.m_bgActive = ParseColor(*a);
+    if (auto a = t["border"].as_array()) style.m_border = ParseColor(*a);
+    if (auto a = t["borderSel"].as_array()) style.m_borderSel = ParseColor(*a);
+    if (auto a = t["accent"].as_array()) style.m_accent = ParseColor(*a);
+    if (auto a = t["text"].as_array()) style.m_text = ParseColor(*a);
+}
+
 } // namespace
 
 void Hud::LoadConfig(FileStore& fileStore) {
     if (!fileStore.Exists("config/hud.toml")) return;
     const toml::table tbl = fileStore.LoadToml("config/hud.toml");
 
-    // Palette
+    // Palette: text hierarchy, then functional status accents, then panel chrome.
     if (const toml::table* pal = tbl["palette"].as_table()) {
-        if (auto a = (*pal)["panelBorder"].as_array())      kPanelBorder       = ParseColor(*a);
-        if (auto a = (*pal)["textMuted"].as_array())        kTextMuted         = ParseColor(*a);
-        if (auto a = (*pal)["upgradeReady"].as_array())     kUpgradeReady      = ParseColor(*a);
-        if (auto a = (*pal)["tooltipBorder"].as_array())    kTooltipBorder     = ParseColor(*a);
-        if (auto a = (*pal)["cardFill"].as_array())         kCardFill          = ParseColor(*a);
-        if (auto a = (*pal)["cardBorder"].as_array())       kCardBorder        = ParseColor(*a);
-        if (auto a = (*pal)["infinityGlyph"].as_array())    kInfinityGlyph     = ParseColor(*a);
-        if (auto a = (*pal)["highlight"].as_array())        kHighlight         = ParseColor(*a);
-        if (auto a = (*pal)["costAffordable"].as_array())   kCostAffordable    = ParseColor(*a);
-        if (auto a = (*pal)["costUnaffordable"].as_array()) kCostUnaffordable  = ParseColor(*a);
-        if (auto a = (*pal)["sellLabel"].as_array())        kSellLabel         = ParseColor(*a);
-        if (auto a = (*pal)["targetLabel"].as_array())      kTargetLabel       = ParseColor(*a);
-        if (auto a = (*pal)["panelBgRgb"].as_array())       kPanelBgRgb        = ParseColor(*a);
-        if (auto a = (*pal)["eventTextRgb"].as_array())     kEventTextRgb      = ParseColor(*a);
-        if (auto a = (*pal)["screenDim"].as_array())        kScreenDim         = ParseColor(*a);
+        if (auto a = (*pal)["textHeader"].as_array()) kTextHeader = ParseColor(*a);
+        if (auto a = (*pal)["textPrimary"].as_array()) kTextPrimary = ParseColor(*a);
+        if (auto a = (*pal)["textSecondary"].as_array()) kTextSecondary = ParseColor(*a);
+        if (auto a = (*pal)["textDisabled"].as_array()) kTextDisabled = ParseColor(*a);
+        if (auto a = (*pal)["statusPositive"].as_array()) kStatusPositive = ParseColor(*a);
+        if (auto a = (*pal)["statusNegative"].as_array()) kStatusNegative = ParseColor(*a);
+        if (auto a = (*pal)["highlight"].as_array()) kHighlight = ParseColor(*a);
+        if (auto a = (*pal)["accent"].as_array()) kAccent = ParseColor(*a);
+        if (auto a = (*pal)["panelBorder"].as_array()) kPanelBorder = ParseColor(*a);
+        if (auto a = (*pal)["cardFill"].as_array()) kCardFill = ParseColor(*a);
+        if (auto a = (*pal)["cardBorder"].as_array()) kCardBorder = ParseColor(*a);
+        if (auto a = (*pal)["infinityGlyph"].as_array()) kInfinityGlyph = ParseColor(*a);
+        if (auto a = (*pal)["iconTint"].as_array()) kIconTint = ParseColor(*a);
+        if (auto a = (*pal)["panelBgRgb"].as_array()) kPanelBgRgb = ParseColor(*a);
+        if (auto a = (*pal)["eventTextRgb"].as_array()) kEventTextRgb = ParseColor(*a);
+        if (auto a = (*pal)["screenDim"].as_array()) kScreenDim = ParseColor(*a);
     }
 
     // Alpha values
@@ -62,16 +77,49 @@ void Hud::LoadConfig(FileStore& fileStore) {
         if (auto v = (*su)["screenTitle"].value<float>()) kFontScreenTitle = *v;
         if (auto v = (*su)["menuButton"].value<float>())  kFontMenuButton  = *v;
         if (const toml::table* c = (*su)["colors"].as_table()) {
-            if (auto a = (*c)["background"].as_array())    kStateBackground = ParseColor(*a);
-            if (auto a = (*c)["dialogBg"].as_array())      kDialogBg        = ParseColor(*a);
-            if (auto a = (*c)["dialogOverlay"].as_array()) kDialogOverlay   = ParseColor(*a);
-            if (auto a = (*c)["disabledText"].as_array())  kDisabledText    = ParseColor(*a);
-            if (auto a = (*c)["warning"].as_array())       kWarning         = ParseColor(*a);
-            if (auto a = (*c)["placeholderBg"].as_array()) kPlaceholderBg   = ParseColor(*a);
-            if (auto a = (*c)["subtle"].as_array())        kSubtle          = ParseColor(*a);
-            if (auto a = (*c)["victory"].as_array())       kVictory         = ParseColor(*a);
-            if (auto a = (*c)["defeat"].as_array())        kDefeat          = ParseColor(*a);
+            if (auto a = (*c)["title"].as_array()) kStateTitle = ParseColor(*a);
+            if (auto a = (*c)["textPrimary"].as_array()) kStateTextPrimary = ParseColor(*a);
+            if (auto a = (*c)["category"].as_array()) kStateCategory = ParseColor(*a);
+            if (auto a = (*c)["background"].as_array()) kStateBackground = ParseColor(*a);
+            if (auto a = (*c)["worldBg"].as_array()) kWorldBackground = ParseColor(*a);
+            if (auto a = (*c)["dialogBg"].as_array()) kDialogBg = ParseColor(*a);
+            if (auto a = (*c)["dialogOverlay"].as_array()) kDialogOverlay = ParseColor(*a);
+            if (auto a = (*c)["disabledText"].as_array()) kDisabledText = ParseColor(*a);
+            if (auto a = (*c)["warning"].as_array()) kWarning = ParseColor(*a);
+            if (auto a = (*c)["placeholderBg"].as_array()) kPlaceholderBg = ParseColor(*a);
+            if (auto a = (*c)["subtle"].as_array()) kSubtle = ParseColor(*a);
+            if (auto a = (*c)["victory"].as_array()) kVictory = ParseColor(*a);
+            if (auto a = (*c)["defeat"].as_array()) kDefeat = ParseColor(*a);
         }
+
+        // State-specific cosmetics, one sub-section per owning screen.
+        if (const toml::table* sel = (*su)["select"].as_table()) {
+            if (auto a = (*sel)["autoCardTint"].as_array()) g_selectTheme.autoCardTint = ParseColor(*a);
+            if (auto a = (*sel)["thumbBg"].as_array()) g_selectTheme.thumbBg = ParseColor(*a);
+        }
+        if (const toml::table* me = (*su)["map_editor"].as_table()) {
+            if (auto a = (*me)["deleteWarn"].as_array()) g_mapEditorTheme.deleteWarn = ParseColor(*a);
+            if (auto a = (*me)["canvasBg"].as_array()) g_mapEditorTheme.canvasBg = ParseColor(*a);
+            if (auto a = (*me)["exportBg"].as_array()) g_mapEditorTheme.exportBg = ParseColor(*a);
+            if (auto a = (*me)["grid"].as_array()) g_mapEditorTheme.grid = ParseColor(*a);
+            if (auto a = (*me)["brushOutline"].as_array()) g_mapEditorTheme.brushOutline = ParseColor(*a);
+            if (auto a = (*me)["brushGrass"].as_array()) g_mapEditorTheme.brushGrass = ParseColor(*a);
+            if (auto a = (*me)["brushRock"].as_array()) g_mapEditorTheme.brushRock = ParseColor(*a);
+            if (auto a = (*me)["brushCore"].as_array()) g_mapEditorTheme.brushCore = ParseColor(*a);
+            if (auto a = (*me)["brushNest"].as_array()) g_mapEditorTheme.brushNest = ParseColor(*a);
+            if (auto a = (*me)["brushBuff"].as_array()) g_mapEditorTheme.brushBuff = ParseColor(*a);
+        }
+        if (const toml::table* pe = (*su)["particle_editor"].as_table()) {
+            if (auto a = (*pe)["previewBg"].as_array()) g_particleEditorTheme.previewBg = ParseColor(*a);
+            if (auto a = (*pe)["swatchBg"].as_array()) g_particleEditorTheme.swatchBg = ParseColor(*a);
+        }
+    }
+
+    // Global widget styles: overlay onto the engine defaults so every Button/Slider/Toggle/
+    // TextInput drawn without an explicit style picks the configured look up automatically.
+    if (const toml::table* w = tbl["widgets"].as_table()) {
+        if (const toml::table* d = (*w)["default"].as_table()) ParseWidgetStyle(*d, kDefaultStyle);
+        if (const toml::table* d = (*w)["disabled"].as_table()) ParseWidgetStyle(*d, kDisabledStyle);
     }
 
     // Shared layout anchors

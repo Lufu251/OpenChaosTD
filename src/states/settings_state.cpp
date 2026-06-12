@@ -394,7 +394,7 @@ void SettingsState::Draw(Game& game) {
     float gw = static_cast<float>(game.GetScreen().GetGameWidth());
 
     ClearBackground(Hud::kStateBackground);
-    DrawCenteredText("SETTINGS", gw / 2.0f, 50.0f, static_cast<int>(Hud::kFontScreenTitle), RAYWHITE);
+    DrawCenteredText("SETTINGS", gw / 2.0f, 50.0f, static_cast<int>(Hud::kFontScreenTitle), Hud::kStateTitle);
 
     DrawControls(game);
 
@@ -406,51 +406,51 @@ void SettingsState::DrawControls(Game& game) {
     float gw = static_cast<float>(game.GetScreen().GetGameWidth());
 
     // ----- Left column: audio -----
-    Text::Draw("AUDIO", static_cast<int>(kLeftLabelX), static_cast<int>(kAudioHeaderY), 28, Hud::kWarning, Text::Kind::Heading);
+    Text::Draw("AUDIO", static_cast<int>(kLeftLabelX), static_cast<int>(kAudioHeaderY), 28, Hud::kStateCategory, Text::Kind::Heading);
 
-    DrawLabelInRow("Music", kLeftLabelX, kMusicY, kSliderH, 20, RAYWHITE);
+    DrawLabelInRow("Music", kLeftLabelX, kMusicY, kSliderH, 20, Hud::kStateTextPrimary);
     m_musicSlider.Draw();
     DrawLabelInRow(TextFormat("%d%%", static_cast<int>(std::lround(m_working.musicVolume * 100.0f))),
-        kValueX, kMusicY, kSliderH, 20, RAYWHITE);
+        kValueX, kMusicY, kSliderH, 20, Hud::kStateTextPrimary);
 
-    DrawLabelInRow("SFX", kLeftLabelX, kSfxY, kSliderH, 20, RAYWHITE);
+    DrawLabelInRow("SFX", kLeftLabelX, kSfxY, kSliderH, 20, Hud::kStateTextPrimary);
     m_sfxSlider.Draw();
     DrawLabelInRow(TextFormat("%d%%", static_cast<int>(std::lround(m_working.sfxVolume * 100.0f))),
-        kValueX, kSfxY, kSliderH, 20, RAYWHITE);
+        kValueX, kSfxY, kSliderH, 20, Hud::kStateTextPrimary);
 
     // ----- Left column: display -----
-    Text::Draw("DISPLAY", static_cast<int>(kLeftLabelX), static_cast<int>(kDisplayHdrY), 28, Hud::kWarning, Text::Kind::Heading);
+    Text::Draw("DISPLAY", static_cast<int>(kLeftLabelX), static_cast<int>(kDisplayHdrY), 28, Hud::kStateCategory, Text::Kind::Heading);
 
-    DrawLabelInRow("Target FPS", kLeftLabelX, kFpsY, 30.0f, 20, RAYWHITE);
+    DrawLabelInRow("Target FPS", kLeftLabelX, kFpsY, 30.0f, 20, Hud::kStateTextPrimary);
     m_fpsDownBtn.Draw();
-    m_fpsDownBtn.DrawLabel(20, RAYWHITE);
+    m_fpsDownBtn.DrawLabel(20, Hud::kStateTextPrimary);
     m_fpsUpBtn.Draw();
-    m_fpsUpBtn.DrawLabel(20, RAYWHITE);
+    m_fpsUpBtn.DrawLabel(20, Hud::kStateTextPrimary);
     DrawCenteredText(TextFormat("%d", m_working.fps),
         m_fpsValueRect.x + m_fpsValueRect.width / 2.0f,
-        m_fpsValueRect.y + (m_fpsValueRect.height - 22) / 2.0f, 22, RAYWHITE);
+        m_fpsValueRect.y + (m_fpsValueRect.height - 22) / 2.0f, 22, Hud::kStateTextPrimary);
 
-    DrawLabelInRow("HUD Scale", kLeftLabelX, kHudScaleY, kSliderH, 20, RAYWHITE);
+    DrawLabelInRow("HUD Scale", kLeftLabelX, kHudScaleY, kSliderH, 20, Hud::kStateTextPrimary);
     m_hudScaleSlider.Draw();
     DrawLabelInRow(TextFormat("%.2fx", m_working.hudScale),
-        kValueX, kHudScaleY, kSliderH, 20, RAYWHITE);
+        kValueX, kHudScaleY, kSliderH, 20, Hud::kStateTextPrimary);
 
     // ----- Right column: controls -----
-    Text::Draw("CONTROLS", static_cast<int>(kCtrlHeaderX), static_cast<int>(kCtrlHeaderY), 28, Hud::kWarning, Text::Kind::Heading);
+    Text::Draw("CONTROLS", static_cast<int>(kCtrlHeaderX), static_cast<int>(kCtrlHeaderY), 28, Hud::kStateCategory, Text::Kind::Heading);
 
     for (auto& gh : m_groupHeaders)
-        Text::Draw(gh.category.c_str(), static_cast<int>(kActionLabelX), static_cast<int>(gh.y), 22, SKYBLUE, Text::Kind::Heading);
+        Text::Draw(gh.category.c_str(), static_cast<int>(kActionLabelX), static_cast<int>(gh.y), 22, Hud::kAccent, Text::Kind::Heading);
 
     for (auto& row : m_keyRows) {
-        DrawLabelInRow(row.action.c_str(), kActionLabelX, row.cell.m_rect.y, kKeyCellH, 20, RAYWHITE);
+        DrawLabelInRow(row.action.c_str(), kActionLabelX, row.cell.m_rect.y, kKeyCellH, 20, Hud::kStateTextPrimary);
         row.cell.Draw();
 
         const std::string* key = WorkingKey(row.action);
         bool capturing = m_rebinding && row.action == m_rebindAction;
         const char* cellText = capturing ? "..." : (key && !key->empty() ? key->c_str() : "—");
-        Color cellColor = RAYWHITE;
+        Color cellColor = Hud::kStateTextPrimary;
         if (capturing)
-            cellColor = SKYBLUE;
+            cellColor = Hud::kAccent;
         else if (key && IsKeyDuplicated(*key))
             cellColor = Hud::kWarning;
         DrawCenteredText(cellText,
@@ -465,19 +465,19 @@ void SettingsState::DrawControls(Game& game) {
     // ----- Bottom buttons (Save/Discard greyed when there is nothing to act on) -----
     bool dirty = IsDirty();
     const WidgetStyle& saveStyle = dirty ? kDefaultStyle : kDisabledStyle;
-    Color actionableText = dirty ? RAYWHITE : Hud::kDisabledText;
+    Color actionableText = dirty ? Hud::kStateTextPrimary : Hud::kDisabledText;
 
     m_saveBtn.Draw(false, saveStyle);
     m_saveBtn.DrawLabel(18, actionableText);
     m_discardBtn.Draw(false, saveStyle);
     m_discardBtn.DrawLabel(18, actionableText);
     m_resetBtn.Draw();
-    m_resetBtn.DrawLabel(18, RAYWHITE);
+    m_resetBtn.DrawLabel(18, Hud::kStateTextPrimary);
     m_backBtn.Draw();
-    m_backBtn.DrawLabel(18, RAYWHITE);
+    m_backBtn.DrawLabel(18, Hud::kStateTextPrimary);
 
     // ----- Status toast -----
-    m_status.Draw(gw / 2.0f, kBottomBtnY - 36.0f, 20, GREEN);
+    m_status.Draw(gw / 2.0f, kBottomBtnY - 36.0f, 20, Hud::kStatusPositive);
 }
 
 void SettingsState::DrawDialog(Game& game) {
@@ -491,14 +491,14 @@ void SettingsState::DrawDialog(Game& game) {
     DrawRectangleLinesEx(m_dialogPanel, 2.0f, Hud::kWarning);
 
     float centerX = m_dialogPanel.x + m_dialogPanel.width / 2.0f;
-    DrawCenteredText("UNSAVED CHANGES", centerX, m_dialogPanel.y + 36.0f, 28, RAYWHITE);
+    DrawCenteredText("UNSAVED CHANGES", centerX, m_dialogPanel.y + 36.0f, 28, Hud::kStateTitle);
     DrawCenteredText("You have unsaved changes. What would you like to do?",
-        centerX, m_dialogPanel.y + 84.0f, 18, LIGHTGRAY);
+        centerX, m_dialogPanel.y + 84.0f, 18, Hud::kSubtle);
 
     m_dlgSaveBtn.Draw();
-    m_dlgSaveBtn.DrawLabel(18, RAYWHITE);
+    m_dlgSaveBtn.DrawLabel(18, Hud::kStateTextPrimary);
     m_dlgDiscardBtn.Draw();
-    m_dlgDiscardBtn.DrawLabel(18, RAYWHITE);
+    m_dlgDiscardBtn.DrawLabel(18, Hud::kStateTextPrimary);
     m_dlgCancelBtn.Draw();
-    m_dlgCancelBtn.DrawLabel(18, RAYWHITE);
+    m_dlgCancelBtn.DrawLabel(18, Hud::kStateTextPrimary);
 }

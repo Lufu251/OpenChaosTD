@@ -82,26 +82,26 @@ void StatusHUD::Draw(const StatusView& view) {
     // Left cluster: lives, then gold placed after the measured lives width so a large value never
     // runs under the centered readout.
     const char* livesStr = TextFormat("Lives: %d", view.m_lives);
-    Text::Draw(livesStr, marginX, m_textY, fontMain, RAYWHITE, Text::Kind::Number);
+    Text::Draw(livesStr, marginX, m_textY, fontMain, Hud::kTextPrimary, Text::Kind::Number);
     int goldX = marginX + Text::Measure(livesStr, fontMain, Text::Kind::Number) + gapX;
-    Text::Draw(TextFormat("Gold: %d", view.m_gold), goldX, m_textY, fontMain, GOLD, Text::Kind::Number);
+    Text::Draw(TextFormat("Gold: %d", view.m_gold), goldX, m_textY, fontMain, Hud::kHighlight, Text::Kind::Number);
 
     // Center: wave progress and win target folded into one readout (endless => infinity).
     DrawWaveReadout(view, static_cast<int>(m_panelRect.width / 2.0f));
 
     // Wave info panel toggle
     m_waveInfoBtn.Draw();
-    m_waveInfoBtn.DrawLabel(fontBtn, RAYWHITE);
+    m_waveInfoBtn.DrawLabel(fontBtn, Hud::kTextPrimary);
 
     // Speed cycle — highlighted when faster than 1x
     m_speedBtn.m_label = TextFormat("%dx", view.m_speed);
-    Hud::DrawHighlightButton(m_speedBtn, view.m_speed > 1, fontBtn, Hud::kHighlight, RAYWHITE);
+    Hud::DrawHighlightButton(m_speedBtn, view.m_speed > 1, fontBtn, Hud::kHighlight, Hud::kTextPrimary);
 
     // Auto toggle — highlighted when active
-    Hud::DrawHighlightButton(m_autoBtn, view.m_autoSpawn, fontBtn, Hud::kHighlight, RAYWHITE);
+    Hud::DrawHighlightButton(m_autoBtn, view.m_autoSpawn, fontBtn, Hud::kHighlight, Hud::kTextPrimary);
 
     // Start wave button — greyed out while a wave is running
-    Hud::DrawToggleableButton(m_startWaveBtn, !view.m_waveActive, fontBtn, RAYWHITE);
+    Hud::DrawToggleableButton(m_startWaveBtn, !view.m_waveActive, fontBtn, Hud::kTextPrimary);
 }
 
 // Hand-drawn infinity glyph proportions, relative to the readout font height.
@@ -121,7 +121,7 @@ void StatusHUD::DrawWaveReadout(const StatusView& view, int centerX) {
     // Numeric win target: one plain centered string.
     if (view.m_victoryWave > 0) {
         DrawTextCenteredX(TextFormat("Wave: %s / %d", num, view.m_victoryWave),
-                          centerX, m_textY, font, RAYWHITE, Text::Kind::Number);
+                          centerX, m_textY, font, Hud::kTextPrimary, Text::Kind::Number);
         return;
     }
 
@@ -136,7 +136,7 @@ void StatusHUD::DrawWaveReadout(const StatusView& view, int centerX) {
     float totalW = static_cast<float>(leftW) + gap + glyphW;
     float startX = static_cast<float>(centerX) - totalW / 2.0f;
 
-    Text::Draw(left, static_cast<int>(startX), m_textY, font, RAYWHITE, Text::Kind::Number);
+    Text::Draw(left, static_cast<int>(startX), m_textY, font, Hud::kTextPrimary, Text::Kind::Number);
     float glyphX = startX + static_cast<float>(leftW) + gap;
     DrawInfinity(glyphX, static_cast<float>(m_textY) + glyphH / 2.0f, glyphH, Hud::kInfinityGlyph);
 }

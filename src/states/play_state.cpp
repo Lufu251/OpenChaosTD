@@ -4,6 +4,7 @@
 #include <states/menu_state.hpp>
 #include <states/settings_state.hpp>
 #include <systems/serialization.hpp>
+#include <hud/hud_theme.hpp>
 #include <app/game_paths.hpp>
 #include <app/game.hpp>
 #include <raylib.h>
@@ -142,7 +143,7 @@ void PlayingState::StepSimulation(Game& game, float dt) {
 }
 
 void PlayingState::Draw(Game& game) {
-    ClearBackground(DARKGRAY);
+    ClearBackground(Hud::kWorldBackground);
     Vector2 mouseWorld = game.GetInput().GetWorldMousePosition(m_renderSystem.GetCamera());
 
     BeginMode2D(m_renderSystem.GetCamera());

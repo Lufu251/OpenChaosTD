@@ -12,7 +12,7 @@
 namespace {
     // Color swatch over a dark backing so low-alpha values stay readable.
     void DrawSwatch(Rectangle rect, Color color) {
-        DrawRectangleRec(rect, {15, 15, 15, 255});
+        DrawRectangleRec(rect, Hud::g_particleEditorTheme.swatchBg);
         DrawRectangleRec(rect, color);
         DrawRectangleLinesEx(rect, 1.0f, Hud::kPanelBorder);
     }
@@ -488,7 +488,7 @@ void ParticleEditorState::Draw(Game& game) {
     float gw = static_cast<float>(game.GetScreen().GetGameWidth());
 
     ClearBackground(Hud::kStateBackground);
-    DrawCenteredText("PARTICLE EDITOR", gw / 2.0f, 40.0f, static_cast<int>(Hud::kFontStateTitle), RAYWHITE);
+    DrawCenteredText("PARTICLE EDITOR", gw / 2.0f, 40.0f, static_cast<int>(Hud::kFontStateTitle), Hud::kStateTitle);
 
     DrawBrowser();
     DrawParams();
@@ -497,13 +497,13 @@ void ParticleEditorState::Draw(Game& game) {
 }
 
 void ParticleEditorState::DrawBrowser() {
-    Text::Draw("PRESETS", static_cast<int>(kBrowserX), static_cast<int>(kTopY), 28, Hud::kWarning);
+    Text::Draw("PRESETS", static_cast<int>(kBrowserX), static_cast<int>(kTopY), 28, Hud::kStateCategory);
 
     m_newBtn.Draw();
-    m_newBtn.DrawLabel(14, RAYWHITE);
+    m_newBtn.DrawLabel(14, Hud::kStateTextPrimary);
     bool canDelete = m_selectedPreset >= 0;
     m_deleteBtn.Draw(false, canDelete ? kDefaultStyle : kDisabledStyle);
-    m_deleteBtn.DrawLabel(14, canDelete ? RAYWHITE : Hud::kDisabledText);
+    m_deleteBtn.DrawLabel(14, canDelete ? Hud::kStateTextPrimary : Hud::kDisabledText);
 
     if (m_presetNames.empty()) {
         Text::Draw("No presets found", static_cast<int>(kBrowserX),
@@ -515,23 +515,23 @@ void ParticleEditorState::DrawBrowser() {
     for (size_t i = 0; i < m_presetButtons.size(); i++) {
         bool selected = start + static_cast<int>(i) == m_selectedPreset;
         m_presetButtons[i].Draw(selected);
-        m_presetButtons[i].DrawLabel(14, RAYWHITE);
+        m_presetButtons[i].DrawLabel(14, Hud::kStateTextPrimary);
     }
 
     if (PageCount() > 1) {
         m_pagePrevBtn.Draw();
-        m_pagePrevBtn.DrawLabel(16, RAYWHITE);
+        m_pagePrevBtn.DrawLabel(16, Hud::kStateTextPrimary);
         m_pageNextBtn.Draw();
-        m_pageNextBtn.DrawLabel(16, RAYWHITE);
+        m_pageNextBtn.DrawLabel(16, Hud::kStateTextPrimary);
         DrawCenteredText(TextFormat("%d/%d", m_presetPage + 1, PageCount()),
-            kBrowserX + kBrowserW / 2.0f, m_pagePrevBtn.m_rect.y + 7.0f, 16, RAYWHITE);
+            kBrowserX + kBrowserW / 2.0f, m_pagePrevBtn.m_rect.y + 7.0f, 16, Hud::kStateTextPrimary);
     }
 }
 
 void ParticleEditorState::DrawRow(const SliderRow& row) const {
     bool enabled = RowEnabled(row);
     const WidgetStyle& style = enabled ? kDefaultStyle : kDisabledStyle;
-    Color textColor = enabled ? RAYWHITE : Hud::kDisabledText;
+    Color textColor = enabled ? Hud::kStateTextPrimary : Hud::kDisabledText;
 
     const Rectangle& r = row.m_slider.m_rect;
     DrawLabelInRow(row.m_label, r.x - kLabelW, r.y, r.height, 16, textColor);
@@ -545,7 +545,7 @@ void ParticleEditorState::DrawRow(const SliderRow& row) const {
 
 void ParticleEditorState::DrawParams() {
     for (const Header& h : m_headers)
-        Text::Draw(h.m_text, static_cast<int>(h.m_pos.x), static_cast<int>(h.m_pos.y), 24, Hud::kWarning);
+        Text::Draw(h.m_text, static_cast<int>(h.m_pos.x), static_cast<int>(h.m_pos.y), 24, Hud::kStateCategory);
 
     for (const SliderRow* row : m_allRows)
         DrawRow(*row);
@@ -556,20 +556,20 @@ void ParticleEditorState::DrawParams() {
     for (int i = 0; i < 5; i++) {
         bool selected = m_working.m_shape == static_cast<SpawnShape>(i);
         m_shapeButtons[i].Draw(selected);
-        m_shapeButtons[i].DrawLabel(12, RAYWHITE);
+        m_shapeButtons[i].DrawLabel(12, Hud::kStateTextPrimary);
     }
 }
 
 void ParticleEditorState::DrawPreview(Game& game) {
     // Near-black backdrop so bright particles read well; clip to the rect.
-    DrawRectangleRec(m_previewRect, {14, 14, 18, 255});
+    DrawRectangleRec(m_previewRect, Hud::g_particleEditorTheme.previewBg);
     game.GetScreen().BeginScissor(m_previewRect);
     m_previewParticles.Draw();
     game.GetScreen().EndScissor();
     DrawRectangleLinesEx(m_previewRect, 1.0f, Hud::kPanelBorder);
 
     float cx = m_previewRect.x + m_previewRect.width / 2.0f;
-    DrawCenteredText("Click to burst", cx, m_previewRect.y + 8.0f, 14, GRAY);
+    DrawCenteredText("Click to burst", cx, m_previewRect.y + 8.0f, 14, Hud::kSubtle);
     if (m_working.m_count <= 0)
         DrawCenteredText("count is 0 - bursts spawn nothing", cx, m_previewRect.y + 28.0f, 14, Hud::kWarning);
     else if (m_continuousToggle.m_value && m_working.m_emitRate <= 0.0f)
@@ -577,19 +577,19 @@ void ParticleEditorState::DrawPreview(Game& game) {
 
     m_continuousToggle.Draw();
     m_clearBtn.Draw();
-    m_clearBtn.DrawLabel(14, RAYWHITE);
+    m_clearBtn.DrawLabel(14, Hud::kStateTextPrimary);
 }
 
 void ParticleEditorState::DrawBottomBar(Game& game) {
     float barY = m_nameInput.m_rect.y;
-    DrawLabelInRow("NAME", kBrowserX, barY, m_nameInput.m_rect.height, 20, RAYWHITE);
+    DrawLabelInRow("NAME", kBrowserX, barY, m_nameInput.m_rect.height, 20, Hud::kStateTextPrimary);
     m_nameInput.Draw();
 
     bool canSave = !m_nameInput.m_text.empty();
     m_saveBtn.Draw(false, canSave ? kDefaultStyle : kDisabledStyle);
-    m_saveBtn.DrawLabel(18, canSave ? RAYWHITE : Hud::kDisabledText);
+    m_saveBtn.DrawLabel(18, canSave ? Hud::kStateTextPrimary : Hud::kDisabledText);
     m_backBtn.Draw();
-    m_backBtn.DrawLabel(18, RAYWHITE);
+    m_backBtn.DrawLabel(18, Hud::kStateTextPrimary);
 
-    m_status.Draw(static_cast<float>(game.GetScreen().GetGameWidth()) / 2.0f, barY - 26.0f, 18, GREEN);
+    m_status.Draw(static_cast<float>(game.GetScreen().GetGameWidth()) / 2.0f, barY - 26.0f, 18, Hud::kStatusPositive);
 }

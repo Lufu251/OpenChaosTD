@@ -15,8 +15,9 @@ struct WidgetStyle {
     float m_borderWidthActive; // selected button, focused input
 };
 
-// Default palette for widgets.
-inline const WidgetStyle kDefaultStyle{
+// Default palette for widgets. Non-const on purpose: the host application may restyle these at
+// startup (e.g. from a theme config); every widget drawn without an explicit style follows.
+inline WidgetStyle kDefaultStyle{
     .m_bgNormal   = {40,  40,  40,  255},
     .m_bgHovered  = {65,  65,  65,  255},
     .m_bgInput    = {30,  30,  30,  255},
@@ -29,8 +30,8 @@ inline const WidgetStyle kDefaultStyle{
     .m_borderWidthActive = 2.0f,
 };
 
-// Muted palette for non-interactive / unavailable widgets.
-inline const WidgetStyle kDisabledStyle {
+// Muted palette for non-interactive / unavailable widgets. Restylable like kDefaultStyle.
+inline WidgetStyle kDisabledStyle {
     .m_bgNormal   = {30,  30,  30,  200},
     .m_bgHovered  = {30,  30,  30,  200},
     .m_bgInput    = {20,  20,  20,  200},

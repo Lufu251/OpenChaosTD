@@ -86,15 +86,15 @@ void TowerBuildHUD::Draw(const BuildBarView& view, Resources& assets) {
         float tw = static_cast<float>(tex.width);
         float th = static_cast<float>(tex.height);
         DrawTextureV(tex, { btn.m_rect.x + (btn.m_rect.width  - tw) / 2.0f,
-                            btn.m_rect.y + (btn.m_rect.height - th) / 2.0f - m_iconYOffset }, WHITE);
+                            btn.m_rect.y + (btn.m_rect.height - th) / 2.0f - m_iconYOffset }, Hud::kIconTint);
 
         int centerX = static_cast<int>(btn.m_rect.x + btn.m_rect.width / 2.0f);
         DrawTextCenteredX(name.c_str(), centerX,
             static_cast<int>(btn.m_rect.y + btn.m_rect.height - m_nameYOffset),
-            fontSize, Hud::kTextMuted);
+            fontSize, Hud::kTextSecondary);
 
         const char* costStr = TextFormat("$%d", entry.m_cost);
-        Color costColor = (view.m_gold >= entry.m_cost) ? Hud::kCostAffordable : Hud::kCostUnaffordable;
+        Color costColor = (view.m_gold >= entry.m_cost) ? Hud::kStatusPositive : Hud::kStatusNegative;
         DrawTextCenteredX(costStr, centerX,
             static_cast<int>(btn.m_rect.y + btn.m_rect.height - m_costYOffset),
             fontSize, costColor, Text::Kind::Number);
@@ -229,11 +229,11 @@ void TowerInfoHUD::Draw() {
     float y = m_panelRect.y + margin;
 
     // Tower name as header, with level indicator right-aligned
-    Text::Draw(m_name.c_str(), static_cast<int>(x), static_cast<int>(y), m_metrics.fontHeader, GOLD, Text::Kind::Heading);
+    Text::Draw(m_name.c_str(), static_cast<int>(x), static_cast<int>(y), m_metrics.fontHeader, Hud::kTextHeader, Text::Kind::Heading);
     if (m_hasAttack && m_upgradeCount > 0) {
         bool isMax = m_level >= m_upgradeCount;
         const char* lvlText = isMax ? "MAX" : TextFormat("Lv %d", m_level + 1);
-        Color lvlColor = isMax ? GOLD : Hud::kTextMuted;
+        Color lvlColor = isMax ? Hud::kHighlight : Hud::kTextSecondary;
         Hud::DrawTextRightAligned(lvlText, m_panelRect.x + m_metrics.panelW - margin, y,
                                   m_metrics.fontHeader, lvlColor);
     }
@@ -241,7 +241,7 @@ void TowerInfoHUD::Draw() {
 
     // Description (word-wrapped, computed in SetContent)
     for (const auto& line : m_descLines) {
-        Text::Draw(line.c_str(), static_cast<int>(x), static_cast<int>(y), m_metrics.fontBody, Hud::kTextMuted, Text::Kind::Tooltip);
+        Text::Draw(line.c_str(), static_cast<int>(x), static_cast<int>(y), m_metrics.fontBody, Hud::kTextSecondary, Text::Kind::Tooltip);
         y += m_descLineH;
     }
 
@@ -249,18 +249,18 @@ void TowerInfoHUD::Draw() {
     y = Hud::DrawDescLines(m_statLines, x, y, m_metrics.lineH, m_metrics.fontBody);
 
     if (m_showUpgrade) {
-        Hud::DrawToggleableButton(m_upgradeBtn, m_upgradeReady, m_metrics.fontBody, Hud::kUpgradeReady);
+        Hud::DrawToggleableButton(m_upgradeBtn, m_upgradeReady, m_metrics.fontBody, Hud::kStatusPositive);
         if (m_hasNextUpgrade && m_upgradeBtn.IsHovered())
             DrawUpgradeTooltip();
     }
 
     if (m_showTargeting) {
         m_targetBtn.Draw();
-        m_targetBtn.DrawLabel(m_metrics.fontBody, Hud::kTargetLabel);
+        m_targetBtn.DrawLabel(m_metrics.fontBody, Hud::kAccent);
     }
 
     if (m_showSell)
-        Hud::DrawToggleableButton(m_sellBtn, m_sellEnabled, m_metrics.fontBody, Hud::kSellLabel);
+        Hud::DrawToggleableButton(m_sellBtn, m_sellEnabled, m_metrics.fontBody, Hud::kStatusPositive);
 }
 
 void TowerInfoHUD::DrawUpgradeTooltip() {
@@ -288,11 +288,11 @@ void TowerInfoHUD::DrawUpgradeTooltip() {
     if (boxY < 0.0f) boxY = 0.0f;
 
     Rectangle box = { boxX, boxY, boxW, boxH };
-    Hud::DrawFramedBox(box, Hud::PanelBg(Hud::kTooltipBgAlpha), Hud::kTooltipBorder);
+    Hud::DrawFramedBox(box, Hud::PanelBg(Hud::kTooltipBgAlpha), Hud::kHighlight);
 
     float tx = boxX + margin;
     float ty = boxY + margin;
-    Text::Draw("Next Level", static_cast<int>(tx), static_cast<int>(ty), fontSm, GOLD);
+    Text::Draw("Next Level", static_cast<int>(tx), static_cast<int>(ty), fontSm, Hud::kTextHeader);
     ty += lineH;
     Hud::DrawDescLines(m_upgradePreview, tx, ty, lineH, fontSm);
 }

@@ -61,8 +61,8 @@ void EndState::Draw(Game& game) {
     }
 
     m_playAgainButton.Draw();
-    m_playAgainButton.DrawLabel(btnFont, RAYWHITE);
+    m_playAgainButton.DrawLabel(btnFont, Hud::kStateTextPrimary);
 
     m_menuButton.Draw();
-    m_menuButton.DrawLabel(btnFont, RAYWHITE);
+    m_menuButton.DrawLabel(btnFont, Hud::kStateTextPrimary);
 }

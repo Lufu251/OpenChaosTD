@@ -109,22 +109,22 @@ void MenuState::Draw(Game& game){
     const int btnFont = static_cast<int>(Hud::kFontMenuButton);
 
     ClearBackground(Hud::kStateBackground);
-    Text::Draw("OPEN CHAOS TD", cx - Text::Measure("OPEN CHAOS TD", titleSize, Text::Kind::Title)/2, cy - 80, titleSize, RAYWHITE, Text::Kind::Title);
+    Text::Draw("OPEN CHAOS TD", cx - Text::Measure("OPEN CHAOS TD", titleSize, Text::Kind::Title)/2, cy - 80, titleSize, Hud::kStateTitle, Text::Kind::Title);
 
     // Continue is grayed and unlabeled-bright when no save is present.
     const WidgetStyle& continueStyle = m_hasSave ? kDefaultStyle : kDisabledStyle;
     m_continueButton.Draw(false, continueStyle);
-    m_continueButton.DrawLabel(btnFont, continueStyle.m_text);
+    m_continueButton.DrawLabel(btnFont, m_hasSave ? Hud::kStateTextPrimary : Hud::kDisabledText);
 
     m_playButton.Draw();
-    m_playButton.DrawLabel(btnFont, RAYWHITE);
+    m_playButton.DrawLabel(btnFont, Hud::kStateTextPrimary);
 
     m_settingsButton.Draw();
-    m_settingsButton.DrawLabel(btnFont, RAYWHITE);
+    m_settingsButton.DrawLabel(btnFont, Hud::kStateTextPrimary);
 
     m_editorButton.Draw();
-    m_editorButton.DrawLabel(btnFont, RAYWHITE);
+    m_editorButton.DrawLabel(btnFont, Hud::kStateTextPrimary);
 
     m_exitButton.Draw();
-    m_exitButton.DrawLabel(btnFont, RAYWHITE);
+    m_exitButton.DrawLabel(btnFont, Hud::kStateTextPrimary);
 }

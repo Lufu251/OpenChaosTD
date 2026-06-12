@@ -62,15 +62,15 @@ void WaveHUD::Draw(const WaveView& view, Resources& assets) {
     float innerW = m_metrics.panelW - 2.0f * margin;
 
     // Header: title on the left, upcoming threat budget right-aligned.
-    Text::Draw("Next Wave", static_cast<int>(x), static_cast<int>(y), m_metrics.fontHeader, GOLD, Text::Kind::Heading);
+    Text::Draw("Next Wave", static_cast<int>(x), static_cast<int>(y), m_metrics.fontHeader, Hud::kTextHeader, Text::Kind::Heading);
     const char* budgetText = TextFormat("Budget: %d", static_cast<int>(view.m_budget));
     Hud::DrawTextRightAligned(budgetText, m_panelRect.x + m_metrics.panelW - margin,
                               y + (m_metrics.fontHeader - m_metrics.fontBody), m_metrics.fontBody,
-                              Hud::kTextMuted);
+                              Hud::kTextSecondary);
     y += m_metrics.headerH;
 
     if (m_cards.empty()) {
-        Text::Draw("No enemies", static_cast<int>(x), static_cast<int>(y), m_metrics.fontBody, Hud::kTextMuted);
+        Text::Draw("No enemies", static_cast<int>(x), static_cast<int>(y), m_metrics.fontBody, Hud::kTextSecondary);
         return;
     }
 
@@ -126,11 +126,11 @@ void WaveEnemyCard::Draw(Rectangle bounds, Resources& assets) const {
 
     // Header row: "Nx Name" on the left, "Lv N" badge right-aligned.
     Text::Draw(TextFormat("%dx %s", m_count, m_name.c_str()),
-             static_cast<int>(tx), static_cast<int>(ty), m_metrics.fontSm, RAYWHITE);
+             static_cast<int>(tx), static_cast<int>(ty), m_metrics.fontSm, Hud::kTextPrimary);
     if (m_hasProto)
-        Hud::DrawTextRightAligned(TextFormat("Lv %d", m_level), textRight, ty, m_metrics.fontSm, GOLD);
+        Hud::DrawTextRightAligned(TextFormat("Lv %d", m_level), textRight, ty, m_metrics.fontSm, Hud::kHighlight);
     ty += m_metrics.lineH;
 
-    // One stat row per module, colored by the module (RAYWHITE core, Shield/Immune accents).
+    // One stat row per module, colored by the module's DescLine (core stats, Shield/Immune accents).
     Hud::DrawDescLines(m_stats, tx, ty, m_metrics.lineH, m_metrics.fontSm);
 }

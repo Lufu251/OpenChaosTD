@@ -108,7 +108,7 @@ void DatapackSelectState::Draw(Game& game) {
             Rectangle src = { 0.0f, 0.0f,
                               static_cast<float>(pack.m_icon.width),
                               static_cast<float>(pack.m_icon.height) };
-            DrawTexturePro(pack.m_icon, src, iconRect, { 0.0f, 0.0f }, 0.0f, WHITE);
+            DrawTexturePro(pack.m_icon, src, iconRect, { 0.0f, 0.0f }, 0.0f, Hud::kIconTint);
         } else {
             DrawRectangleRec(iconRect, Hud::kPlaceholderBg);
             DrawRectangleLinesEx(iconRect, 1.0f, kDefaultStyle.m_border);
@@ -134,11 +134,11 @@ void DatapackSelectState::Draw(Game& game) {
 
     // Header mask + title (drawn over any card that scrolled up into this band).
     DrawRectangle(0, 0, static_cast<int>(screenW), static_cast<int>(listTop), Hud::kStateBackground);
-    DrawCenteredText("SELECT DATAPACK", screenW / 2.0f, 40.0f, static_cast<int>(Hud::kFontStateTitle), RAYWHITE);
+    DrawCenteredText("SELECT DATAPACK", screenW / 2.0f, 40.0f, static_cast<int>(Hud::kFontStateTitle), Hud::kStateTitle);
 
     // Footer mask + back button.
     DrawRectangle(0, static_cast<int>(listBottom), static_cast<int>(screenW),
                   static_cast<int>(screenH - listBottom), Hud::kStateBackground);
     m_backButton.Draw();
-    m_backButton.DrawLabel(static_cast<int>(Hud::kFontMenuButton), RAYWHITE);
+    m_backButton.DrawLabel(static_cast<int>(Hud::kFontMenuButton), Hud::kStateTextPrimary);
 }

@@ -150,7 +150,7 @@ void DrawTextRightAligned(const char* text, float rightEdge, float y, int fontSi
 float DrawDescLines(const std::vector<DescLine>& lines, float x, float y, float lineH, int fontSize);
 
 // Draw a button that may be disabled: default vs. muted style, with an active-colored label when
-// enabled and a uniform DARKGRAY label when not.
+// enabled and the shared disabled text color when not.
 void DrawToggleableButton(const Button& btn, bool enabled, int fontSize, Color enabledColor);
 
 // Draw a button that toggles between an active highlight (gold selected border + active-colored
