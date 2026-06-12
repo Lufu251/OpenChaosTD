@@ -1,16 +1,11 @@
 #include <states/settings_state.hpp>
 #include <engine/core/text_renderer.hpp>
+#include <hud/hud_theme.hpp>
 #include <app/game.hpp>
 #include <engine/core/input.hpp>
 #include <raylib.h>
-#include <nlohmann/json.hpp>
+#include <toml++/toml.hpp>
 #include <cmath>
-#include <memory>
-
-namespace {
-    // Warning tint reused for duplicate-key highlighting and the conflict banner.
-    constexpr Color kWarnColor = {255, 180, 0, 255};
-}
 
 // --- ConfigValues comparison -----------------------------------------------
 
@@ -45,18 +40,19 @@ std::vector<SettingsState::BindingGroup> SettingsState::LoadBindings(Game& game)
     // found in the file onto the matching actions. Faithful to disk for the fixed
     // action set while keeping a predictable UI order regardless of file key order.
     auto bindings = DefaultBindings();
-    if (!game.GetFileStore().Exists("config/keybindings.json"))
+    if (!game.GetFileStore().Exists("config/keybindings.toml"))
         return bindings;
 
-    auto j = game.GetFileStore().LoadJson("config/keybindings.json");
-    for (auto& [category, actions] : j.items()) {
-        if (!actions.is_object()) continue;
-        for (auto& [action, value] : actions.items()) {
-            if (!value.is_string()) continue;
-            std::string key = value.get<std::string>();
+    const toml::table tbl = game.GetFileStore().LoadToml("config/keybindings.toml");
+    for (auto& [category, actions] : tbl) {
+        const toml::table* group = actions.as_table();
+        if (!group) continue;
+        for (auto& [action, value] : *group) {
+            auto key = value.value<std::string>();
+            if (!key) continue;
             for (auto& grp : bindings)
                 for (auto& b : grp.bindings)
-                    if (b.action == action) b.key = key;
+                    if (b.action == action.str()) b.key = *key;
         }
     }
     return bindings;
@@ -222,15 +218,17 @@ void SettingsState::Save(Game& game) {
     SetTargetFPS(cfg.fps);
     ApplyLiveAudio(game, m_working);
 
-    // Persist keybindings.json (grouped) and apply each binding live
-    nlohmann::json j;
+    // Persist keybindings.toml (grouped) and apply each binding live
+    toml::table tbl;
     for (auto& grp : m_working.bindings) {
+        toml::table group;
         for (auto& b : grp.bindings) {
-            j[grp.category][b.action] = b.key;
+            group.insert(b.action, b.key);
             game.GetInput().AddAction(b.action, Input::ParseKey(b.key));
         }
+        tbl.insert(grp.category, std::move(group));
     }
-    game.GetFileStore().SaveJson("config/keybindings.json", j);
+    game.GetFileStore().SaveToml("config/keybindings.toml", tbl);
 
     m_snapshot = m_working;
     SetStatus("Settings saved");
@@ -395,8 +393,8 @@ void SettingsState::Update(Game& /*game*/, float dt) {
 void SettingsState::Draw(Game& game) {
     float gw = static_cast<float>(game.GetScreen().GetGameWidth());
 
-    ClearBackground(DARKGRAY);
-    DrawCenteredText("SETTINGS", gw / 2.0f, 50.0f, 48, RAYWHITE);
+    ClearBackground(Hud::kStateBackground);
+    DrawCenteredText("SETTINGS", gw / 2.0f, 50.0f, static_cast<int>(Hud::kFontScreenTitle), RAYWHITE);
 
     DrawControls(game);
 
@@ -408,7 +406,7 @@ void SettingsState::DrawControls(Game& game) {
     float gw = static_cast<float>(game.GetScreen().GetGameWidth());
 
     // ----- Left column: audio -----
-    Text::Draw("AUDIO", static_cast<int>(kLeftLabelX), static_cast<int>(kAudioHeaderY), 28, kWarnColor, Text::Kind::Heading);
+    Text::Draw("AUDIO", static_cast<int>(kLeftLabelX), static_cast<int>(kAudioHeaderY), 28, Hud::kWarning, Text::Kind::Heading);
 
     DrawLabelInRow("Music", kLeftLabelX, kMusicY, kSliderH, 20, RAYWHITE);
     m_musicSlider.Draw();
@@ -421,7 +419,7 @@ void SettingsState::DrawControls(Game& game) {
         kValueX, kSfxY, kSliderH, 20, RAYWHITE);
 
     // ----- Left column: display -----
-    Text::Draw("DISPLAY", static_cast<int>(kLeftLabelX), static_cast<int>(kDisplayHdrY), 28, kWarnColor, Text::Kind::Heading);
+    Text::Draw("DISPLAY", static_cast<int>(kLeftLabelX), static_cast<int>(kDisplayHdrY), 28, Hud::kWarning, Text::Kind::Heading);
 
     DrawLabelInRow("Target FPS", kLeftLabelX, kFpsY, 30.0f, 20, RAYWHITE);
     m_fpsDownBtn.Draw();
@@ -438,7 +436,7 @@ void SettingsState::DrawControls(Game& game) {
         kValueX, kHudScaleY, kSliderH, 20, RAYWHITE);
 
     // ----- Right column: controls -----
-    Text::Draw("CONTROLS", static_cast<int>(kCtrlHeaderX), static_cast<int>(kCtrlHeaderY), 28, kWarnColor, Text::Kind::Heading);
+    Text::Draw("CONTROLS", static_cast<int>(kCtrlHeaderX), static_cast<int>(kCtrlHeaderY), 28, Hud::kWarning, Text::Kind::Heading);
 
     for (auto& gh : m_groupHeaders)
         Text::Draw(gh.category.c_str(), static_cast<int>(kActionLabelX), static_cast<int>(gh.y), 22, SKYBLUE, Text::Kind::Heading);
@@ -454,7 +452,7 @@ void SettingsState::DrawControls(Game& game) {
         if (capturing)
             cellColor = SKYBLUE;
         else if (key && IsKeyDuplicated(*key))
-            cellColor = kWarnColor;
+            cellColor = Hud::kWarning;
         DrawCenteredText(cellText,
             row.cell.m_rect.x + row.cell.m_rect.width / 2.0f,
             row.cell.m_rect.y + (kKeyCellH - 20) / 2.0f, 20, cellColor);
@@ -462,12 +460,12 @@ void SettingsState::DrawControls(Game& game) {
 
     if (AnyDuplicates())
         Text::Draw("! Some keys are bound to multiple actions",
-            static_cast<int>(kActionLabelX), static_cast<int>(m_controlsBottomY + 4.0f), 18, kWarnColor);
+            static_cast<int>(kActionLabelX), static_cast<int>(m_controlsBottomY + 4.0f), 18, Hud::kWarning);
 
     // ----- Bottom buttons (Save/Discard greyed when there is nothing to act on) -----
     bool dirty = IsDirty();
     const WidgetStyle& saveStyle = dirty ? kDefaultStyle : kDisabledStyle;
-    Color actionableText = dirty ? RAYWHITE : Color{120, 120, 120, 255};
+    Color actionableText = dirty ? RAYWHITE : Hud::kDisabledText;
 
     m_saveBtn.Draw(false, saveStyle);
     m_saveBtn.DrawLabel(18, actionableText);
@@ -487,10 +485,10 @@ void SettingsState::DrawDialog(Game& game) {
     int gh = game.GetScreen().GetGameHeight();
 
     // Dim the whole screen behind the modal.
-    DrawRectangle(0, 0, gw, gh, {0, 0, 0, 150});
+    DrawRectangle(0, 0, gw, gh, Hud::kDialogOverlay);
 
-    DrawRectangleRec(m_dialogPanel, {30, 30, 30, 245});
-    DrawRectangleLinesEx(m_dialogPanel, 2.0f, kWarnColor);
+    DrawRectangleRec(m_dialogPanel, Hud::kDialogBg);
+    DrawRectangleLinesEx(m_dialogPanel, 2.0f, Hud::kWarning);
 
     float centerX = m_dialogPanel.x + m_dialogPanel.width / 2.0f;
     DrawCenteredText("UNSAVED CHANGES", centerX, m_dialogPanel.y + 36.0f, 28, RAYWHITE);

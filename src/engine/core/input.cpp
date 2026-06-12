@@ -1,6 +1,7 @@
 #include <engine/core/input.hpp>
 #include <engine/core/screen.hpp>
 #include <engine/util/file_store.hpp>
+#include <toml++/toml.hpp>
 
 void Input::Update(const Screen& renderer) {
     m_mouseConsumed = false;
@@ -102,16 +103,17 @@ std::string Input::KeyName(KeyboardKey key) {
 }
 
 void Input::Load(FileStore& fileStore) {
-    if (!fileStore.Exists("config/keybindings.json"))
+    if (!fileStore.Exists("config/keybindings.toml"))
         return;
-    auto j = fileStore.LoadJson("config/keybindings.json");
-    // Bindings are grouped by category: { "Movement": { "Up": "W", ... }, ... }.
+    const toml::table tbl = fileStore.LoadToml("config/keybindings.toml");
+    // Bindings are grouped by category: [Movement] Up = "W", ... .
     // The category is presentation-only; each action name is globally unique.
-    for (auto& [category, actions] : j.items()) {
-        if (!actions.is_object()) continue;
-        for (auto& [action, value] : actions.items()) {
-            std::string name = value.get<std::string>();
-            AddAction(action, ParseKey(name));
+    for (auto& [category, actions] : tbl) {
+        const toml::table* group = actions.as_table();
+        if (!group) continue;
+        for (auto& [action, value] : *group) {
+            if (auto name = value.value<std::string>())
+                AddAction(std::string(action.str()), ParseKey(*name));
         }
     }
 }

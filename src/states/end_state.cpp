@@ -1,5 +1,6 @@
 #include <states/end_state.hpp>
 #include <engine/core/text_renderer.hpp>
+#include <hud/hud_theme.hpp>
 #include <states/menu_state.hpp>
 #include <states/play_state.hpp>
 #include <app/game.hpp>
@@ -44,21 +45,24 @@ void EndState::Draw(Game& game) {
     float cx = game.GetScreen().GetGameWidth()  / 2.0f;
     float cy = game.GetScreen().GetGameHeight() / 2.0f;
 
-    ClearBackground(DARKGRAY);
+    const int titleSize = static_cast<int>(Hud::kFontScreenTitle);
+    const int btnFont = static_cast<int>(Hud::kFontMenuButton);
+
+    ClearBackground(Hud::kStateBackground);
 
     if (m_won) {
         const char* title = "VICTORY!";
-        int tw = Text::Measure(title, 48, Text::Kind::Title);
-        Text::Draw(title, static_cast<int>(cx - tw / 2.0f), static_cast<int>(cy - 80), 48, GOLD, Text::Kind::Title);
+        int tw = Text::Measure(title, titleSize, Text::Kind::Title);
+        Text::Draw(title, static_cast<int>(cx - tw / 2.0f), static_cast<int>(cy - 80), titleSize, Hud::kVictory, Text::Kind::Title);
     } else {
         const char* title = "GAME OVER";
-        int tw = Text::Measure(title, 48, Text::Kind::Title);
-        Text::Draw(title, static_cast<int>(cx - tw / 2.0f), static_cast<int>(cy - 80), 48, RED, Text::Kind::Title);
+        int tw = Text::Measure(title, titleSize, Text::Kind::Title);
+        Text::Draw(title, static_cast<int>(cx - tw / 2.0f), static_cast<int>(cy - 80), titleSize, Hud::kDefeat, Text::Kind::Title);
     }
 
     m_playAgainButton.Draw();
-    m_playAgainButton.DrawLabel(20, RAYWHITE);
+    m_playAgainButton.DrawLabel(btnFont, RAYWHITE);
 
     m_menuButton.Draw();
-    m_menuButton.DrawLabel(20, RAYWHITE);
+    m_menuButton.DrawLabel(btnFont, RAYWHITE);
 }

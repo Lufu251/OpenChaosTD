@@ -54,7 +54,7 @@ m_screen.EndFrame();
 
 ### Input
 
-Action-based input that maps named actions to keyboard keys via `keybindings.json`. Unknown action names return `false` silently.
+Action-based input that maps named actions to keyboard keys via `keybindings.toml`. Unknown action names return `false` silently.
 
 Mouse buttons are queried directly via raw accessors — they are not part of the binding system and are not user-remappable.
 
@@ -226,13 +226,13 @@ Cross-platform file read/write for JSON (nlohmann/json) and TOML (toml++). The r
 ```cpp
 m_fileStore.SetRootPath(projectRoot);
 
-// JSON (keybindings, save games)
-auto j = m_fileStore.LoadJson("config/keybindings.json");
-m_fileStore.SaveJson("data/save.json", j);
+// JSON (machine-written save state only)
+auto j = m_fileStore.LoadJson("saves/savegame.json");
+m_fileStore.SaveJson("saves/savegame.json", j);
 
-// TOML (settings, game data)
+// TOML (all human-editable config: settings, keybindings, hud)
 auto tbl = m_fileStore.LoadToml("config/settings.toml");
-m_fileStore.SaveToml("data/save.toml", tbl);
+m_fileStore.SaveToml("config/settings.toml", tbl);
 
 bool exists = m_fileStore.Exists("config/settings.toml");
 ```

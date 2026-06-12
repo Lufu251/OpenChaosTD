@@ -10,7 +10,7 @@ void StatusHUD::Build(float scale, int screenW) {
     HUD::Build(scale);
     m_metrics = Hud::PanelMetrics::Make(scale);
     m_metrics.panelH = m_metrics.Scaled(Hud::kStatusBarBaseHeight);
-    m_metrics.btnH   = m_metrics.Scaled(Hud::g_statusCfg.btnH);
+    m_metrics.btnH   = m_metrics.Scaled(Hud::kFontButtonLabelBase * Hud::kStatusBtnHToLabel);
     float panelH    = m_metrics.panelH;
     float btnH      = m_metrics.btnH;
     float btnWaveW  = m_metrics.Scaled(Hud::g_statusCfg.waveW);

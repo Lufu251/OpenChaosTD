@@ -29,13 +29,28 @@ body        = 11.0 # descriptions, stat rows, card text
 buttonLabel = 12.0 # button labels
 small       = 8.0  # compact build-bar name/cost
 
+# Full-screen menu/state typography and chrome (menu, settings, end, datapack-select).
+# Unlike the HUD scale above, these are fixed sizes — full-screen states do not apply hudScale.
+[state_ui]
+title       = 40.0 # main-menu / datapack-select screen title
+screenTitle = 48.0 # settings header and end-screen result title
+menuButton  = 24.0 # menu / end / back button labels
+
+[state_ui.colors]
+background    = [80,  80,  80,  255] # full-screen clear (was raylib DARKGRAY)
+dialogBg      = [30,  30,  30,  245] # modal dialog panel fill
+dialogOverlay = [0,   0,   0,   150] # screen dim behind a modal dialog
+disabledText  = [120, 120, 120, 255] # greyed action-button label text
+warning       = [255, 180, 0,   255] # section headers, conflict highlight, dialog border
+placeholderBg = [20,  20,  25,  255] # missing-icon fill and scrollbar track
+subtle        = [160, 160, 170, 255] # secondary text on selection screens
+victory       = [255, 203, 0,   255] # end-screen win title (was GOLD)
+defeat        = [230, 41,  55,  255] # end-screen loss title (was RED)
+
+# Shared, semantic layout anchors. Per-panel button heights, line heights, glyph/label offsets and
+# toast padding are no longer knobs here — they are derived in code from the typographic scale
+# (see "derived layout ratios" in src/hud/hud_theme.hpp).
 [layout]
-toastRowH      = 20.0 # vertical stride between stacked event toasts
-toastPadX      = 2.0  # background left extension and row-height shrink
-toastPadTop    = 1.0  # background top extension above the row
-toastPadW      = 10.0 # background width beyond the text width
-toastTextX     = 3.0  # text inset from the bar margin
-toastTextY     = 2.0  # text inset from the row top
 statusBarBaseH = 36.0 # unscaled height of the top status bar
 wavePanelGap   = 6.0  # extra gap wave panel leaves below the status bar
 marginBase     = 8.0  # default margin for every text panel
@@ -47,16 +62,11 @@ maxEntries = 5   # maximum simultaneous event toast rows
 fadeTime   = 1.0 # seconds over which toasts fade out
 
 [panels.pause]
-width         = 240.0
-height        = 460.0
-buttonWidth   = 180.0
-buttonHeight  = 44.0
-buttonSpacing = 56.0
-titleOffset   = 28.0
-firstButtonY  = 80.0
+width       = 240.0
+height      = 460.0
+buttonWidth = 180.0
 
 [panels.status]
-buttonHeight     = 24.0
 waveButtonWidth  = 90.0
 autoButtonWidth  = 48.0
 wavesButtonWidth = 56.0
@@ -72,13 +82,7 @@ iconSize    = 44.0
 buttonSize  = 64.0
 panelHeight = 80.0
 gap         = 4.0
-iconYOffset = 8.0
-nameYOffset = 18.0
-costYOffset = 9.0
 
 [panels.tower_info]
 width       = 160.0
-descLineH   = 13.0
-sellHeight  = 22.0
-sellGap     = 6.0
 anchorGap   = 20.0

@@ -56,14 +56,26 @@ void Hud::LoadConfig(FileStore& fileStore) {
         if (auto v = (*ty)["small"].value<float>())       kFontSmallBase       = *v;
     }
 
+    // Full-screen state UI typography and chrome
+    if (const toml::table* su = tbl["state_ui"].as_table()) {
+        if (auto v = (*su)["title"].value<float>())       kFontStateTitle  = *v;
+        if (auto v = (*su)["screenTitle"].value<float>()) kFontScreenTitle = *v;
+        if (auto v = (*su)["menuButton"].value<float>())  kFontMenuButton  = *v;
+        if (const toml::table* c = (*su)["colors"].as_table()) {
+            if (auto a = (*c)["background"].as_array())    kStateBackground = ParseColor(*a);
+            if (auto a = (*c)["dialogBg"].as_array())      kDialogBg        = ParseColor(*a);
+            if (auto a = (*c)["dialogOverlay"].as_array()) kDialogOverlay   = ParseColor(*a);
+            if (auto a = (*c)["disabledText"].as_array())  kDisabledText    = ParseColor(*a);
+            if (auto a = (*c)["warning"].as_array())       kWarning         = ParseColor(*a);
+            if (auto a = (*c)["placeholderBg"].as_array()) kPlaceholderBg   = ParseColor(*a);
+            if (auto a = (*c)["subtle"].as_array())        kSubtle          = ParseColor(*a);
+            if (auto a = (*c)["victory"].as_array())       kVictory         = ParseColor(*a);
+            if (auto a = (*c)["defeat"].as_array())        kDefeat          = ParseColor(*a);
+        }
+    }
+
     // Shared layout anchors
     if (const toml::table* la = tbl["layout"].as_table()) {
-        if (auto v = (*la)["toastRowH"].value<float>())      kToastRowH           = *v;
-        if (auto v = (*la)["toastPadX"].value<float>())      kToastPadX           = *v;
-        if (auto v = (*la)["toastPadTop"].value<float>())    kToastPadTop         = *v;
-        if (auto v = (*la)["toastPadW"].value<float>())      kToastPadW           = *v;
-        if (auto v = (*la)["toastTextX"].value<float>())     kToastTextX          = *v;
-        if (auto v = (*la)["toastTextY"].value<float>())     kToastTextY          = *v;
         if (auto v = (*la)["statusBarBaseH"].value<float>()) kStatusBarBaseHeight = *v;
         if (auto v = (*la)["wavePanelGap"].value<float>())   kWavePanelGap        = *v;
         if (auto v = (*la)["marginBase"].value<float>())     kMarginBase          = *v;
@@ -83,13 +95,8 @@ void Hud::LoadConfig(FileStore& fileStore) {
             if (auto v = (*p)["width"].value<float>())         g_pauseCfg.width      = *v;
             if (auto v = (*p)["height"].value<float>())        g_pauseCfg.height     = *v;
             if (auto v = (*p)["buttonWidth"].value<float>())   g_pauseCfg.btnW       = *v;
-            if (auto v = (*p)["buttonHeight"].value<float>())  g_pauseCfg.btnH       = *v;
-            if (auto v = (*p)["buttonSpacing"].value<float>()) g_pauseCfg.btnSpacing = *v;
-            if (auto v = (*p)["titleOffset"].value<float>())   g_pauseCfg.titleOff   = *v;
-            if (auto v = (*p)["firstButtonY"].value<float>())  g_pauseCfg.firstBtnY  = *v;
         }
         if (const toml::table* s = (*panels)["status"].as_table()) {
-            if (auto v = (*s)["buttonHeight"].value<float>())      g_statusCfg.btnH   = *v;
             if (auto v = (*s)["waveButtonWidth"].value<float>())   g_statusCfg.waveW  = *v;
             if (auto v = (*s)["autoButtonWidth"].value<float>())   g_statusCfg.autoW  = *v;
             if (auto v = (*s)["wavesButtonWidth"].value<float>())  g_statusCfg.wavesW = *v;
@@ -105,15 +112,9 @@ void Hud::LoadConfig(FileStore& fileStore) {
             if (auto v = (*b)["buttonSize"].value<float>())  g_buildCfg.btnSize = *v;
             if (auto v = (*b)["panelHeight"].value<float>()) g_buildCfg.panelH  = *v;
             if (auto v = (*b)["gap"].value<float>())         g_buildCfg.gap     = *v;
-            if (auto v = (*b)["iconYOffset"].value<float>()) g_buildCfg.iconY   = *v;
-            if (auto v = (*b)["nameYOffset"].value<float>()) g_buildCfg.nameY   = *v;
-            if (auto v = (*b)["costYOffset"].value<float>()) g_buildCfg.costY   = *v;
         }
         if (const toml::table* i = (*panels)["tower_info"].as_table()) {
             if (auto v = (*i)["width"].value<float>())       g_infoCfg.width     = *v;
-            if (auto v = (*i)["descLineH"].value<float>())   g_infoCfg.descLineH = *v;
-            if (auto v = (*i)["sellHeight"].value<float>())  g_infoCfg.sellH     = *v;
-            if (auto v = (*i)["sellGap"].value<float>())     g_infoCfg.sellGap   = *v;
             if (auto v = (*i)["anchorGap"].value<float>())   g_infoCfg.anchorGap = *v;
         }
     }

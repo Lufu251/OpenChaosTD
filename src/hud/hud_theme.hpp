@@ -54,14 +54,6 @@ inline unsigned char kOverlayTextAlpha = 220; // Ephemeral toast text, before th
 inline unsigned char kTooltipBgAlpha   = 235; // Upgrade tooltip fill
 inline Color kScreenDim {0, 0, 0, 120};       // Full-screen dim behind the modal pause menu
 
-// Event toast row geometry (unscaled): the background box hugs the measured text with this padding.
-inline float kToastRowH    = 20.0f; // vertical stride between stacked toasts
-inline float kToastPadX    = 2.0f;  // bg left extension and row-height shrink
-inline float kToastPadTop  = 1.0f;  // bg top extension above the row
-inline float kToastPadW    = 10.0f; // bg width beyond the text width
-inline float kToastTextX   = 3.0f;  // text inset from the bar margin
-inline float kToastTextY   = 2.0f;  // text inset from the row top
-
 // --- Semantic typographic scale ---------------------------------------------
 // Concrete HUDs request a role rather than a raw font-size integer; every panel that shows the same
 // kind of text therefore renders at the same scaled size. Bases are unscaled; FontSize() applies DPI.
@@ -84,6 +76,24 @@ inline int FontSize(FontRole role, float scale) {
     return static_cast<int>(base * scale);
 }
 
+// --- Full-screen state UI ---------------------------------------------------
+// Menu, settings, end and datapack-select screens draw through these so a palette or title-size
+// change propagates the same way HUD panels do. These sizes are fixed (full-screen states do not
+// apply hudScale). Defaults match the previous hardcoded literals so removal of the file is safe.
+inline float kFontStateTitle  = 40.0f; // main-menu / datapack-select screen title
+inline float kFontScreenTitle = 48.0f; // settings header, end-screen result title
+inline float kFontMenuButton  = 24.0f; // menu / end / back button labels
+
+inline Color kStateBackground{80,  80,  80,  255}; // full-screen clear (was raylib DARKGRAY)
+inline Color kDialogBg       {30,  30,  30,  245}; // modal dialog panel fill
+inline Color kDialogOverlay  {0,   0,   0,   150}; // screen dim behind a modal dialog
+inline Color kDisabledText   {120, 120, 120, 255}; // greyed action-button label text
+inline Color kWarning        {255, 180, 0,   255}; // section headers, conflict highlight, dialog border
+inline Color kPlaceholderBg  {20,  20,  25,  255}; // missing-icon fill and scrollbar track
+inline Color kSubtle         {160, 160, 170, 255}; // secondary text on selection screens
+inline Color kVictory        {255, 203, 0,   255}; // end-screen win title
+inline Color kDefeat         {230, 41,  55,  255}; // end-screen loss title
+
 // --- Sibling layout anchor --------------------------------------------------
 // Unscaled height of the top StatusHUD bar. EventHUD and WaveHUD position their content below the
 // bar; reading this (then applying their own Scaled()) keeps them in sync if the bar height changes.
@@ -97,25 +107,41 @@ inline float kMarginBase  = 8.0f;
 inline float kLineHBase   = 14.0f;
 inline float kHeaderHBase = 20.0f;
 
+// --- Derived layout ratios --------------------------------------------------
+// Offsets that are pure functions of the typographic scale live here as dimensionless ratios
+// rather than as standalone pixel knobs in config. Each is written as (former pixel value / base)
+// so the default font bases reproduce the previous hand-tuned layout exactly; change a font and the
+// dependent geometry tracks it. A panel multiplies the relevant base by the ratio, then applies its
+// usual Scaled(). The pause button spacing and title offset fall out of the bases directly (button
+// height plus one label-font gap; title baseline one title-font down) and need no constant.
+inline constexpr float kPauseBtnHToLabel     = 44.0f / 12.0f; // pause button height / label font (44)
+inline constexpr float kPauseFirstBtnToTitle = 80.0f / 28.0f; // first pause button Y / title font (80)
+inline constexpr float kStatusBtnHToLabel    = 24.0f / 12.0f; // status button height / label font (24)
+inline constexpr float kBuildIconYToBtn      = 8.0f  / 64.0f; // build icon nudge / button size (8)
+inline constexpr float kBuildNameYToBtn      = 18.0f / 64.0f; // build name baseline / button size (18)
+inline constexpr float kBuildCostYToBtn      = 9.0f  / 64.0f; // build cost baseline / button size (9)
+inline constexpr float kInfoDescLineToBody   = 13.0f / 11.0f; // info description line height / body font (13)
+inline constexpr float kInfoSellHToBody      = 22.0f / 11.0f; // info action button height / body font (22)
+inline constexpr float kInfoSellGapToMargin  = 6.0f  / 8.0f;  // info button gap / margin (6)
+inline constexpr float kToastRowToBody       = 20.0f / 11.0f; // event toast row stride / body font (20)
+
 // --- Per-panel layout config ------------------------------------------------
 // Unscaled base dimensions for each HUD panel. LoadConfig() overwrites these from config/hud.toml;
 // the defaults match the previous hardcoded values so removal of the file is safe.
 
 struct PausePanelCfg {
-    float width      = 240.0f;
-    float height     = 460.0f;
-    float btnW       = 180.0f;
-    float btnH       = 44.0f;
-    float btnSpacing = 56.0f;
-    float titleOff   = 28.0f;
-    float firstBtnY  = 80.0f;
+    float width  = 240.0f;
+    float height = 460.0f;
+    float btnW   = 180.0f;
+    // btnH, btnSpacing, titleOff and firstBtnY are derived from the typographic scale — see the
+    // derived layout ratios below.
 };
 struct StatusPanelCfg {
-    float btnH   = 24.0f;
     float waveW  = 90.0f;
     float autoW  = 48.0f;
     float wavesW = 56.0f;
     float margin = 6.0f;
+    // btnH is derived from the label font — see the derived layout ratios below.
 };
 struct WavePanelCfg {
     float width       = 200.0f;
@@ -127,16 +153,12 @@ struct BuildPanelCfg {
     float btnSize = 64.0f;
     float panelH  = 80.0f;
     float gap     = 4.0f;
-    float iconY   = 8.0f;
-    float nameY   = 18.0f;
-    float costY   = 9.0f;
+    // iconY, nameY and costY are derived from the button size — see the derived layout ratios below.
 };
 struct InfoPanelCfg {
     float width     = 160.0f;
-    float descLineH = 13.0f;
-    float sellH     = 22.0f;
-    float sellGap   = 6.0f;
     float anchorGap = 20.0f;
+    // descLineH, sellH and sellGap are derived from the body font / margin — see below.
 };
 struct EventCfg {
     int   maxEntries = 5;

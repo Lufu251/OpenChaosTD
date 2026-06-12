@@ -1,6 +1,7 @@
 #include <states/map_editor_state.hpp>
 #include <states/menu_state.hpp>
 #include <engine/core/text_renderer.hpp>
+#include <hud/hud_theme.hpp>
 #include <world/tile.hpp>
 #include <app/game.hpp>
 #include <toml++/toml.hpp>
@@ -16,8 +17,7 @@
 #endif
 
 namespace {
-    constexpr Color kAccentColor = {255, 180, 0, 255};
-    constexpr Color kFailColor   = {255, 120, 60, 255};
+    constexpr Color kFailColor = {255, 120, 60, 255}; // editor-specific fail/delete tint
 
     // Stat keys a Buff tile can apply, parallel to the three buff brush buttons.
     const char* kBuffStats[3] = {"range", "damage", "shotsPerMinute"};
@@ -547,8 +547,8 @@ void MapEditorState::Draw(Game& game) {
         if (m_modalOpen)
             DrawNewMapModal(game);
     } else {
-        ClearBackground(DARKGRAY);
-        DrawCenteredText("MAP EDITOR", gw / 2.0f, 40.0f, 40, RAYWHITE);
+        ClearBackground(Hud::kStateBackground);
+        DrawCenteredText("MAP EDITOR", gw / 2.0f, 40.0f, static_cast<int>(Hud::kFontStateTitle), RAYWHITE);
         DrawPalette(game);
         DrawEditCanvas(game);
         DrawBottomBar(game);
@@ -558,10 +558,7 @@ void MapEditorState::Draw(Game& game) {
 }
 
 void MapEditorState::DrawCatalog(Game& game) {
-    constexpr Color kBg     = {30, 30, 35, 255};
-    constexpr Color kSubtle = {160, 160, 170, 255};
-
-    ClearBackground(kBg);
+    ClearBackground(Hud::kStateBackground);
 
     float screenW = static_cast<float>(game.GetScreen().GetGameWidth());
     float screenH = static_cast<float>(game.GetScreen().GetGameHeight());
@@ -572,7 +569,7 @@ void MapEditorState::DrawCatalog(Game& game) {
 
     if (count == 0) {
         DrawCenteredText("No maps in this pack - click NEW MAP to create one",
-                         screenW / 2.0f, screenH / 2.0f - 9.0f, 20, LIGHTGRAY);
+                         screenW / 2.0f, screenH / 2.0f - 9.0f, 20, Hud::kSubtle);
     }
 
     for (int i = 0; i < count; i++) {
@@ -594,10 +591,10 @@ void MapEditorState::DrawCatalog(Game& game) {
             DrawTextureFitted(entry.m_preview, thumb);
             DrawRectangleLinesEx(thumb, 1.0f, kDefaultStyle.m_border);
         } else {
-            DrawRectangleRec(thumb, {20, 20, 25, 255});
+            DrawRectangleRec(thumb, Hud::kPlaceholderBg);
             DrawRectangleLinesEx(thumb, 1.0f, kDefaultStyle.m_border);
             DrawCenteredText("no preview", thumb.x + thumb.width / 2.0f,
-                             thumb.y + thumb.height / 2.0f - 8.0f, 16, kSubtle);
+                             thumb.y + thumb.height / 2.0f - 8.0f, 16, Hud::kSubtle);
         }
 
         // Text column.
@@ -610,7 +607,7 @@ void MapEditorState::DrawCatalog(Game& game) {
 
         std::string desc = TruncateToWidth(entry.m_description, 16, textW);
         Text::Draw(desc.c_str(), static_cast<int>(textX),
-                   static_cast<int>(card.y + 64.0f), 16, kSubtle);
+                   static_cast<int>(card.y + 64.0f), 16, Hud::kSubtle);
 
         // Delete button (position repeated here so drawing never depends on input order).
         m_deleteButtons[i].m_rect = {
@@ -623,25 +620,26 @@ void MapEditorState::DrawCatalog(Game& game) {
     }
 
     // Scrollbar (only when there is something to scroll).
-    m_list.DrawScrollbar(count, screenW, screenH, {20, 20, 25, 255}, kDefaultStyle.m_border);
+    m_list.DrawScrollbar(count, screenW, screenH, Hud::kPlaceholderBg, kDefaultStyle.m_border);
 
     // Header mask + title (covers any card scrolled up into this band).
-    DrawRectangle(0, 0, static_cast<int>(screenW), static_cast<int>(listTop), kBg);
-    DrawCenteredText("MAP EDITOR", screenW / 2.0f, 40.0f, 40, RAYWHITE);
+    DrawRectangle(0, 0, static_cast<int>(screenW), static_cast<int>(listTop), Hud::kStateBackground);
+    DrawCenteredText("MAP EDITOR", screenW / 2.0f, 40.0f, static_cast<int>(Hud::kFontStateTitle), RAYWHITE);
 
     // Footer mask + action buttons.
     DrawRectangle(0, static_cast<int>(listBottom), static_cast<int>(screenW),
-                  static_cast<int>(screenH - listBottom), kBg);
+                  static_cast<int>(screenH - listBottom), Hud::kStateBackground);
+    const int btnFont = static_cast<int>(Hud::kFontMenuButton);
     m_newMapBtn.Draw();
-    m_newMapBtn.DrawLabel(20, RAYWHITE);
+    m_newMapBtn.DrawLabel(btnFont, RAYWHITE);
     m_catalogBackBtn.Draw();
-    m_catalogBackBtn.DrawLabel(20, RAYWHITE);
+    m_catalogBackBtn.DrawLabel(btnFont, RAYWHITE);
 }
 
 void MapEditorState::DrawNewMapModal(Game& /*game*/) {
     // Dim the catalog behind the modal.
-    DrawRectangleRec(m_modalRect, {25, 25, 30, 255});
-    DrawRectangleLinesEx(m_modalRect, 2.0f, kAccentColor);
+    DrawRectangleRec(m_modalRect, Hud::kDialogBg);
+    DrawRectangleLinesEx(m_modalRect, 2.0f, Hud::kWarning);
 
     DrawCenteredText("NEW MAP", m_modalRect.x + m_modalRect.width / 2.0f,
                      m_modalRect.y + 18.0f, 26, RAYWHITE);
@@ -662,13 +660,13 @@ void MapEditorState::DrawNewMapModal(Game& /*game*/) {
 
     bool canCreate = !m_modalName.m_text.empty();
     m_modalCreateBtn.Draw(false, canCreate ? kDefaultStyle : kDisabledStyle);
-    m_modalCreateBtn.DrawLabel(18, canCreate ? RAYWHITE : Color{120, 120, 120, 255});
+    m_modalCreateBtn.DrawLabel(18, canCreate ? RAYWHITE : Hud::kDisabledText);
     m_modalCancelBtn.Draw();
     m_modalCancelBtn.DrawLabel(18, RAYWHITE);
 }
 
 void MapEditorState::DrawPalette(Game& /*game*/) {
-    Text::Draw("BRUSH", static_cast<int>(kPaletteX), static_cast<int>(kTopY), 24, kAccentColor);
+    Text::Draw("BRUSH", static_cast<int>(kPaletteX), static_cast<int>(kTopY), 24, Hud::kWarning);
 
     for (int i = 0; i < 5; i++) {
         m_brushButtons[i].Draw(m_brush == static_cast<Brush>(i));
@@ -679,7 +677,7 @@ void MapEditorState::DrawPalette(Game& /*game*/) {
         return;
 
     float headerY = m_buffStatButtons[0].m_rect.y - 24.0f;
-    Text::Draw("BUFF", static_cast<int>(kPaletteX), static_cast<int>(headerY), 18, kAccentColor);
+    Text::Draw("BUFF", static_cast<int>(kPaletteX), static_cast<int>(headerY), 18, Hud::kWarning);
     for (int i = 0; i < 3; i++) {
         m_buffStatButtons[i].Draw(m_buffStatIndex == i);
         m_buffStatButtons[i].DrawLabel(12, RAYWHITE);
@@ -733,7 +731,7 @@ void MapEditorState::DrawBottomBar(Game& /*game*/) {
 
     bool canSave = m_lastValidateOk;
     m_saveBtn.Draw(false, canSave ? kDefaultStyle : kDisabledStyle);
-    m_saveBtn.DrawLabel(18, canSave ? RAYWHITE : Color{120, 120, 120, 255});
+    m_saveBtn.DrawLabel(18, canSave ? RAYWHITE : Hud::kDisabledText);
 
     m_editBackBtn.Draw();
     m_editBackBtn.DrawLabel(18, RAYWHITE);

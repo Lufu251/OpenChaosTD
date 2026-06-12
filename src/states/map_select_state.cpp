@@ -2,6 +2,7 @@
 #include <states/datapack_select_state.hpp>
 #include <states/play_state.hpp>
 #include <engine/core/text_renderer.hpp>
+#include <hud/hud_theme.hpp>
 #include <app/game.hpp>
 #include <toml++/toml.hpp>
 #include <raylib.h>
@@ -9,9 +10,7 @@
 #include <string>
 
 namespace {
-    constexpr Color kBackground = {30, 30, 35, 255};
-    constexpr Color kSubtle     = {160, 160, 170, 255};
-    constexpr Color kAutoTint   = {45, 55, 70, 255};
+    constexpr Color kAutoTint = {45, 55, 70, 255}; // distinct tint for the procedural-map card
 
     constexpr float kThumbW = 160.0f; // preview column width inside a card
 }
@@ -135,7 +134,7 @@ void MapSelectState::Draw(Game& game) {
     float listTop = m_list.ListTop();
     float listBottom = m_list.ListBottom(screenH);
 
-    ClearBackground(kBackground);
+    ClearBackground(Hud::kStateBackground);
 
     int count = static_cast<int>(m_entries.size());
     for (int i = 0; i < count; i++) {
@@ -162,10 +161,10 @@ void MapSelectState::Draw(Game& game) {
             DrawTextureFitted(entry.m_preview, thumb);
             DrawRectangleLinesEx(thumb, 1.0f, kDefaultStyle.m_border);
         } else {
-            DrawRectangleRec(thumb, {20, 20, 25, 255});
+            DrawRectangleRec(thumb, Hud::kPlaceholderBg);
             DrawRectangleLinesEx(thumb, 1.0f, kDefaultStyle.m_border);
             DrawCenteredText("no preview", thumb.x + thumb.width / 2.0f,
-                             thumb.y + thumb.height / 2.0f - 8.0f, 16, kSubtle);
+                             thumb.y + thumb.height / 2.0f - 8.0f, 16, Hud::kSubtle);
         }
 
         // Text column.
@@ -178,19 +177,19 @@ void MapSelectState::Draw(Game& game) {
                    26, nameColor);
 
         std::string desc = TruncateToWidth(entry.m_description, 16, textW);
-        Text::Draw(desc.c_str(), static_cast<int>(textX), static_cast<int>(card.y + 64.0f), 16, kSubtle);
+        Text::Draw(desc.c_str(), static_cast<int>(textX), static_cast<int>(card.y + 64.0f), 16, Hud::kSubtle);
     }
 
     // Scrollbar (only when there is something to scroll).
-    m_list.DrawScrollbar(count, screenW, screenH, {20, 20, 25, 255}, kDefaultStyle.m_border);
+    m_list.DrawScrollbar(count, screenW, screenH, Hud::kPlaceholderBg, kDefaultStyle.m_border);
 
     // Header mask + title (covers any card scrolled up into this band).
-    DrawRectangle(0, 0, static_cast<int>(screenW), static_cast<int>(listTop), kBackground);
-    DrawCenteredText("SELECT MAP", screenW / 2.0f, 40.0f, 40, RAYWHITE);
+    DrawRectangle(0, 0, static_cast<int>(screenW), static_cast<int>(listTop), Hud::kStateBackground);
+    DrawCenteredText("SELECT MAP", screenW / 2.0f, 40.0f, static_cast<int>(Hud::kFontStateTitle), RAYWHITE);
 
     // Footer mask + back button.
     DrawRectangle(0, static_cast<int>(listBottom), static_cast<int>(screenW),
-                  static_cast<int>(screenH - listBottom), kBackground);
+                  static_cast<int>(screenH - listBottom), Hud::kStateBackground);
     m_backButton.Draw();
-    m_backButton.DrawLabel(24, RAYWHITE);
+    m_backButton.DrawLabel(static_cast<int>(Hud::kFontMenuButton), RAYWHITE);
 }

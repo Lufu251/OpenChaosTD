@@ -13,12 +13,16 @@ void PauseHUD::Build(float scale, int screenW, int screenH) {
 
     // Centered panel sized to hold the title and six stacked buttons.
     m_metrics = Hud::PanelMetrics::Make(scale);
-    m_metrics.panelW    = m_metrics.Scaled(Hud::g_pauseCfg.width);
-    m_metrics.panelH    = m_metrics.Scaled(Hud::g_pauseCfg.height);
-    m_metrics.btnW      = m_metrics.Scaled(Hud::g_pauseCfg.btnW);
-    m_metrics.btnH      = m_metrics.Scaled(Hud::g_pauseCfg.btnH);
-    m_metrics.btnSpacing = m_metrics.Scaled(Hud::g_pauseCfg.btnSpacing);
-    m_titleOffset       = m_metrics.Scaled(Hud::g_pauseCfg.titleOff);
+    m_metrics.panelW = m_metrics.Scaled(Hud::g_pauseCfg.width);
+    m_metrics.panelH = m_metrics.Scaled(Hud::g_pauseCfg.height);
+    m_metrics.btnW   = m_metrics.Scaled(Hud::g_pauseCfg.btnW);
+
+    // Button height follows the label font; spacing leaves one label-font gap below each button;
+    // the title baseline sits one title-font down from the panel top.
+    const float btnHBase = Hud::kFontButtonLabelBase * Hud::kPauseBtnHToLabel;
+    m_metrics.btnH       = m_metrics.Scaled(btnHBase);
+    m_metrics.btnSpacing = m_metrics.Scaled(btnHBase + Hud::kFontButtonLabelBase);
+    m_titleOffset        = m_metrics.Scaled(Hud::kFontTitleBase);
 
     float panelW = m_metrics.panelW;
     float panelH = m_metrics.panelH;
@@ -28,7 +32,7 @@ void PauseHUD::Build(float scale, int screenW, int screenH) {
     float btnH = m_metrics.btnH;
     float btnX = (gw - btnW) / 2.0f;
     float spacing = m_metrics.btnSpacing;
-    float firstY = m_panelRect.y + m_metrics.Scaled(Hud::g_pauseCfg.firstBtnY);
+    float firstY = m_panelRect.y + m_metrics.Scaled(Hud::kFontTitleBase * Hud::kPauseFirstBtnToTitle);
 
     // Order must match the kResume..kMainMenu indices.
     m_buttons.items.clear();

@@ -3,13 +3,10 @@
 #include <states/map_editor_state.hpp>
 #include <states/datapack_select_state.hpp>
 #include <engine/core/text_renderer.hpp>
+#include <hud/hud_theme.hpp>
 #include <app/game.hpp>
 #include <raylib.h>
 #include <memory>
-
-namespace {
-    constexpr Color kBackground = {30, 30, 35, 255};
-}
 
 void EditorSelectState::OnEnter(Game& game) {
     int cx = game.GetScreen().GetGameWidth()  / 2;
@@ -57,15 +54,18 @@ void EditorSelectState::Draw(Game& game) {
     const int cx = game.GetScreen().GetGameWidth()  / 2;
     const int cy = game.GetScreen().GetGameHeight() / 2;
 
-    ClearBackground(kBackground);
-    Text::Draw("SELECT EDITOR", cx - Text::Measure("SELECT EDITOR", 40) / 2, cy - 100, 40, RAYWHITE);
+    const int titleSize = static_cast<int>(Hud::kFontStateTitle);
+    const int btnFont = static_cast<int>(Hud::kFontMenuButton);
+
+    ClearBackground(Hud::kStateBackground);
+    Text::Draw("SELECT EDITOR", cx - Text::Measure("SELECT EDITOR", titleSize) / 2, cy - 100, titleSize, RAYWHITE);
 
     m_particleEditorButton.Draw();
-    m_particleEditorButton.DrawLabel(16, RAYWHITE);
+    m_particleEditorButton.DrawLabel(btnFont, RAYWHITE);
 
     m_mapEditorButton.Draw();
-    m_mapEditorButton.DrawLabel(18, RAYWHITE);
+    m_mapEditorButton.DrawLabel(btnFont, RAYWHITE);
 
     m_backButton.Draw();
-    m_backButton.DrawLabel(24, RAYWHITE);
+    m_backButton.DrawLabel(btnFont, RAYWHITE);
 }

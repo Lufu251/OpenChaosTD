@@ -32,9 +32,17 @@ void EventHUD::Draw() {
     // Route the shared margin and toast font through the central metrics/typographic scale.
     const Hud::PanelMetrics m = Hud::PanelMetrics::Make(m_scale);
     const float margin    = m.margin;
-    const float lineH     = Scaled(Hud::kToastRowH);
+    const float lineH     = Scaled(Hud::kFontBodyBase * Hud::kToastRowToBody); // row stride follows the toast font
     const float scoreHudH = Scaled(Hud::kStatusBarBaseHeight); // keep messages below the top panel
     const int   fontSize  = m.fontBody;
+
+    // The background box hugs the measured text with small insets expressed as fractions of the
+    // shared margin (formerly the standalone 2/1/10/3/2 px toast paddings at the default margin 8).
+    const float padX    = margin * 0.25f;  // bg left extension and row-height shrink
+    const float padTop  = margin * 0.125f; // bg top extension above the row
+    const float padW    = margin * 1.25f;  // bg width beyond the text width
+    const float textInX = margin * 0.375f; // text inset from the bar margin
+    const float textInY = margin * 0.25f;  // text inset from the row top
 
     int n = static_cast<int>(m_entries.size());
     float baseY = scoreHudH + margin;
@@ -49,10 +57,9 @@ void EventHUD::Draw() {
         float y = baseY + static_cast<float>(i) * lineH;
 
         int textW = Text::Measure(entry.m_message.c_str(), fontSize);
-        Rectangle bg = { margin - Scaled(Hud::kToastPadX), y - Scaled(Hud::kToastPadTop),
-                         textW + Scaled(Hud::kToastPadW), lineH - Scaled(Hud::kToastPadX) };
+        Rectangle bg = { margin - padX, y - padTop, textW + padW, lineH - padX };
         Hud::DrawOverlayToast(entry.m_message.c_str(), bg,
-                              margin + Scaled(Hud::kToastTextX), y + Scaled(Hud::kToastTextY),
+                              margin + textInX, y + textInY,
                               fontSize, fade);
     }
 }

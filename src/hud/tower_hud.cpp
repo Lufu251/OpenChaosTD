@@ -17,9 +17,10 @@ void TowerBuildHUD::Build(float scale, int screenW, int screenH, const std::vect
     const float panelH  = m_metrics.Scaled(Hud::g_buildCfg.panelH);
     const float margin  = m_metrics.margin;
     const float gap     = m_metrics.Scaled(Hud::g_buildCfg.gap);
-    m_iconYOffset = m_metrics.Scaled(Hud::g_buildCfg.iconY);
-    m_nameYOffset = m_metrics.Scaled(Hud::g_buildCfg.nameY);
-    m_costYOffset = m_metrics.Scaled(Hud::g_buildCfg.costY);
+    // Glyph and label offsets scale with the button size they sit inside.
+    m_iconYOffset = m_metrics.Scaled(Hud::g_buildCfg.btnSize * Hud::kBuildIconYToBtn);
+    m_nameYOffset = m_metrics.Scaled(Hud::g_buildCfg.btnSize * Hud::kBuildNameYToBtn);
+    m_costYOffset = m_metrics.Scaled(Hud::g_buildCfg.btnSize * Hud::kBuildCostYToBtn);
 
     float y = screenH - btnSize - margin;
     m_panelRect = { 0.0f, screenH - panelH, static_cast<float>(screenW), panelH };
@@ -108,9 +109,10 @@ void TowerInfoHUD::Build(float scale) {
     HUD::Build(scale);
     m_metrics = Hud::PanelMetrics::Make(scale);
     m_metrics.panelW = m_metrics.Scaled(Hud::g_infoCfg.width);
-    m_descLineH  = m_metrics.Scaled(Hud::g_infoCfg.descLineH);
-    m_sellH      = m_metrics.Scaled(Hud::g_infoCfg.sellH);
-    m_sellGap    = m_metrics.Scaled(Hud::g_infoCfg.sellGap);
+    // Line height and the action-button height/gap follow the body font and shared margin.
+    m_descLineH  = m_metrics.Scaled(Hud::kFontBodyBase * Hud::kInfoDescLineToBody);
+    m_sellH      = m_metrics.Scaled(Hud::kFontBodyBase * Hud::kInfoSellHToBody);
+    m_sellGap    = m_metrics.Scaled(Hud::kMarginBase * Hud::kInfoSellGapToMargin);
     m_anchorGap  = m_metrics.Scaled(Hud::g_infoCfg.anchorGap);
     Hide(); // shown only while a tower is selected or hovered
 }
