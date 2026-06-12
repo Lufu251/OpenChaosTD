@@ -13,6 +13,13 @@ static TargetingMode ParseTargetingMode(const std::string& s) {
     if (s == "Slowest") return TargetingMode::Slowest;
     if (s == "MostArmor") return TargetingMode::MostArmor;
     if (s == "MostShield") return TargetingMode::MostShield;
+    if (s == "LowestEffectiveHealth") return TargetingMode::LowestEffectiveHealth;
+    if (s == "MostEffectiveHealth") return TargetingMode::MostEffectiveHealth;
+    if (s == "MostMaxHealth") return TargetingMode::MostMaxHealth;
+    if (s == "MostReward") return TargetingMode::MostReward;
+    if (s == "MostLives") return TargetingMode::MostLives;
+    if (s == "Closest") return TargetingMode::Closest;
+    if (s == "Farthest") return TargetingMode::Farthest;
     return TargetingMode::First;
 }
 

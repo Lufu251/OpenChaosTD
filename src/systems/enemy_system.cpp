@@ -31,15 +31,21 @@ void EnemySystem::FollowPath(float dt, DenseSlotMap<Enemy>& enemies, const Map& 
     }
 }
 
-void EnemySystem::TickEnemies(float dt, DenseSlotMap<Enemy>& enemies, const Map& map, ParticleSystem& particles){
+void EnemySystem::TickEnemies(float dt, DenseSlotMap<Enemy>& enemies, const Map& map, ParticleSystem& particles,
+                             std::vector<PendingChildSpawn>& outSpawns){
     for (auto& enemy : enemies) {
         // Recompute live combat stats (speed, armor) from base + module contributions.
         // Mirrors TowerSystem::RecomputeStats.
         enemy.RecomputeLive();
         BaseStatsModule* base = enemy.GetBaseStats();
 
+        // Modules may request minion spawns this tick (SummonerModule). Collect them per enemy, then
+        // attach the parent's path state so the world layer can place them after the iteration.
+        std::vector<SpawnRequest> reqs;
         for (auto& mod : enemy.m_modules)
-            mod->Tick(dt, enemy);
+            mod->Tick(dt, enemy, reqs);
+        for (auto& req : reqs)
+            outSpawns.push_back({req, enemy.m_position, enemy.m_spawnedNest, enemy.m_waypointIndex, enemy.m_progress});
 
         // Compute enemy velocity so status-effect particles inherit it and don't lag behind
         Vector2 baseVel = {0, 0};

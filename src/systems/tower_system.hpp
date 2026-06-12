@@ -21,6 +21,6 @@ private:
     void Fire(Tower& tower, const std::vector<DenseSlotMap<Enemy>::Key>& targetKeys, DenseSlotMap<Enemy>& enemies, std::vector<Attack>& attacks, ParticleSystem& particles, SoundSystem& sound);
     static AttackVisual BuildVisual(const Tower& tower, std::vector<Vector2> targetPositions);
     void BuildPayload(const Tower& tower, AttackPayload& payload);
-    bool CompareTarget(const Enemy& a, const Enemy& b, TargetingMode mode);
+    bool CompareTarget(const Enemy& a, const Enemy& b, TargetingMode mode, Vector2 towerPos);
     std::vector<Enemy*> FindEnemiesInRange(const Tower& tower, DenseSlotMap<Enemy>& enemies);
 };

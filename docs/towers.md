@@ -42,8 +42,29 @@ All fields are optional and default to 0 / `"First"`.
 | `targetCount`   | int    | Max simultaneous targets; 0 = all in range |
 | `targetingMode` | string | Priority rule — see targeting modes below |
 
-**Targeting modes:** `First`, `Last`, `MostHealth`, `LowestHealth`, `Fastest`, `Slowest`,
-`MostArmor`, `MostShield`
+**Targeting modes** — the `targetingMode` value selects which in-range enemy a tower prioritizes
+(when `targetCount > 1`, the top N by this rule). The in-game label shown when cycling a tower's mode
+is in parentheses.
+
+| `targetingMode`         | Label      | Picks the enemy with… |
+|-------------------------|------------|-----------------------|
+| `First`                 | First      | the most path progress (closest to the core) — the default |
+| `Last`                  | Last       | the least path progress (just spawned) |
+| `MostHealth`            | Most HP    | the highest current health |
+| `LowestHealth`          | Least HP   | the lowest current health (ignores shields) |
+| `Fastest`               | Fastest    | the highest live speed |
+| `Slowest`               | Slowest    | the lowest live speed |
+| `MostArmor`             | Most Armor | the highest live armor |
+| `MostShield`            | Most Shield| the largest total shield pool |
+| `LowestEffectiveHealth` | Least HP+Shield | the least health **+ shield** — fewest shots to kill |
+| `MostEffectiveHealth`   | Most HP+Shield  | the most health **+ shield** — the true tank |
+| `MostMaxHealth`         | Most Max HP     | the highest **max** health — a stable lock that doesn't re-target as HP drops |
+| `MostReward`            | Most Gold       | the highest gold reward |
+| `MostLives`             | Most Lives      | the highest `livesOnReach` — the biggest core threat on leak |
+| `Closest`               | Closest    | the smallest distance to this tower |
+| `Farthest`              | Farthest   | the greatest distance to this tower (within range) |
+
+Unknown or omitted values fall back to `First`.
 
 ### Passive
 

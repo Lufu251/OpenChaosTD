@@ -223,7 +223,7 @@ void BaseStatsModule::DescribeStats(std::vector<DescLine>& out) const {
 
 // --- RegenerationModule ---
 
-void RegenerationModule::Tick(float dt, Enemy& enemy) {
+void RegenerationModule::Tick(float dt, Enemy& enemy, std::vector<SpawnRequest>& /*outSpawns*/) {
     float maxHealth = enemy.GetBaseStats()->m_maxHealth;
     enemy.m_currentHealth = std::min(maxHealth, enemy.m_currentHealth + m_rate * dt);
 }
@@ -299,4 +299,144 @@ void SplitModule::DescribeStats(std::vector<DescLine>& out) const {
 
 void SplitModule::PatchStats(const std::string& key, float v, bool mul) {
     if (key == "splitCount") PatchInt(m_count, v, mul);
+}
+
+// --- ResistanceModule ---
+
+float ResistanceModule::InterceptDamage(float incoming) {
+    return incoming * (1.0f - m_percent / 100.0f);
+}
+
+void ResistanceModule::DescribeStats(std::vector<DescLine>& out) const {
+    PushStatLine(out, SKYBLUE, "Resist:  %.0f%%", m_percent);
+}
+
+void ResistanceModule::PatchStats(const std::string& key, float v, bool mul) {
+    if (key == "resistPercent") ApplyDelta(m_percent, v, mul);
+}
+
+// --- EvasionModule ---
+
+float EvasionModule::InterceptDamage(float incoming) {
+    // Same global RNG stream as the tower crit roll (tower_system.cpp), so a save replay is stable.
+    bool dodged = GetRandomValue(0, 99) < static_cast<int>(m_dodgeChance * 100.0f);
+    return dodged ? 0.0f : incoming;
+}
+
+void EvasionModule::DescribeStats(std::vector<DescLine>& out) const {
+    PushStatLine(out, SKYBLUE, "Dodge:   %.0f%%", m_dodgeChance * 100.0f);
+}
+
+void EvasionModule::PatchStats(const std::string& key, float v, bool mul) {
+    if (key == "dodgeChance") ApplyDelta(m_dodgeChance, v, mul);
+}
+
+// --- BarrierModule ---
+
+float BarrierModule::InterceptDamage(float incoming) {
+    if (m_hitsLeft <= 0) return incoming;
+    m_hitsLeft--; // one charge fully eats this hit, regardless of magnitude
+    return 0.0f;
+}
+
+void BarrierModule::DescribeStats(std::vector<DescLine>& out) const {
+    PushStatLine(out, {0, 220, 255, 255}, "Barrier: %d/%d", m_hitsLeft, m_maxHits);
+}
+
+void BarrierModule::PatchStats(const std::string& key, float v, bool mul) {
+    // Scale the charge count and refill, mirroring ShieldModule topping up its pool on upgrade.
+    if (key == "hitCount") {
+        PatchInt(m_maxHits, v, mul);
+        m_hitsLeft = m_maxHits;
+    }
+}
+
+// --- EnrageModule ---
+
+void EnrageModule::Tick(float /*dt*/, Enemy& enemy, std::vector<SpawnRequest>& /*outSpawns*/) {
+    float maxHealth = enemy.GetBaseStats()->m_maxHealth;
+    m_active = maxHealth > 0.0f && enemy.m_currentHealth <= maxHealth * m_healthThreshold;
+}
+
+void EnrageModule::ContributeStats(BaseStatsModule& base) const {
+    if (m_active) base.m_liveSpeed += m_speedBonus;
+}
+
+void EnrageModule::DescribeStats(std::vector<DescLine>& out) const {
+    PushStatLine(out, RED, "Enrage:  +%g @ %.0f%%", m_speedBonus, m_healthThreshold * 100.0f);
+}
+
+void EnrageModule::PatchStats(const std::string& key, float v, bool mul) {
+    if      (key == "healthThreshold") ApplyDelta(m_healthThreshold, v, mul);
+    else if (key == "speedBonus")      ApplyDelta(m_speedBonus, v, mul);
+}
+
+// --- ShieldRegenModule ---
+
+float ShieldRegenModule::InterceptDamage(float incoming) {
+    m_timeSinceHit = 0.0f; // any hit restarts the recharge delay
+    if (m_currentShield <= 0.0f) return incoming;
+    float absorbed = std::min(m_currentShield, incoming);
+    m_currentShield -= absorbed;
+    return incoming - absorbed;
+}
+
+void ShieldRegenModule::Tick(float dt, Enemy& /*enemy*/, std::vector<SpawnRequest>& /*outSpawns*/) {
+    m_timeSinceHit += dt;
+    if (m_timeSinceHit >= m_rechargeDelay)
+        m_currentShield = std::min(m_maxShield, m_currentShield + m_rechargeRate * dt);
+}
+
+void ShieldRegenModule::DescribeStats(std::vector<DescLine>& out) const {
+    PushStatLine(out, {0, 220, 255, 255}, "Shield:  %.0f/%.0f  +%g/s", m_currentShield, m_maxShield, m_rechargeRate);
+}
+
+void ShieldRegenModule::PatchStats(const std::string& key, float v, bool mul) {
+    if      (key == "shield")        { ApplyDelta(m_maxShield, v, mul); m_currentShield = m_maxShield; }
+    else if (key == "rechargeRate")  ApplyDelta(m_rechargeRate, v, mul);
+    else if (key == "rechargeDelay") ApplyDelta(m_rechargeDelay, v, mul);
+}
+
+// --- AdrenalineModule ---
+
+float AdrenalineModule::InterceptDamage(float incoming) {
+    m_timer = m_duration; // taking a hit (re)arms the speed burst; damage passes through unchanged
+    return incoming;
+}
+
+void AdrenalineModule::Tick(float dt, Enemy& /*enemy*/, std::vector<SpawnRequest>& /*outSpawns*/) {
+    if (m_timer > 0.0f) m_timer -= dt;
+}
+
+void AdrenalineModule::ContributeStats(BaseStatsModule& base) const {
+    if (m_timer > 0.0f) base.m_liveSpeed += m_speedBonus;
+}
+
+void AdrenalineModule::DescribeStats(std::vector<DescLine>& out) const {
+    PushStatLine(out, RED, "Adrenal: +%g  %.1fs", m_speedBonus, m_duration);
+}
+
+void AdrenalineModule::PatchStats(const std::string& key, float v, bool mul) {
+    if      (key == "speedBonus") ApplyDelta(m_speedBonus, v, mul);
+    else if (key == "duration")   ApplyDelta(m_duration, v, mul);
+}
+
+// --- SummonerModule ---
+
+void SummonerModule::Tick(float dt, Enemy& /*enemy*/, std::vector<SpawnRequest>& outSpawns) {
+    if (m_interval <= 0.0f) return; // guard against a misconfigured interval (no spawning)
+    m_timer += dt;
+    while (m_timer >= m_interval) {
+        m_timer -= m_interval;
+        outSpawns.push_back(SpawnRequest{m_childType, m_count, m_spacing});
+    }
+}
+
+void SummonerModule::DescribeStats(std::vector<DescLine>& out) const {
+    PushStatLine(out, RAYWHITE, "Summon:  %dx %s / %.1fs", m_count, m_childType.c_str(), m_interval);
+}
+
+void SummonerModule::PatchStats(const std::string& key, float v, bool mul) {
+    if      (key == "summonCount") PatchInt(m_count, v, mul);
+    else if (key == "interval")    ApplyDelta(m_interval, v, mul);
 }

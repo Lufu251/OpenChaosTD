@@ -95,7 +95,7 @@ std::vector<DenseSlotMap<Enemy>::Key> TowerSystem::FindTargets(const Tower& towe
     std::vector<Enemy*> inRange = FindEnemiesInRange(tower, enemies);
 
     std::sort(inRange.begin(), inRange.end(), [&](const Enemy* a, const Enemy* b) {
-        return CompareTarget(*a, *b, tower.GetAttack()->m_targetingMode);
+        return CompareTarget(*a, *b, tower.GetAttack()->m_targetingMode, tower.m_position);
     });
 
     int size = static_cast<int>(inRange.size());
@@ -188,8 +188,11 @@ void TowerSystem::TickAttacks(float dt, DenseSlotMap<Enemy>& enemies, std::vecto
                 bool crit = false;
                 float net = ResolveDamage(payload, *enemy, crit);
                 net += ConsumeWeaknessBonus(*enemy); // before interception/health, per effect rules
-                if (auto* shield = enemy->GetShield())
-                    net = shield->InterceptDamage(net);
+                // Each module gets a shot at the incoming damage, in declaration order: shields absorb,
+                // resistance scales, evasion/barrier can negate it outright. ShieldModule is just one
+                // of these (no longer special-cased).
+                for (auto& mod : enemy->m_modules)
+                    net = mod->InterceptDamage(net);
                 enemy->m_currentHealth -= net;
                 ApplyOnHitEffects(payload, *enemy); // stun cleared after damage; new effects applied last
                 EmitImpact(particles, *enemy, crit, payload);
@@ -204,11 +207,21 @@ void TowerSystem::TickAttacks(float dt, DenseSlotMap<Enemy>& enemies, std::vecto
 }
 
 static float TotalShield(const Enemy& enemy) {
-    ShieldModule* shield = enemy.GetShield();
-    return shield ? shield->m_currentShield : 0.0f;
+    // Sum every module's shield contribution (ShieldModule and ShieldRegenModule both report one) so
+    // MostShield targeting accounts for all shield sources, not just the cached ShieldModule.
+    float total = 0.0f;
+    for (const auto& mod : enemy.m_modules)
+        total += mod->GetShield();
+    return total;
 }
 
-bool TowerSystem::CompareTarget(const Enemy& a, const Enemy& b, TargetingMode mode) {
+// Health plus all shields: the real damage needed to kill, used by the Weakest/Toughest modes so they
+// account for shielded enemies (raw current health alone ignores the shield pool).
+static float EffectiveHealth(const Enemy& enemy) {
+    return enemy.m_currentHealth + TotalShield(enemy);
+}
+
+bool TowerSystem::CompareTarget(const Enemy& a, const Enemy& b, TargetingMode mode, Vector2 towerPos) {
     switch (mode) {
         case TargetingMode::First:          return a.m_progress < b.m_progress;
         case TargetingMode::Last:           return a.m_progress > b.m_progress;
@@ -218,6 +231,14 @@ bool TowerSystem::CompareTarget(const Enemy& a, const Enemy& b, TargetingMode mo
         case TargetingMode::Slowest:        return a.GetBaseStats()->m_liveSpeed < b.GetBaseStats()->m_liveSpeed;
         case TargetingMode::MostArmor:      return a.GetBaseStats()->m_liveArmor > b.GetBaseStats()->m_liveArmor;
         case TargetingMode::MostShield:     return TotalShield(a) > TotalShield(b);
+        case TargetingMode::LowestEffectiveHealth: return EffectiveHealth(a) < EffectiveHealth(b);
+        case TargetingMode::MostEffectiveHealth:   return EffectiveHealth(a) > EffectiveHealth(b);
+        case TargetingMode::MostMaxHealth:  return a.GetBaseStats()->m_maxHealth > b.GetBaseStats()->m_maxHealth;
+        case TargetingMode::MostReward:     return a.GetBaseStats()->m_reward > b.GetBaseStats()->m_reward;
+        case TargetingMode::MostLives:      return a.GetBaseStats()->m_livesOnReach > b.GetBaseStats()->m_livesOnReach;
+        // Squared distance: same ordering as distance, no sqrt.
+        case TargetingMode::Closest:        return Vector2DistanceSqr(a.m_position, towerPos) < Vector2DistanceSqr(b.m_position, towerPos);
+        case TargetingMode::Farthest:       return Vector2DistanceSqr(a.m_position, towerPos) > Vector2DistanceSqr(b.m_position, towerPos);
     }
     return false;
 }

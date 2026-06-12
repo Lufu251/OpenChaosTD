@@ -38,6 +38,13 @@ void EnemyFactory::Load(FileStore& fileStore, const EmitterPresets& presets, con
     m_builders["Immune"]       = [](const ModuleDef& def){ const toml::table& j = def.m_table; return std::make_unique<ImmuneModule>(ParseEffectType(j["effect"].value_or(std::string{}))); };
     m_builders["Shield"]       = [](const ModuleDef& def){ const toml::table& j = def.m_table; return std::make_unique<ShieldModule>(j["shield"].value_or(0.0f)); };
     m_builders["Split"]        = [](const ModuleDef& def){ const toml::table& j = def.m_table; return std::make_unique<SplitModule>(j["child"].value_or(std::string{}), j["splitCount"].value_or(0), j["spacing"].value_or(12.0f)); };
+    m_builders["Resistance"]   = [](const ModuleDef& def){ const toml::table& j = def.m_table; return std::make_unique<ResistanceModule>(j["resistPercent"].value_or(0.0f)); };
+    m_builders["Evasion"]      = [](const ModuleDef& def){ const toml::table& j = def.m_table; return std::make_unique<EvasionModule>(j["dodgeChance"].value_or(0.0f)); };
+    m_builders["Barrier"]      = [](const ModuleDef& def){ const toml::table& j = def.m_table; return std::make_unique<BarrierModule>(j["hitCount"].value_or(0)); };
+    m_builders["Enrage"]       = [](const ModuleDef& def){ const toml::table& j = def.m_table; return std::make_unique<EnrageModule>(j["healthThreshold"].value_or(0.3f), j["speedBonus"].value_or(0.0f)); };
+    m_builders["ShieldRegen"]  = [](const ModuleDef& def){ const toml::table& j = def.m_table; return std::make_unique<ShieldRegenModule>(j["shield"].value_or(0.0f), j["rechargeRate"].value_or(0.0f), j["rechargeDelay"].value_or(0.0f)); };
+    m_builders["Adrenaline"]   = [](const ModuleDef& def){ const toml::table& j = def.m_table; return std::make_unique<AdrenalineModule>(j["speedBonus"].value_or(0.0f), j["duration"].value_or(0.0f)); };
+    m_builders["Summoner"]     = [](const ModuleDef& def){ const toml::table& j = def.m_table; return std::make_unique<SummonerModule>(j["child"].value_or(std::string{}), j["summonCount"].value_or(1), j["spacing"].value_or(12.0f), j["interval"].value_or(5.0f)); };
 
     auto data = fileStore.LoadToml(dataDir + "/enemies.toml");
     auto enemies = data["enemies"].as_array();
@@ -127,6 +134,16 @@ void EnemyFactory::ApplyUpgrade(Enemy& enemy, const EnemyUpgrade& up, bool inclu
         for (auto& mod : up.m_addModules)
             if (auto m = BuildModule(mod)) enemy.AddModule(std::move(m));
     enemy.m_level++;
+}
+
+void EnemyFactory::ApplyTierUpgrades(Enemy& enemy, int tier) const {
+    if (tier <= 0 || !enemy.m_upgrade) return;
+
+    // Re-apply the enemy's single upgrade option `tier` times so each tier stacks one more copy of the
+    // same scalar deltas (scaling indefinitely in endless mode). Added modules are appended once (first
+    // tier only), not per tier.
+    for (int i = 0; i < tier; i++)
+        ApplyUpgrade(enemy, *enemy.m_upgrade, i == 0);
 }
 
 bool EnemyFactory::Has(const std::string& name) const {

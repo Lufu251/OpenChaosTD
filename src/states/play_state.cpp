@@ -123,7 +123,12 @@ void PlayingState::StepSimulation(Game& game, float dt) {
     GameData& data = game.GetGameData();
     m_waveManager.Update(dt, data, m_worldSystem, game.GetEnemyFactory());
 
-    m_enemySystem.TickEnemies(dt, data.m_enemies, data.m_map, game.GetParticles());
+    int tier = m_waveManager.GetUpgradeTier(); // active wave's tier; scales any spawned children
+
+    // Modules may request minion spawns during the tick (SummonerModule); place them after the tick.
+    std::vector<PendingChildSpawn> pendingSpawns;
+    m_enemySystem.TickEnemies(dt, data.m_enemies, data.m_map, game.GetParticles(), pendingSpawns);
+    m_worldSystem.SpawnChildren(pendingSpawns, data, game.GetEnemyFactory(), tier);
     m_enemySystem.FollowPath(dt, data.m_enemies, data.m_map);
 
     m_towerSystem.Update(dt, data.m_towers, data.m_enemies, data.m_attacks, game.GetParticles(), game.GetSoundSystem());
@@ -131,7 +136,7 @@ void PlayingState::StepSimulation(Game& game, float dt) {
     game.GetParticles().Tick(dt);
 
     m_worldSystem.CheckEnemyReachedCore(data);
-    m_worldSystem.CheckEnemyDead(data, game.GetEnemyFactory(), game.GetParticles(), game.GetSoundSystem());
+    m_worldSystem.CheckEnemyDead(data, game.GetEnemyFactory(), game.GetParticles(), game.GetSoundSystem(), tier);
     m_worldSystem.CheckGameOver(m_gameOver, data);
 }
 

@@ -172,13 +172,8 @@ WaveManager::WaveDef WaveManager::GenerateWave(int waveNumber) {
 }
 
 void WaveManager::ApplyTierUpgrades(Enemy& enemy, int tier, const EnemyFactory& enemyFactory) const {
-    if (tier <= 0 || !enemy.m_upgrade) return;
-
-    // The enemy defines a single upgrade option; re-apply it `tier` times so each upgrade tier
-    // stacks one more copy of the same scalar deltas, scaling indefinitely (endless mode). Added
-    // modules are appended once (first tier only), not per tier.
-    for (int i = 0; i < tier; i++)
-        enemyFactory.ApplyUpgrade(enemy, *enemy.m_upgrade, i == 0);
+    // Single source of truth lives in EnemyFactory so the world layer can scale spawned children too.
+    enemyFactory.ApplyTierUpgrades(enemy, tier);
 }
 
 void WaveManager::RebuildPreviewPrototypes(int pendingWaveNumber, const EnemyFactory& enemyFactory) {

@@ -92,7 +92,7 @@ void WorldSystem::CheckEnemyReachedCore(GameData& gameData){
     }
 }
 
-void WorldSystem::CheckEnemyDead(GameData& gameData, EnemyFactory& enemyFactory, ParticleSystem& particles, SoundSystem& sound){
+void WorldSystem::CheckEnemyDead(GameData& gameData, EnemyFactory& enemyFactory, ParticleSystem& particles, SoundSystem& sound, int tier){
     std::vector<DenseSlotMap<Enemy>::Key> toRemove;
     for (auto& enemy : gameData.m_enemies) {
         if (enemy.m_currentHealth <= 0.0f)
@@ -123,35 +123,52 @@ void WorldSystem::CheckEnemyDead(GameData& gameData, EnemyFactory& enemyFactory,
 
         RemoveEnemy(key, gameData);
 
-        // Unit vector pointing back along the path (away from the core), used to fan the children out.
-        // Children are only ever pushed backward, so they never skip ahead or reach the core early.
-        Vector2 back = {0.0f, 0.0f};
-        const auto& path = gameData.m_map.GetPaths()[nest];
-        if (waypoint >= 0 && waypoint < static_cast<int>(path.size())) {
-            Vector2 toWp = Vector2Subtract(path[waypoint], pos);
-            float dist = Vector2Length(toWp);
-            if (dist > 0.001f) // guard against NaN when the parent sits exactly on the waypoint
-                back = Vector2Scale(toWp, -1.0f / dist);
-        }
-        float tileSize = static_cast<float>(gameData.m_map.GetTileSize());
+        // Spawn children after the parent is removed, scaled to the active wave tier.
+        for (const auto& req : requests)
+            SpawnFromRequest(req, pos, nest, waypoint, progress, gameData, enemyFactory, tier);
+    }
+}
 
-        // Spawn children after parent is removed, staggered backward along the path by req.m_spacing
-        // so they spread out instead of stacking on the exact death position.
-        for (const auto& req : requests) {
-            for (int i = 0; i < req.m_count; i++) {
-                float offset = i * req.m_spacing;
-                auto built = enemyFactory.Create(req.m_type);
-                if (!built) break; // unknown split type (edited datapack) -> spawn nothing
-                Enemy child = std::move(*built);
-                child.m_position     = Vector2Add(pos, Vector2Scale(back, offset));
-                child.m_spawnedNest  = nest;
-                child.m_waypointIndex = waypoint;
-                // Progress rises away from the core, matching the backward push, so targeting (First/
-                // Last) sees distinct values instead of ties.
-                child.m_progress     = progress + (tileSize > 0.0f ? offset / tileSize : 0.0f);
-                gameData.m_enemies.Insert(std::move(child));
-            }
-        }
+void WorldSystem::SpawnChildren(const std::vector<PendingChildSpawn>& spawns, GameData& gameData, EnemyFactory& enemyFactory, int tier){
+    // Periodic-summon children collected during the enemy tick; placed here (after the tick) so the
+    // enemy slotmap is never mutated mid-iteration.
+    for (const auto& s : spawns)
+        SpawnFromRequest(s.m_request, s.m_position, s.m_nest, s.m_waypointIndex, s.m_progress, gameData, enemyFactory, tier);
+}
+
+void WorldSystem::SpawnFromRequest(const SpawnRequest& req, Vector2 pos, int nest, int waypoint, float progress,
+                                   GameData& gameData, EnemyFactory& enemyFactory, int tier){
+    if (!enemyFactory.Has(req.m_type)) return; // unknown type (edited datapack) -> spawn nothing
+
+    // Unit vector pointing back along the path (away from the core), used to fan the children out.
+    // Children are only ever pushed backward, so they never skip ahead or reach the core early.
+    Vector2 back = {0.0f, 0.0f};
+    const auto& path = gameData.m_map.GetPaths()[nest];
+    if (waypoint >= 0 && waypoint < static_cast<int>(path.size())) {
+        Vector2 toWp = Vector2Subtract(path[waypoint], pos);
+        float dist = Vector2Length(toWp);
+        if (dist > 0.001f) // guard against NaN when the parent sits exactly on the waypoint
+            back = Vector2Scale(toWp, -1.0f / dist);
+    }
+    float tileSize = static_cast<float>(gameData.m_map.GetTileSize());
+
+    // Staggered backward along the path by req.m_spacing so children spread out instead of stacking.
+    for (int i = 0; i < req.m_count; i++) {
+        float offset = i * req.m_spacing;
+        auto built = enemyFactory.Create(req.m_type);
+        if (!built) break;
+        Enemy child = std::move(*built);
+        // Scale the child to the spawning wave's tier so late-wave splits/summons stay threatening,
+        // matching the tier applied to enemies spawned directly by the wave manager.
+        enemyFactory.ApplyTierUpgrades(child, tier);
+        child.RecomputeLive(); // refresh live speed/armor after the tier patches
+        child.m_position     = Vector2Add(pos, Vector2Scale(back, offset));
+        child.m_spawnedNest  = nest;
+        child.m_waypointIndex = waypoint;
+        // Progress rises away from the core, matching the backward push, so targeting (First/Last)
+        // sees distinct values instead of ties.
+        child.m_progress     = progress + (tileSize > 0.0f ? offset / tileSize : 0.0f);
+        gameData.m_enemies.Insert(std::move(child));
     }
 }
 

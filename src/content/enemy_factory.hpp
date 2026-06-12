@@ -33,6 +33,12 @@ public:
     // PlayingState::UpgradeSelectedTower (no gold/UI). Scalars stack per tier; modules append once.
     void ApplyUpgrade(Enemy& enemy, const EnemyUpgrade& up, bool includeModules = true) const;
 
+    // Apply the enemy's single upgrade definition `tier` times, stacking the scalar deltas once per
+    // tier and appending its modules only on the first tier. The wave manager scales its spawn
+    // prototypes with this; the world layer uses it to scale Split/Summoner children to the wave tier.
+    // No-op when tier <= 0 or the enemy defines no upgrade.
+    void ApplyTierUpgrades(Enemy& enemy, int tier) const;
+
 private:
     using ModuleBuilder = std::function<std::unique_ptr<EnemyModule>(const ModuleDef&)>;
 

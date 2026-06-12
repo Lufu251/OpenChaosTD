@@ -116,15 +116,20 @@ speedVariance = 40
 spread = 29
 
 [presets.shred_effect]
+angle = 164.0
 color = [ 200, 200, 205, 200 ]
-count = 1
-emitRate = 12
-endColor = [ 120, 120, 130, 0 ]
-lifetime = 0.3
-size = 1.8
-speed = 26
-speedVariance = 10
-spread = 360
+count = 14
+emitRate = 11.0
+endColor = [ 61, 67, 63, 255 ]
+lifetime = 0.32
+radialSpeed = 120.0
+shape = 'Box'
+shapeHeight = 14.0
+shapeWidth = 12.0
+size = 3.2
+speed = 16.0
+speedVariance = 40.0
+tangentialSpeed = -14.0
 
 [presets.slow_effect]
 color = [ 160, 220, 255, 180 ]
@@ -158,27 +163,33 @@ speedVariance = 40
 spread = 34
 
 [presets.stun_effect]
-angle = 270
+angle = 270.0
 color = [ 255, 225, 80, 255 ]
-count = 1
-emitRate = 14
+count = 19
+emitRate = 14.0
 endColor = [ 255, 180, 0, 0 ]
-lifetime = 0.4
+lifetime = 0.2
+radialSpeed = -200.0
+shape = 'Circle'
+shapeRadius = 43.0
 size = 2.2
-speed = 18
-speedVariance = 6
-spread = 120
+speed = 32.0
+speedVariance = 32.0
+spread = 120.0
+tangentialSpeed = 200.0
 
 [presets.weakness_effect]
 color = [ 190, 110, 230, 200 ]
-count = 1
-emitRate = 10
+count = 30
+emitRate = 10.0
 endColor = [ 120, 50, 160, 0 ]
 lifetime = 0.42
+shape = 'Circle'
+shapeRadius = 11.0
 size = 2.2
-speed = 12
-speedVariance = 5
-spread = 360
+speed = 12.0
+speedVariance = 5.0
+tangentialSpeed = 200.0
 
 [presets.zapper_impact]
 color = [ 100, 190, 255, 255 ]

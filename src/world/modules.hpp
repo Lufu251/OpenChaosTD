@@ -55,10 +55,17 @@ enum class TargetingMode {
     Fastest,
     Slowest,
     MostArmor,
-    MostShield
+    MostShield,
+    LowestEffectiveHealth, // health + shield: fewest shots to kill (unlike LowestHealth, counts shields)
+    MostEffectiveHealth,   // health + shield: the true tank
+    MostMaxHealth,         // by max health: stable "biggest unit" lock that doesn't thrash as HP drops
+    MostReward,            // highest bounty (economy strategy)
+    MostLives,             // highest livesOnReach: the biggest core threat on leak
+    Closest,               // nearest to the tower
+    Farthest               // farthest from the tower (within range)
 };
 
-inline constexpr int kTargetingModeCount = static_cast<int>(TargetingMode::MostShield) + 1; // MostShield stays last
+inline constexpr int kTargetingModeCount = static_cast<int>(TargetingMode::Farthest) + 1; // Farthest stays last
 
 inline TargetingMode NextTargetingMode(TargetingMode m) {
     return static_cast<TargetingMode>((static_cast<int>(m) + 1) % kTargetingModeCount);
@@ -74,6 +81,13 @@ inline const char* TargetingModeName(TargetingMode m) {
         case TargetingMode::Slowest:        return "Slowest";
         case TargetingMode::MostArmor:      return "Most Armor";
         case TargetingMode::MostShield:     return "Most Shield";
+        case TargetingMode::LowestEffectiveHealth: return "Least HP+Shield";
+        case TargetingMode::MostEffectiveHealth:   return "Most HP+Shield";
+        case TargetingMode::MostMaxHealth:  return "Most Max HP";
+        case TargetingMode::MostReward:     return "Most Gold";
+        case TargetingMode::MostLives:      return "Most Lives";
+        case TargetingMode::Closest:        return "Closest";
+        case TargetingMode::Farthest:       return "Farthest";
     }
     return "First";
 }
@@ -218,13 +232,28 @@ struct SpawnRequest {
     float m_spacing = 0.0f; // world-unit gap between consecutive children so they don't perfectly overlap
 };
 
+// A SpawnRequest captured during the enemy tick together with the originating enemy's path state, so
+// the world layer can place the children mid-path (mirrors how OnDeath children inherit the parent's
+// position/nest/waypoint). Collected by EnemySystem::TickEnemies and flushed after the iteration so
+// the enemy slotmap is never mutated while it is being walked.
+struct PendingChildSpawn {
+    SpawnRequest m_request;
+    Vector2 m_position;
+    int m_nest;
+    int m_waypointIndex;
+    float m_progress;
+};
+
 // DescribeStats/PatchStats are inherited from IStatModule (shared with TowerModule).
 class EnemyModule : public IStatModule {
 public:
     // Deep-copy this module (virtual-constructor idiom) so an Enemy prototype can be cloned.
     virtual std::unique_ptr<EnemyModule> Clone() const = 0;
-    // Stateful per-frame hook (e.g. RegenerationModule); non-const so modules mutate cleanly.
-    virtual void Tick(float, Enemy&) {}
+    // Stateful per-frame hook (e.g. RegenerationModule); non-const so modules mutate cleanly. A module
+    // that spawns minions while alive (e.g. SummonerModule) pushes onto outSpawns; the parent's path
+    // state is attached and the children are placed by the world layer after the tick (see
+    // PendingChildSpawn). Most modules ignore outSpawns.
+    virtual void Tick(float /*dt*/, Enemy&, std::vector<SpawnRequest>& /*outSpawns*/) {}
     // Augment the enemy's live combat stats each tick (e.g. ArmorModule feeds m_liveArmor).
     // The mirror of TowerModule::ContributeTower(AttackModule&).
     virtual void ContributeStats(BaseStatsModule&) const {}
@@ -265,7 +294,7 @@ public:
     float m_rate;
     explicit RegenerationModule(float rate) : m_rate(rate) {}
     std::unique_ptr<EnemyModule> Clone() const override { return std::make_unique<RegenerationModule>(*this); }
-    void Tick(float dt, Enemy& enemy) override;
+    void Tick(float dt, Enemy& enemy, std::vector<SpawnRequest>& outSpawns) override;
     void DescribeStats(std::vector<DescLine>& out) const override;
     void PatchStats(const std::string& key, float v, bool mul) override;
 };
@@ -314,6 +343,118 @@ public:
         : m_childType(std::move(childType)), m_count(count), m_spacing(spacing) {}
     std::unique_ptr<EnemyModule> Clone() const override { return std::make_unique<SplitModule>(*this); }
     std::optional<SpawnRequest> OnDeath() const override;
+    void DescribeStats(std::vector<DescLine>& out) const override;
+    void PatchStats(const std::string& key, float v, bool mul) override;
+};
+
+// Percentage damage reduction: scales every incoming hit by (1 - m_percent/100). The multiplicative
+// complement to ArmorModule's flat reduction; composes with it (armor is subtracted first, in
+// ResolveDamage, then this scales the remainder). m_percent is a percent (40 = 40% less damage).
+class ResistanceModule : public EnemyModule {
+public:
+    float m_percent;
+    explicit ResistanceModule(float percent) : m_percent(percent) {}
+    std::unique_ptr<EnemyModule> Clone() const override { return std::make_unique<ResistanceModule>(*this); }
+    float InterceptDamage(float incoming) override;
+    void DescribeStats(std::vector<DescLine>& out) const override;
+    void PatchStats(const std::string& key, float v, bool mul) override;
+};
+
+// Chance to fully negate a hit. The roll uses the same global RNG stream as the tower crit roll
+// (raylib's GetRandomValue), so a save replay stays deterministic. m_dodgeChance is in [0..1].
+class EvasionModule : public EnemyModule {
+public:
+    float m_dodgeChance;
+    explicit EvasionModule(float dodgeChance) : m_dodgeChance(dodgeChance) {}
+    std::unique_ptr<EnemyModule> Clone() const override { return std::make_unique<EvasionModule>(*this); }
+    float InterceptDamage(float incoming) override;
+    void DescribeStats(std::vector<DescLine>& out) const override;
+    void PatchStats(const std::string& key, float v, bool mul) override;
+};
+
+// Fully blocks the next m_maxHits hits regardless of their magnitude, then lets damage through.
+// Distinct from ShieldModule, which absorbs a damage pool: a Barrier charge eats an entire hit, big
+// or small. m_hitsLeft is the live counterpart that each blocked hit decrements.
+class BarrierModule : public EnemyModule {
+public:
+    int m_maxHits;
+    int m_hitsLeft;
+    explicit BarrierModule(int hitCount) : m_maxHits(hitCount), m_hitsLeft(hitCount) {}
+    std::unique_ptr<EnemyModule> Clone() const override { return std::make_unique<BarrierModule>(*this); }
+    float InterceptDamage(float incoming) override;
+    void DescribeStats(std::vector<DescLine>& out) const override;
+    void PatchStats(const std::string& key, float v, bool mul) override;
+};
+
+// Speeds up once health drops below m_healthThreshold (fraction of max). Tick latches the active
+// flag from current/max health; ContributeStats adds the bonus speed to the live mirror while active.
+// A counter to slow-DPS strategies that let enemies linger at low health.
+class EnrageModule : public EnemyModule {
+public:
+    float m_healthThreshold; // fraction of max health (0.3 = enrage below 30%)
+    float m_speedBonus;
+    bool m_active = false;
+    EnrageModule(float healthThreshold, float speedBonus)
+        : m_healthThreshold(healthThreshold), m_speedBonus(speedBonus) {}
+    std::unique_ptr<EnemyModule> Clone() const override { return std::make_unique<EnrageModule>(*this); }
+    void Tick(float dt, Enemy& enemy, std::vector<SpawnRequest>& outSpawns) override;
+    void ContributeStats(BaseStatsModule& base) const override;
+    void DescribeStats(std::vector<DescLine>& out) const override;
+    void PatchStats(const std::string& key, float v, bool mul) override;
+};
+
+// A shield pool that recharges after a damage-free delay. Like ShieldModule it absorbs incoming
+// damage (InterceptDamage), but each hit resets the recharge timer; once m_rechargeDelay seconds pass
+// without a hit, the pool refills at m_rechargeRate per second. Kept separate from ShieldModule.
+class ShieldRegenModule : public EnemyModule {
+public:
+    float m_maxShield;
+    float m_currentShield;
+    float m_rechargeRate;
+    float m_rechargeDelay;
+    float m_timeSinceHit = 0.0f; // live: seconds since the last absorbed hit
+    ShieldRegenModule(float shield, float rechargeRate, float rechargeDelay)
+        : m_maxShield(shield), m_currentShield(shield),
+          m_rechargeRate(rechargeRate), m_rechargeDelay(rechargeDelay) {}
+    std::unique_ptr<EnemyModule> Clone() const override { return std::make_unique<ShieldRegenModule>(*this); }
+    float GetShield() const override { return m_currentShield; }
+    float InterceptDamage(float incoming) override;
+    void Tick(float dt, Enemy& enemy, std::vector<SpawnRequest>& outSpawns) override;
+    void DescribeStats(std::vector<DescLine>& out) const override;
+    void PatchStats(const std::string& key, float v, bool mul) override;
+};
+
+// Temporary speed burst triggered by taking a hit: InterceptDamage (re)arms a timer (damage passes
+// through unchanged), Tick counts it down, and ContributeStats adds the bonus speed while it runs.
+class AdrenalineModule : public EnemyModule {
+public:
+    float m_speedBonus;
+    float m_duration;
+    float m_timer = 0.0f; // live: seconds of boost remaining
+    AdrenalineModule(float speedBonus, float duration)
+        : m_speedBonus(speedBonus), m_duration(duration) {}
+    std::unique_ptr<EnemyModule> Clone() const override { return std::make_unique<AdrenalineModule>(*this); }
+    float InterceptDamage(float incoming) override;
+    void Tick(float dt, Enemy& enemy, std::vector<SpawnRequest>& outSpawns) override;
+    void ContributeStats(BaseStatsModule& base) const override;
+    void DescribeStats(std::vector<DescLine>& out) const override;
+    void PatchStats(const std::string& key, float v, bool mul) override;
+};
+
+// Periodically spawns m_count children of type m_childType while alive (every m_interval seconds),
+// staggered by m_spacing like SplitModule's death children. Tick advances the timer and pushes a
+// SpawnRequest onto the per-tick out-param; the world layer places the children mid-path.
+class SummonerModule : public EnemyModule {
+public:
+    std::string m_childType;
+    int m_count;
+    float m_spacing;
+    float m_interval;
+    float m_timer = 0.0f; // live: seconds accumulated toward the next summon
+    SummonerModule(std::string childType, int count, float spacing, float interval)
+        : m_childType(std::move(childType)), m_count(count), m_spacing(spacing), m_interval(interval) {}
+    std::unique_ptr<EnemyModule> Clone() const override { return std::make_unique<SummonerModule>(*this); }
+    void Tick(float dt, Enemy& enemy, std::vector<SpawnRequest>& outSpawns) override;
     void DescribeStats(std::vector<DescLine>& out) const override;
     void PatchStats(const std::string& key, float v, bool mul) override;
 };

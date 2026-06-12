@@ -76,13 +76,12 @@ name = "piercer"
 description = "Pierces armor. Targets the most armored enemy."
 cost = 175
 modules = [
-    { type = "Attack", damage = 5, shotsPerMinute = 90, range = 60, targetCount = 1, targetingMode = "MostArmor" },
-    { type = "ArmorPierce", armorPierce = 2.0 },
-    { type = "ArmorShred", shredAmount = 2, shredDuration = 1.0, effect = "shred_effect" },
+    { type = "Attack", damage = 2, shotsPerMinute = 90, range = 60, targetCount = 1, targetingMode = "MostArmor" },
+    { type = "ArmorPierce", armorPierce = 4.0 },
 ]
 presentation = { texture = "tower_piercer", attackSound = "piercer", style = "Line", attackDuration = 0.15, color = [210, 220, 230, 255], muzzle = "piercer_muzzle", impact = "piercer_impact" }
 upgrades = [
-    { cost = 200, add = { targetCount = 1, armorPierce = 1.0, range = 10 } },
-    { cost = 300, add = { shotsPerMinute = 30, range = 10 } },
-    { cost = 400, add = { targetCount = 1 } },
+    { cost = 200, add = { armorPierce = 4.0, range = 10 }, modules = [ {type = "ArmorShred", shredAmount = 2, shredDuration = 1.0, effect = "shred_effect"}] },
+    { cost = 300, add = { armorPierce = 5.0, shredAmount = 3.0, shotsPerMinute = 30, range = 10 } },
+    { cost = 400, add = { armorPierce = 6.0, shredAmount = 4.0, range = 10 } },
 ]
