@@ -13,7 +13,7 @@ void EventHUD::Add(const std::string& message, float duration) {
     }
 
     // Drop oldest entry when at capacity
-    if (static_cast<int>(m_entries.size()) >= kMaxEntries)
+    if (static_cast<int>(m_entries.size()) >= Hud::g_eventCfg.maxEntries)
         m_entries.erase(m_entries.begin());
 
     m_entries.push_back({message, duration});
@@ -42,8 +42,8 @@ void EventHUD::Draw() {
     for (int i = 0; i < n; i++) {
         const Entry& entry = m_entries[i];
 
-        // Fade both background and text uniformly over the last kFadeTime seconds.
-        float fade = std::min(entry.m_timeLeft / kFadeTime, 1.0f);
+        // Fade both background and text uniformly over the last fadeTime seconds.
+        float fade = std::min(entry.m_timeLeft / Hud::g_eventCfg.fadeTime, 1.0f);
 
         // Stack downward: oldest (index 0) at baseY, newer entries below it
         float y = baseY + static_cast<float>(i) * lineH;

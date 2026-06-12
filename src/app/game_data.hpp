@@ -5,6 +5,7 @@
 #include <world/enemy.hpp>
 #include <world/combat.hpp>
 #include <engine/lib/dense_slotmap.hpp>
+#include <systems/map_generator.hpp>
 #include <vector>
 
 class FileStore;
@@ -16,6 +17,7 @@ struct GameData {
     int m_startingGold = 150;
     float m_sellRefundRate = 0.5f;
     float m_autoSpawnDelay = 3.0f; // seconds between waves when auto-spawn is on
+    MapGenCfg m_mapGenCfg;
 
     int m_lives = 20;
     int m_gold = 150;

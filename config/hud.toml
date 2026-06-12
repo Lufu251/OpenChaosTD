@@ -1,0 +1,84 @@
+[palette]
+panelBorder      = [80,  80,  80,  255]
+textMuted        = [180, 180, 180, 255]
+upgradeReady     = [160, 240, 120, 255]
+tooltipBorder    = [255, 180, 0,   255]
+cardFill         = [40,  40,  48,  200]
+cardBorder       = [90,  90,  100, 255]
+infinityGlyph    = [120, 180, 220, 255]
+highlight        = [255, 203, 0,   255]
+costAffordable   = [0,   228, 48,  255]
+costUnaffordable = [230, 41,  55,  255]
+sellLabel        = [0,   228, 48,  255]
+targetLabel      = [102, 191, 255, 255]
+panelBgRgb       = [20,  20,  20,  255] # alpha is ignored; PanelBg() supplies it per call
+eventTextRgb     = [255, 220, 80,  255] # alpha is ignored; EventText() supplies it per call
+screenDim        = [0,   0,   0,   120]
+
+[alpha]
+window      = 220 # primary windows: Pause, TowerInfo, Wave (drawn with border)
+docked      = 200 # docked bars: Status, Build (no border)
+overlayBg   = 160 # ephemeral toast background before fade
+overlayText = 220 # ephemeral toast text before fade
+tooltipBg   = 235 # upgrade tooltip fill
+
+[typography]
+title       = 28.0 # modal title (PAUSED)
+header      = 14.0 # panel headers, status readout
+body        = 11.0 # descriptions, stat rows, card text
+buttonLabel = 12.0 # button labels
+small       = 8.0  # compact build-bar name/cost
+
+[layout]
+toastRowH      = 20.0 # vertical stride between stacked event toasts
+toastPadX      = 2.0  # background left extension and row-height shrink
+toastPadTop    = 1.0  # background top extension above the row
+toastPadW      = 10.0 # background width beyond the text width
+toastTextX     = 3.0  # text inset from the bar margin
+toastTextY     = 2.0  # text inset from the row top
+statusBarBaseH = 36.0 # unscaled height of the top status bar
+wavePanelGap   = 6.0  # extra gap wave panel leaves below the status bar
+marginBase     = 8.0  # default margin for every text panel
+lineHBase      = 14.0 # default line height
+headerHBase    = 20.0 # default header row height
+
+[events]
+maxEntries = 5   # maximum simultaneous event toast rows
+fadeTime   = 1.0 # seconds over which toasts fade out
+
+[panels.pause]
+width         = 240.0
+height        = 460.0
+buttonWidth   = 180.0
+buttonHeight  = 44.0
+buttonSpacing = 56.0
+titleOffset   = 28.0
+firstButtonY  = 80.0
+
+[panels.status]
+buttonHeight     = 24.0
+waveButtonWidth  = 90.0
+autoButtonWidth  = 48.0
+wavesButtonWidth = 56.0
+margin           = 6.0
+
+[panels.wave]
+width       = 200.0
+cardGap     = 6.0
+cardPadding = 6.0
+iconSize    = 44.0
+
+[panels.tower_build]
+buttonSize  = 64.0
+panelHeight = 80.0
+gap         = 4.0
+iconYOffset = 8.0
+nameYOffset = 18.0
+costYOffset = 9.0
+
+[panels.tower_info]
+width       = 160.0
+descLineH   = 13.0
+sellHeight  = 22.0
+sellGap     = 6.0
+anchorGap   = 20.0

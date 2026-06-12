@@ -1,8 +1,3 @@
-# Mod: Default OpenChaosTD DataPack
-# Author: Lufu251
-# Version: 1.0.0
-# Compatibility: Game Version 1.0+
-
 startingLives = 20
 startingGold = 1000
 sellRefundRate = 0.5

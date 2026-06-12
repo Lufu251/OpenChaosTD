@@ -1,4 +1,5 @@
 #include <app/game.hpp>
+#include <hud/hud_theme.hpp>
 #include <engine/core/text_renderer.hpp>
 #include <raylib.h>
 #include <cassert>
@@ -15,11 +16,11 @@ namespace {
 // (1200pt is ~1800px at 1.5x), so a 1200x1200 request can overflow the screen.
 // We compare in framebuffer pixels (GetRenderWidth, same space as the monitor
 // size) and scale the logical window size by the resulting fit factor.
-void ClampWindowToMonitor() {
+void ClampWindowToMonitor(float marginFactor) {
     const int monitor = GetCurrentMonitor();
 
     // Budget in physical pixels, leaving a margin for window-manager chrome.
-    const float margin = 0.92f;
+    const float margin = marginFactor;
     const float maxPxW = GetMonitorWidth(monitor)  * margin;
     const float maxPxH = GetMonitorHeight(monitor) * margin;
 
@@ -56,6 +57,7 @@ void ClampWindowToMonitor() {
 Game::Game() {
     m_fileStore.SetRootPath(SearchFolderParentPath("resources", 5).parent_path());
     m_gameConfig.Load(m_fileStore);
+    Hud::LoadConfig(m_fileStore);
 
     // Deliberately NOT FLAG_WINDOW_HIGHDPI: Screen owns all virtual->window
     // scaling, but raylib's HIGHDPI path bakes a screenScale into the MODELVIEW
@@ -64,7 +66,7 @@ Game::Game() {
     // the single source of truth; text still rasterizes at native resolution.
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(m_gameConfig.gameWidth, m_gameConfig.gameHeight, m_gameConfig.title.c_str());
-    ClampWindowToMonitor();
+    ClampWindowToMonitor(m_gameConfig.clampMargin);
     m_gameConfig.ApplyIcon();
     SetTargetFPS(m_gameConfig.fps);
     SetExitKey(KEY_NULL);

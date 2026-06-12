@@ -10,13 +10,13 @@ void StatusHUD::Build(float scale, int screenW) {
     HUD::Build(scale);
     m_metrics = Hud::PanelMetrics::Make(scale);
     m_metrics.panelH = m_metrics.Scaled(Hud::kStatusBarBaseHeight);
-    m_metrics.btnH   = m_metrics.Scaled(24.0f);
+    m_metrics.btnH   = m_metrics.Scaled(Hud::g_statusCfg.btnH);
     float panelH    = m_metrics.panelH;
     float btnH      = m_metrics.btnH;
-    float btnWaveW  = m_metrics.Scaled(90.0f);
-    float btnAutoW  = m_metrics.Scaled(48.0f);
-    float btnWavesW = m_metrics.Scaled(56.0f);
-    float margin    = m_metrics.Scaled(6.0f);
+    float btnWaveW  = m_metrics.Scaled(Hud::g_statusCfg.waveW);
+    float btnAutoW  = m_metrics.Scaled(Hud::g_statusCfg.autoW);
+    float btnWavesW = m_metrics.Scaled(Hud::g_statusCfg.wavesW);
+    float margin    = m_metrics.Scaled(Hud::g_statusCfg.margin);
     float w = static_cast<float>(screenW);
 
     m_panelRect = { 0.0f, 0.0f, w, panelH };

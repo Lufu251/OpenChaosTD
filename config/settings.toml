@@ -10,3 +10,4 @@ hudScale = 1.75
 height = 1200
 title = 'OpenChaos TD'
 width = 1200
+clampMargin = 0.92

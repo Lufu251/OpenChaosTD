@@ -13,9 +13,10 @@ void GameConfig::Load(FileStore& fileStore) {
 
     // Window bootstrap group (not editable from the settings menu)
     if (const toml::table* w = table["window"].as_table()) {
-        if (auto v = (*w)["width"].value<int>())          gameWidth  = *v;
-        if (auto v = (*w)["height"].value<int>())         gameHeight = *v;
-        if (auto v = (*w)["title"].value<std::string>())  title      = *v;
+        if (auto v = (*w)["width"].value<int>())          gameWidth   = *v;
+        if (auto v = (*w)["height"].value<int>())         gameHeight  = *v;
+        if (auto v = (*w)["title"].value<std::string>())  title       = *v;
+        if (auto v = (*w)["clampMargin"].value<float>())  clampMargin = *v;
     }
     // Display group
     if (const toml::table* d = table["display"].as_table()) {
@@ -35,7 +36,7 @@ void GameConfig::Save(FileStore& fileStore) {
     // Round slider-driven floats to 2 decimals so the snapped increments serialize
     // cleanly (e.g. 0.85, 1.25) instead of float-promotion noise.
     const toml::table data{
-        {"window", toml::table{{"width", gameWidth}, {"height", gameHeight}, {"title", title}}},
+        {"window", toml::table{{"width", gameWidth}, {"height", gameHeight}, {"title", title}, {"clampMargin", clampMargin}}},
         {"display", toml::table{{"fps", fps},
                                 {"hudScale", std::round(hudScale * 100.0) / 100.0}}},
         {"audio", toml::table{{"musicVolume", std::round(musicVolume * 100.0) / 100.0},

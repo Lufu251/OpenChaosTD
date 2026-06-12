@@ -1,7 +1,36 @@
 #include <systems/render_system.hpp>
 #include <engine/core/text_renderer.hpp>
+#include <engine/util/file_store.hpp>
+#include <toml++/toml.hpp>
 
 #include <raymath.h>
+
+void RenderSystem::Load(FileStore& fileStore) {
+    if (!fileStore.Exists("config/render.toml")) return;
+    const toml::table tbl = fileStore.LoadToml("config/render.toml");
+
+    if (const toml::table* hb = tbl["health_bar"].as_table()) {
+        m_hbWidth    = (*hb)["width"].value_or(m_hbWidth);
+        m_hbHeight   = (*hb)["height"].value_or(m_hbHeight);
+        m_hbPadding  = (*hb)["padding"].value_or(m_hbPadding);
+        m_hbRound    = (*hb)["roundness"].value_or(m_hbRound);
+        m_hbSegs     = (*hb)["segments"].value_or(m_hbSegs);
+        if (const toml::array* c = (*hb)["bgColor"].as_array(); c && c->size() >= 4)
+            m_hbBgColor = {
+                static_cast<unsigned char>((*c)[0].value_or(0)),
+                static_cast<unsigned char>((*c)[1].value_or(0)),
+                static_cast<unsigned char>((*c)[2].value_or(0)),
+                static_cast<unsigned char>((*c)[3].value_or(255))};
+    }
+
+    if (const toml::array* zl = tbl["zoom"]["levels"].as_array(); zl && !zl->empty()) {
+        m_zoomLevels.clear();
+        for (auto&& node : *zl)
+            if (auto v = node.value<float>()) m_zoomLevels.push_back(*v);
+        // Clamp the current zoom index to the new range
+        m_zoomIndex = Clamp(m_zoomIndex, 0, static_cast<int>(m_zoomLevels.size()) - 1);
+    }
+}
 
 void RenderSystem::DrawMap(const Map& map, Resources& assets){
     for (int y = 0; y < map.GetRows(); y++) {
@@ -129,8 +158,8 @@ void RenderSystem::DrawEnemies(const DenseSlotMap<Enemy>& enemies, Resources& as
 
         DrawTextureV(texture, {enemy.m_position.x - hw, enemy.m_position.y - hh}, WHITE);
 
-        // Health bar: 24px wide, 4px tall, floats above the sprite
-        DrawHealthBar({enemy.m_position.x, enemy.m_position.y + hh + 2.0f}, enemy.m_currentHealth, enemy.GetBaseStats()->m_maxHealth, 20.0f, 4.0f );
+        // Health bar floats above the sprite; dimensions come from config/render.toml
+        DrawHealthBar({enemy.m_position.x, enemy.m_position.y + hh + 2.0f}, enemy.m_currentHealth, enemy.GetBaseStats()->m_maxHealth);
     }
 }
 
@@ -178,7 +207,7 @@ void RenderSystem::CenterCamera(Map& map, Rectangle viewport){
     m_camera.offset   = {viewport.x + viewport.width / 2.f, viewport.y + viewport.height / 2.f};
     m_camera.zoom     = 1.0f;
     m_camera.rotation = 0.0f;
-    m_zoomIndex = 1;
+    m_zoomIndex = Clamp(1, 0, static_cast<int>(m_zoomLevels.size()) - 1);
 }
 
 void RenderSystem::ControlCamera(float& dt, Input& input){
@@ -220,9 +249,9 @@ void RenderSystem::ControlCamera(float& dt, Input& input){
 
         // 3. Apply zoom
         m_zoomIndex += wheel;
-        m_zoomIndex = Clamp(m_zoomIndex, 0, static_cast<int>(sizeof(m_zoomLevel) / sizeof(m_zoomLevel[0])) -1);
+        m_zoomIndex = Clamp(m_zoomIndex, 0, static_cast<int>(m_zoomLevels.size()) - 1);
 
-        m_camera.zoom = m_zoomLevel[m_zoomIndex];
+        m_camera.zoom = m_zoomLevels[m_zoomIndex];
     }
 }
 
@@ -239,20 +268,14 @@ static Color HealthBarColor(float ratio) {
     }
 }
 
-void RenderSystem::DrawHealthBar(Vector2 worldPos, float current, float max, float width, float height) {
+void RenderSystem::DrawHealthBar(Vector2 worldPos, float current, float max) {
     float ratio = Clamp(current / max, 0.0f, 1.0f);
-    float x = worldPos.x - width / 2.0f;
-    float y = worldPos.y - height / 2.0f;
-    float roundness = 0.2f;
-    int segments = 8;
+    float x = worldPos.x - m_hbWidth / 2.0f;
+    float y = worldPos.y - m_hbHeight / 2.0f;
 
-    // BackgroundBar
-    DrawRectangleRounded( {x, y, width, height}, roundness, segments, {40, 40, 40, 255});
-    
-    // HealthBar
-    float pad = 1.0f;
-    float fillWidth = (width - pad * 2) * ratio;
-    if (fillWidth > 0.0f) {
-        DrawRectangleRec( {x + pad, y + pad, fillWidth, height - pad * 2}, HealthBarColor(ratio));
-    }
+    DrawRectangleRounded({x, y, m_hbWidth, m_hbHeight}, m_hbRound, m_hbSegs, m_hbBgColor);
+
+    float fillWidth = (m_hbWidth - m_hbPadding * 2.0f) * ratio;
+    if (fillWidth > 0.0f)
+        DrawRectangleRec({x + m_hbPadding, y + m_hbPadding, fillWidth, m_hbHeight - m_hbPadding * 2.0f}, HealthBarColor(ratio));
 }

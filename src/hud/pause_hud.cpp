@@ -13,12 +13,12 @@ void PauseHUD::Build(float scale, int screenW, int screenH) {
 
     // Centered panel sized to hold the title and six stacked buttons.
     m_metrics = Hud::PanelMetrics::Make(scale);
-    m_metrics.panelW = m_metrics.Scaled(240.0f);
-    m_metrics.panelH = m_metrics.Scaled(460.0f);
-    m_metrics.btnW = m_metrics.Scaled(180.0f);
-    m_metrics.btnH = m_metrics.Scaled(44.0f);
-    m_metrics.btnSpacing = m_metrics.Scaled(56.0f);
-    m_titleOffset = m_metrics.Scaled(28.0f);
+    m_metrics.panelW    = m_metrics.Scaled(Hud::g_pauseCfg.width);
+    m_metrics.panelH    = m_metrics.Scaled(Hud::g_pauseCfg.height);
+    m_metrics.btnW      = m_metrics.Scaled(Hud::g_pauseCfg.btnW);
+    m_metrics.btnH      = m_metrics.Scaled(Hud::g_pauseCfg.btnH);
+    m_metrics.btnSpacing = m_metrics.Scaled(Hud::g_pauseCfg.btnSpacing);
+    m_titleOffset       = m_metrics.Scaled(Hud::g_pauseCfg.titleOff);
 
     float panelW = m_metrics.panelW;
     float panelH = m_metrics.panelH;
@@ -28,7 +28,7 @@ void PauseHUD::Build(float scale, int screenW, int screenH) {
     float btnH = m_metrics.btnH;
     float btnX = (gw - btnW) / 2.0f;
     float spacing = m_metrics.btnSpacing;
-    float firstY = m_panelRect.y + m_metrics.Scaled(80.0f);
+    float firstY = m_panelRect.y + m_metrics.Scaled(Hud::g_pauseCfg.firstBtnY);
 
     // Order must match the kResume..kMainMenu indices.
     m_buttons.items.clear();

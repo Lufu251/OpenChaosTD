@@ -56,8 +56,8 @@ is in parentheses.
 | `Slowest`               | Slowest    | the lowest live speed |
 | `MostArmor`             | Most Armor | the highest live armor |
 | `MostShield`            | Most Shield| the largest total shield pool |
-| `LowestEffectiveHealth` | Least HP+Shield | the least health **+ shield** — fewest shots to kill |
-| `MostEffectiveHealth`   | Most HP+Shield  | the most health **+ shield** — the true tank |
+| `LowestEffectiveHealth` | Least Eff HP | the least health **+ shield** (effective HP) — fewest shots to kill |
+| `MostEffectiveHealth`   | Most Eff HP  | the most health **+ shield** (effective HP) — the true tank |
 | `MostMaxHealth`         | Most Max HP     | the highest **max** health — a stable lock that doesn't re-target as HP drops |
 | `MostReward`            | Most Gold       | the highest gold reward |
 | `MostLives`             | Most Lives      | the highest `livesOnReach` — the biggest core threat on leak |

@@ -3,35 +3,28 @@
 #include <algorithm>
 
 namespace {
-    constexpr int kMinCluster = 3;   // smallest rock blob
-    constexpr int kMaxCluster = 7;   // largest rock blobs
-    constexpr int kSeedTries  = 64;  // tries to find a free seed tile for a new cluster
-    constexpr int kGrowTries  = 16;  // tries to extend a cluster before giving up
-
-    constexpr int kTilesPerBuffTile = 44; // grid area per buff tile (density)
-
     // Round-robin set of terrain buffs; one is assigned per placed buff tile in order.
     struct BuffSpec { const char* m_statKey; float m_value; bool m_mul; };
     constexpr BuffSpec kBuffSpecs[] = {
         { "range",          30.0f, false }, // flat +range
-        { "damage",          1.5f, true }, // mul *damage
-        { "shotsPerMinute", 1.5f, true }, // mul *fire rate
+        { "damage",          1.5f, true  }, // mul *damage
+        { "shotsPerMinute", 1.5f, true  }, // mul *fire rate
     };
     constexpr int kBuffSpecCount = static_cast<int>(sizeof(kBuffSpecs) / sizeof(kBuffSpecs[0]));
 }
 
-void MapGenerator::Generate(Map& map, int cols, int rows, int nestCount, int obstacleCount){
+void MapGenerator::Generate(Map& map, int cols, int rows, int nestCount, int obstacleCount, const MapGenCfg& cfg){
     map.Create(cols, rows);
 
     // Core: centered on the bottom edge, one tile in from the border
     map.SetCore((cols - 1) / 2, rows - 2);
 
     PlaceNests(map, nestCount);
-    PlaceObstacles(map, obstacleCount);
+    PlaceObstacles(map, obstacleCount, cfg);
 
     // Range-buff terrain: count scales with map size. Buff tiles stay walkable, so they never
     // affect pathing and need no validation.
-    PlaceBuffTiles(map, std::max(1, (cols * rows) / kTilesPerBuffTile));
+    PlaceBuffTiles(map, std::max(1, (cols * rows) / cfg.tilesPerBuffTile), cfg);
 
     map.BuildPathMesh(); // final, clean path mesh for the chosen layout
 }
@@ -49,17 +42,17 @@ void MapGenerator::PlaceNests(Map& map, int nestCount){
     }
 }
 
-void MapGenerator::PlaceObstacles(Map& map, int obstacleCount){
+void MapGenerator::PlaceObstacles(Map& map, int obstacleCount, const MapGenCfg& cfg){
     // Grow clusters until the fixed obstacle target is met. A guard bounds the loop
     // in case the map is too small/saturated to ever reach the target.
     int placed = 0;
     int guard = 0;
     const int maxGuard = obstacleCount * 4 + 32;
     while (placed < obstacleCount && guard++ < maxGuard)
-        GrowCluster(map, placed, obstacleCount);
+        GrowCluster(map, placed, obstacleCount, cfg);
 }
 
-void MapGenerator::PlaceBuffTiles(Map& map, int count){
+void MapGenerator::PlaceBuffTiles(Map& map, int count, const MapGenCfg& cfg){
     int cols = map.GetCols();
     int rows = map.GetRows();
 
@@ -69,7 +62,7 @@ void MapGenerator::PlaceBuffTiles(Map& map, int count){
     int placed = 0;
     while (placed < count) {
         int sx = -1, sy = -1;
-        for (int t = 0; t < kSeedTries; t++) {
+        for (int t = 0; t < cfg.seedTries; t++) {
             int x = RandInt(0, cols - 1);
             int y = RandInt(0, rows - 1);
             if (map.Get(x, y).m_type == TileType::Grass) { sx = x; sy = y; break; }
@@ -82,13 +75,13 @@ void MapGenerator::PlaceBuffTiles(Map& map, int count){
     }
 }
 
-void MapGenerator::GrowCluster(Map& map, int& placed, int target){
+void MapGenerator::GrowCluster(Map& map, int& placed, int target, const MapGenCfg& cfg){
     int cols = map.GetCols();
     int rows = map.GetRows();
 
     // Seed the cluster on a random free tile
     int sx = -1, sy = -1;
-    for (int t = 0; t < kSeedTries; t++) {
+    for (int t = 0; t < cfg.seedTries; t++) {
         int x = RandInt(0, cols - 1);
         int y = RandInt(0, rows - 1);
         if (map.Get(x, y).m_type == TileType::Grass) { sx = x; sy = y; break; }
@@ -98,14 +91,14 @@ void MapGenerator::GrowCluster(Map& map, int& placed, int target){
     std::vector<std::pair<int, int>> cluster{ {sx, sy} };
     placed++;
 
-    int clusterTarget = RandInt(kMinCluster, kMaxCluster);
+    int clusterTarget = RandInt(cfg.minCluster, cfg.maxCluster);
     static const int dx[] = { 1, -1, 0, 0 };
     static const int dy[] = { 0, 0, 1, -1 };
 
     // Random-walk outward from tiles already in the cluster
     while (static_cast<int>(cluster.size()) < clusterTarget && placed < target) {
         bool extended = false;
-        for (int t = 0; t < kGrowTries; t++) {
+        for (int t = 0; t < cfg.growTries; t++) {
             auto [cx, cy] = cluster[RandInt(0, static_cast<int>(cluster.size()) - 1)];
             int d = RandInt(0, 3);
             int nx = cx + dx[d];

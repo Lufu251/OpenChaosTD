@@ -19,6 +19,18 @@ void GameData::Load(FileStore& fileStore, const std::string& dataDir) {
 
     m_lives = m_startingLives;
     m_gold = m_startingGold;
+
+    std::string mapPath = dataDir + "/map_generation.toml";
+    if (fileStore.Exists(mapPath)) {
+        auto mapData = fileStore.LoadToml(mapPath);
+        if (const toml::table* mp = mapData["map"].as_table()) {
+            m_mapGenCfg.minCluster       = (*mp)["minCluster"].value_or(m_mapGenCfg.minCluster);
+            m_mapGenCfg.maxCluster       = (*mp)["maxCluster"].value_or(m_mapGenCfg.maxCluster);
+            m_mapGenCfg.seedTries        = (*mp)["seedTries"].value_or(m_mapGenCfg.seedTries);
+            m_mapGenCfg.growTries        = (*mp)["growTries"].value_or(m_mapGenCfg.growTries);
+            m_mapGenCfg.tilesPerBuffTile = (*mp)["tilesPerBuffTile"].value_or(m_mapGenCfg.tilesPerBuffTile);
+        }
+    }
 }
 
 void GameData::Reset() {

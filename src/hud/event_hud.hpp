@@ -12,9 +12,6 @@ public:
     void Draw();
 
 private:
-    static constexpr int   kMaxEntries = 5;
-    static constexpr float kFadeTime   = 1.0f; // seconds over which entries fade out
-
     struct Entry {
         std::string m_message;
         float m_timeLeft;

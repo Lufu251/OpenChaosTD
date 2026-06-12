@@ -81,8 +81,8 @@ inline const char* TargetingModeName(TargetingMode m) {
         case TargetingMode::Slowest:        return "Slowest";
         case TargetingMode::MostArmor:      return "Most Armor";
         case TargetingMode::MostShield:     return "Most Shield";
-        case TargetingMode::LowestEffectiveHealth: return "Least HP+Shield";
-        case TargetingMode::MostEffectiveHealth:   return "Most HP+Shield";
+        case TargetingMode::LowestEffectiveHealth: return "Least Eff HP";
+        case TargetingMode::MostEffectiveHealth:   return "Most Eff HP";
         case TargetingMode::MostMaxHealth:  return "Most Max HP";
         case TargetingMode::MostReward:     return "Most Gold";
         case TargetingMode::MostLives:      return "Most Lives";

@@ -10,10 +10,10 @@
 void WaveHUD::Build(float scale, int screenW) {
     HUD::Build(scale);
     m_metrics = Hud::PanelMetrics::Make(scale);
-    m_metrics.panelW = m_metrics.Scaled(200.0f);
-    m_cardGap = m_metrics.Scaled(6.0f);
-    m_cardPad = m_metrics.Scaled(6.0f);
-    m_iconSize = m_metrics.Scaled(44.0f);
+    m_metrics.panelW = m_metrics.Scaled(Hud::g_waveCfg.width);
+    m_cardGap  = m_metrics.Scaled(Hud::g_waveCfg.cardGap);
+    m_cardPad  = m_metrics.Scaled(Hud::g_waveCfg.cardPadding);
+    m_iconSize = m_metrics.Scaled(Hud::g_waveCfg.iconSize);
     // Sit below the top status bar (its base height) plus a small gap.
     m_topOffset = m_metrics.Scaled(Hud::kStatusBarBaseHeight + Hud::kWavePanelGap);
     m_screenW = screenW;

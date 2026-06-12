@@ -29,11 +29,12 @@ void PlayingState::OnEnter(Game& game) {
         // Build the chosen custom map; fall back to generation if it can't be parsed.
         MapSerialization::MapMeta meta;
         if (!MapSerialization::Load(game.GetFileStore(), gd.m_selectedMapDir, gd.m_map, meta))
-            m_mapGenerator.Generate(gd.m_map, 15, 19, 3, 40);
+            m_mapGenerator.Generate(gd.m_map, 15, 19, 3, 40, gd.m_mapGenCfg);
     } else {
-        m_mapGenerator.Generate(gd.m_map, 15, 19, 3, 40);
+        m_mapGenerator.Generate(gd.m_map, 15, 19, 3, 40, gd.m_mapGenCfg);
     }
 
+    m_renderSystem.Load(game.GetFileStore());
     m_renderSystem.CenterCamera(game.GetGameData().m_map, game.GetScreen());
 
     float scale   = game.GetGameConfig().hudScale;

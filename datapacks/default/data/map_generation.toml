@@ -1,0 +1,6 @@
+[map]
+minCluster       = 3   # smallest rock cluster blob
+maxCluster       = 7   # largest rock cluster blob
+seedTries        = 64  # attempts to find a free seed tile per cluster
+growTries        = 16  # attempts to extend each cluster before giving up
+tilesPerBuffTile = 44  # map area (tiles) allocated per buff tile placed

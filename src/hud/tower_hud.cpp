@@ -13,13 +13,13 @@
 void TowerBuildHUD::Build(float scale, int screenW, int screenH, const std::vector<TowerBuildOption>& options) {
     HUD::Build(scale);
     m_metrics = Hud::PanelMetrics::Make(scale);
-    const float btnSize = m_metrics.Scaled(64.0f);
-    const float panelH  = m_metrics.Scaled(80.0f);
+    const float btnSize = m_metrics.Scaled(Hud::g_buildCfg.btnSize);
+    const float panelH  = m_metrics.Scaled(Hud::g_buildCfg.panelH);
     const float margin  = m_metrics.margin;
-    const float gap     = m_metrics.Scaled(4.0f);
-    m_iconYOffset = m_metrics.Scaled(8.0f);
-    m_nameYOffset = m_metrics.Scaled(18.0f);
-    m_costYOffset = m_metrics.Scaled(9.0f);
+    const float gap     = m_metrics.Scaled(Hud::g_buildCfg.gap);
+    m_iconYOffset = m_metrics.Scaled(Hud::g_buildCfg.iconY);
+    m_nameYOffset = m_metrics.Scaled(Hud::g_buildCfg.nameY);
+    m_costYOffset = m_metrics.Scaled(Hud::g_buildCfg.costY);
 
     float y = screenH - btnSize - margin;
     m_panelRect = { 0.0f, screenH - panelH, static_cast<float>(screenW), panelH };
@@ -107,11 +107,11 @@ void TowerBuildHUD::Draw(const BuildBarView& view, Resources& assets) {
 void TowerInfoHUD::Build(float scale) {
     HUD::Build(scale);
     m_metrics = Hud::PanelMetrics::Make(scale);
-    m_metrics.panelW = m_metrics.Scaled(160.0f);
-    m_descLineH = m_metrics.Scaled(13.0f);
-    m_sellH = m_metrics.Scaled(22.0f);
-    m_sellGap = m_metrics.Scaled(6.0f);
-    m_anchorGap = m_metrics.Scaled(20.0f);
+    m_metrics.panelW = m_metrics.Scaled(Hud::g_infoCfg.width);
+    m_descLineH  = m_metrics.Scaled(Hud::g_infoCfg.descLineH);
+    m_sellH      = m_metrics.Scaled(Hud::g_infoCfg.sellH);
+    m_sellGap    = m_metrics.Scaled(Hud::g_infoCfg.sellGap);
+    m_anchorGap  = m_metrics.Scaled(Hud::g_infoCfg.anchorGap);
     Hide(); // shown only while a tower is selected or hovered
 }
 
