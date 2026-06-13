@@ -9,7 +9,7 @@ description = "Standard void creature. Balanced speed and health."
 maxHealth = 10
 speed = 50
 reward = 5
-presentation = { texture = "enemy_shade", deathEmitter = "death_small" }
+presentation = { texture = "enemy_shade", deathSound = "enemy_death", deathEmitter = "death_small" }
 upgrade = { add = { speed = 10 }, mul = { maxHealth = 2 } }
 
 [[enemies]]
@@ -18,7 +18,7 @@ description = "Fragile but very quick. Difficult to target."
 maxHealth = 5
 speed = 100
 reward = 8
-presentation = { texture = "enemy_flicker", deathEmitter = "death_small" }
+presentation = { texture = "enemy_flicker", deathSound = "enemy_death", deathEmitter = "death_small" }
 upgrade = { add = { speed = 20 }, mul = { maxHealth = 2 } }
 
 [[enemies]]
@@ -27,7 +27,7 @@ description = "Armored, regenerating construct. Slow but durable."
 maxHealth = 50
 speed = 25
 reward = 20
-presentation = { texture = "enemy_golem", deathEmitter = "death_medium" }
+presentation = { texture = "enemy_golem", deathSound = "enemy_death", deathEmitter = "death_medium" }
 modules = [
     { type = "Regeneration", regenRate = 2.0 },
     { type = "Armor", armor = 2.0 },
@@ -40,7 +40,7 @@ description = "Heavily armored. Shrugs off most direct damage."
 maxHealth = 80
 speed = 30
 reward = 30
-presentation = { texture = "enemy_titan", deathEmitter = "death_large" }
+presentation = { texture = "enemy_titan", deathSound = "enemy_death", deathEmitter = "death_large" }
 modules = [
     { type = "Armor", armor = 3.0 },
 ]
@@ -52,7 +52,7 @@ description = "Apex predator. Splits into golems on death."
 maxHealth = 200
 speed = 25
 reward = 75
-presentation = { texture = "enemy_sovereign", deathEmitter = "death_large" }
+presentation = { texture = "enemy_sovereign", deathSound = "enemy_death", deathEmitter = "death_large" }
 modules = [
     { type = "Regeneration", regenRate = 5.0 },
     { type = "Armor", armor = 2.0 },
@@ -67,7 +67,7 @@ description = "Frozen core. Cannot be slowed."
 maxHealth = 20
 speed = 45
 reward = 12
-presentation = { texture = "enemy_glacius", deathEmitter = "death_small" }
+presentation = { texture = "enemy_glacius", deathSound = "enemy_death", deathEmitter = "death_small" }
 modules = [
     { type = "Immune", effect = "Slow" },
 ]
@@ -79,7 +79,7 @@ description = "Protected by an energy shield that absorbs damage before health i
 maxHealth = 25
 speed = 40
 reward = 18
-presentation = { texture = "enemy_sentinel", deathEmitter = "death_medium" }
+presentation = { texture = "enemy_sentinel", deathSound = "enemy_death", deathEmitter = "death_medium" }
 modules = [
     { type = "Shield", shield = 15.0 },
 ]
@@ -91,7 +91,7 @@ description = "Bursts into a swarm of flickers on death."
 maxHealth = 30
 speed = 40
 reward = 15
-presentation = { texture = "enemy_brood", deathEmitter = "death_medium" }
+presentation = { texture = "enemy_brood", deathSound = "enemy_death", deathEmitter = "death_medium" }
 modules = [
     { type = "Split", child = "flicker", splitCount = 3 },
 ]
@@ -103,7 +103,7 @@ description = "Flame-hardened core. Cannot be ignited."
 maxHealth = 18
 speed = 60
 reward = 15
-presentation = { texture = "enemy_cinder", deathEmitter = "death_small" }
+presentation = { texture = "enemy_cinder", deathSound = "enemy_death", deathEmitter = "death_small" }
 modules = [
     { type = "Immune", effect = "Burn" },
 ]

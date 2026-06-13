@@ -164,6 +164,25 @@ add_custom_command(
 )
 list(APPEND PROJECT_SOURCES ${EMBED_GARAMOND_SRC})
 
+# The window icon (resources/textures/openchaostd.png) is baked into the binary the
+# same way as the fonts, so the executable carries it on every platform with no file
+# dependency at runtime (see GameConfig::ApplyIcon).
+set(TEXTURES_DIR ${CMAKE_CURRENT_LIST_DIR}/resources/textures)
+
+set(EMBED_ICON_SRC ${CMAKE_BINARY_DIR}/generated/openchaostd_icon_png.cpp)
+add_custom_command(
+    OUTPUT ${EMBED_ICON_SRC}
+    COMMAND ${CMAKE_COMMAND}
+        -DINPUT=${TEXTURES_DIR}/openchaostd.png
+        -DOUTPUT=${EMBED_ICON_SRC}
+        -DSYMBOL=gOpenChaosTdIcon
+        -P ${CMAKE_CURRENT_LIST_DIR}/cmake/embed_resource.cmake
+    DEPENDS ${TEXTURES_DIR}/openchaostd.png
+            ${CMAKE_CURRENT_LIST_DIR}/cmake/embed_resource.cmake
+    COMMENT "Embedding openchaostd.png"
+)
+list(APPEND PROJECT_SOURCES ${EMBED_ICON_SRC})
+
 # Adding include paths
 list(APPEND PROJECT_INCLUDE ${CMAKE_CURRENT_LIST_DIR}/src/)
 

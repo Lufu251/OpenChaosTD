@@ -9,11 +9,11 @@
 ASEPRITE_PATH="/home/Lukas/Games/SteamLibrary/steamapps/common/Aseprite/aseprite"
 
 # 2. The .aseprite or .ase file you want to export from.
-INPUT_FILE="/home/lukas/Workspace/OpenChaosTD/resources/raw/openchaosdefender.aseprite"
+INPUT_FILE="/home/lukas/Workspace/OpenChaosTD/datapacks/default/resources/raw/openchaosdefender.aseprite"
 
 
 # 3. The folder where you want to save the textures.
-OUTPUT_DIR="/home/lukas/Workspace/OpenChaosTD/resources/textures"
+OUTPUT_DIR="/home/lukas/Workspace/OpenChaosTD/datapacks/default/resources/textures"
 
 # 4. The output filename format.
 OUTPUT_FILENAME="{slice}.png"

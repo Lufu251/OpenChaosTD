@@ -3,7 +3,13 @@
 #include <raylib.h>
 #include <toml++/toml.hpp>
 #include <cmath>
+#include <cstddef>
 #include <string>
+
+// Baked into the binary at build time from resources/textures/openchaostd.png
+// (cmake/embed_resource.cmake), mirroring how the fonts are embedded.
+extern const unsigned char gOpenChaosTdIcon[];
+extern const std::size_t gOpenChaosTdIconSize;
 
 void GameConfig::Load(FileStore& fileStore) {
     if (!fileStore.Exists("config/settings.toml"))
@@ -46,24 +52,9 @@ void GameConfig::Save(FileStore& fileStore) {
 }
 
 void GameConfig::ApplyIcon() {
-    // 64x64 icon: dark background, stone tower, gold orb
-    Image icon = GenImageColor(64, 64, {15, 15, 25, 255});
-
-    // Tower base (wider footing)
-    ImageDrawRectangle(&icon, 17, 50, 30, 8, {80, 80, 100, 255});
-    // Tower body
-    ImageDrawRectangle(&icon, 22, 18, 20, 34, {80, 80, 100, 255});
-    // Battlements (3 merlons)
-    ImageDrawRectangle(&icon, 22, 10, 5, 10, {80, 80, 100, 255});
-    ImageDrawRectangle(&icon, 30, 10, 4, 10, {80, 80, 100, 255});
-    ImageDrawRectangle(&icon, 37, 10, 5, 10, {80, 80, 100, 255});
-    // Arrow slit window
-    ImageDrawRectangle(&icon, 29, 28, 6, 12, {25, 25, 40, 255});
-    // Gold orb behind the slit
-    ImageDrawCircle(&icon, 32, 34, 4, {255, 195, 50, 255});
-    // Re-draw slit over orb so it reads as a window glow
-    ImageDrawRectangle(&icon, 29, 28, 6, 12, {255, 220, 100, 180});
-
+    // Decode the PNG embedded in the binary (resources/textures/openchaostd.png) and
+    // hand it to the window manager. No filesystem access, so it works on every platform.
+    Image icon = LoadImageFromMemory(".png", gOpenChaosTdIcon, static_cast<int>(gOpenChaosTdIconSize));
     SetWindowIcon(icon);
     UnloadImage(icon);
 }
