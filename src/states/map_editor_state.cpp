@@ -47,7 +47,8 @@ void MapEditorState::OnEnter(Game& game) {
     for (int i = 0; i < 5; i++)
         m_brushButtons[i].m_label = brushNames[i];
 
-    const char* statNames[3] = {"RANGE", "DAMAGE", "SPEED"};
+    // Labels parallel to kBuffStats: the third maps to shotsPerMinute, so "FIRE RATE", not "SPEED".
+    const char* statNames[3] = {"RANGE", "DAMAGE", "FIRE RATE"};
     for (int i = 0; i < 3; i++)
         m_buffStatButtons[i].m_label = statNames[i];
     m_buffMul.m_label = "Multiply";
@@ -172,17 +173,27 @@ void MapEditorState::UnloadPreviews() {
 }
 
 void MapEditorState::SyncBuffControls() {
+    // Pick the natural add/mul default and value for the chosen stat, then derive the slider range
+    // from that mode. range is a flat bonus; damage / fire rate are multipliers.
     if (m_buffStatIndex == 0) {
-        // range: a flat bonus added to the tower's range.
-        m_buffValue.m_min = 0.0f; m_buffValue.m_max = 200.0f; m_buffValue.m_step = 5.0f;
-        m_buffValue.m_value = 30.0f;
         m_buffMul.m_value = false;
+        m_buffValue.m_value = 30.0f;
     } else {
-        // damage / shotsPerMinute: a multiplier on the tower's stat.
-        m_buffValue.m_min = 0.0f; m_buffValue.m_max = 3.0f; m_buffValue.m_step = 0.1f;
-        m_buffValue.m_value = 1.5f;
         m_buffMul.m_value = true;
+        m_buffValue.m_value = 1.5f;
     }
+    SyncBuffValueRange();
+}
+
+void MapEditorState::SyncBuffValueRange() {
+    // The slider range tracks the add/mul mode (not the stat), so toggling Multiply re-scales it and
+    // a flat-add buff can't keep a multiplier range (or vice versa). Clamp the current value into it.
+    if (m_buffMul.m_value) {
+        m_buffValue.m_min = 0.0f; m_buffValue.m_max = 3.0f; m_buffValue.m_step = 0.1f;
+    } else {
+        m_buffValue.m_min = 0.0f; m_buffValue.m_max = 200.0f; m_buffValue.m_step = 5.0f;
+    }
+    m_buffValue.m_value = std::clamp(m_buffValue.m_value, m_buffValue.m_min, m_buffValue.m_max);
 }
 
 // --- Helpers -----------------------------------------------------------------
@@ -489,7 +500,10 @@ void MapEditorState::ProcessEditInput(Game& game, float dt) {
             }
         }
         m_buffValue.Update(mouse, down);
+        bool mulBefore = m_buffMul.m_value;
         m_buffMul.Update(mouse, pressed);
+        if (m_buffMul.m_value != mulBefore)
+            SyncBuffValueRange(); // toggling add/mul re-scales (and re-clamps) the value range
     }
 
     // Bottom action bar.
@@ -506,7 +520,9 @@ void MapEditorState::ProcessEditInput(Game& game, float dt) {
         game.GetSoundSystem().PlaySfx("button_click");
         Validate();
     }
-    if (m_saveBtn.IsClicked()) {
+    // SAVE is drawn disabled until the last validation passed; honor that here so a click on the
+    // greyed button is a no-op instead of running Save (and surfacing a validation error toast).
+    if (m_saveBtn.IsClicked() && m_lastValidateOk) {
         game.GetSoundSystem().PlaySfx("button_click");
         Save(game);
     }

@@ -221,18 +221,28 @@ std::string Game::GetActiveMapsDir() const {
     return root + "/maps";
 }
 
-// State machine — all transitions are deferred and applied at the frame boundary.
+// State machine — all transitions are deferred and applied at the frame boundary. Only one op
+// is held per frame, so a second request silently discards the first; warn when that happens so
+// a caller issuing two transitions in one frame (a bug) is visible instead of last-writer-wins.
+void Game::WarnIfTransitionPending() const {
+    if (m_pendingOp != PendingOp::None)
+        std::cerr << "Game: a state transition is already pending this frame; overwriting it\n";
+}
+
 void Game::ChangeState(std::unique_ptr<GameState> newState) {
+    WarnIfTransitionPending();
     m_pendingState = std::move(newState);
     m_pendingOp = PendingOp::Replace;
 }
 
 void Game::PushState(std::unique_ptr<GameState> overlay) {
+    WarnIfTransitionPending();
     m_pendingState = std::move(overlay);
     m_pendingOp = PendingOp::Push;
 }
 
 void Game::PopState() {
+    WarnIfTransitionPending();
     m_pendingOp = PendingOp::Pop;
 }
 
@@ -263,6 +273,7 @@ void Game::ApplyPendingState() {
                 m_currentState->OnExit(*this);
             m_currentState = std::move(m_suspended.back());
             m_suspended.pop_back();
+            m_currentState->OnResume(*this); // let the resumed state pick up settings changed in the overlay
             break;
     }
     m_pendingOp = PendingOp::None;

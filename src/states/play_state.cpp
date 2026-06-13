@@ -38,11 +38,22 @@ void PlayingState::OnEnter(Game& game) {
     m_renderSystem.Load(game.GetFileStore());
     m_renderSystem.CenterCamera(game.GetGameData().m_map, game.GetScreen());
 
+    BuildHuds(game);
+
+    m_waveManager.Load(game.GetFileStore(), game.GetEnemyFactory(), game.GetActiveDataDir());
+
+    // A resumed game restarts the wave lookahead from the saved wave number so the next wave
+    // (and the HUD preview) match where the player left off, rather than always wave 1.
+    if (loaded)
+        m_waveManager.PrepareForWave(game.GetGameData().m_waveNumber, game.GetEnemyFactory());
+}
+
+void PlayingState::BuildHuds(Game& game) {
     float scale   = game.GetGameConfig().hudScale;
     int   screenW = game.GetScreen().GetGameWidth();
     int   screenH = game.GetScreen().GetGameHeight();
 
-    // Static build-bar config (names/textures/costs) captured once from the factory.
+    // Static build-bar config (names/textures/costs) captured from the factory.
     std::vector<TowerBuildOption> towerOptions;
     for (const auto& name : game.GetTowerFactory().GetNames())
         towerOptions.push_back({ name,
@@ -54,21 +65,22 @@ void PlayingState::OnEnter(Game& game) {
     m_towerInfoHUD.Build(scale);
     m_waveHUD.Build(scale, screenW);
     m_eventLog.Build(scale);
+    m_pauseHUD.Build(scale, screenW, screenH);
 
     SoundSystem* ss = &game.GetSoundSystem();
     m_towerHUD.SetSoundSystem(ss);
     m_scoreHUD.SetSoundSystem(ss);
     m_towerInfoHUD.SetSoundSystem(ss);
-
-    m_waveManager.Load(game.GetFileStore(), game.GetEnemyFactory(), game.GetActiveDataDir());
-
-    // A resumed game restarts the wave lookahead from the saved wave number so the next wave
-    // (and the HUD preview) match where the player left off, rather than always wave 1.
-    if (loaded)
-        m_waveManager.PrepareForWave(game.GetGameData().m_waveNumber, game.GetEnemyFactory());
-
-    m_pauseHUD.Build(scale, screenW, screenH);
     m_pauseHUD.SetSoundSystem(ss);
+
+    m_builtHudScale = scale;
+}
+
+void PlayingState::OnResume(Game& game) {
+    // The settings overlay can change hudScale while paused over us. Only the layout depends on it,
+    // so rebuild the HUDs (which resets transient UI state) just when the scale actually changed.
+    if (game.GetGameConfig().hudScale != m_builtHudScale)
+        BuildHuds(game);
 }
 
 void PlayingState::OnExit(Game& game) {
@@ -91,11 +103,13 @@ void PlayingState::ProcessInput(Game& game, float dt) {
     HandleSaveLoad(game);
     m_renderSystem.ControlCamera(dt, game.GetInput());
 
-    // HUDs consume mouse input first so clicks don't bleed through to the world.
-    // Each call is a no-op while that HUD is hidden.
+    // HUDs consume mouse input first so clicks don't bleed through to the world. Process them in
+    // top-to-bottom z-order (the reverse of the draw order) so the topmost panel under the cursor
+    // claims an overlapping click and the ones beneath it bail. The floating tower info panel is
+    // drawn last (on top), so it must be offered the click first. Each call is a no-op while hidden.
+    m_towerInfoHUD.ProcessInput(game.GetInput());
     m_towerHUD.ProcessInput(game.GetInput());
     m_scoreHUD.ProcessInput(game.GetInput(), MakeStatusView(game));
-    m_towerInfoHUD.ProcessInput(game.GetInput());
     m_waveHUD.ProcessInput(game.GetInput());
     HandleHudSignals(game);
 
@@ -107,10 +121,11 @@ void PlayingState::ProcessInput(Game& game, float dt) {
 }
 
 void PlayingState::Update(Game& game, float dt) {
+    // Victory wins ties: only one state transition is applied per frame, so if both resolve
+    // on the same frame the win must take priority over the loss screen.
     if (game.GetGameData().m_victory)
         game.ChangeState(std::make_unique<EndState>(true));
-
-    if (m_gameOver)
+    else if (m_gameOver)
         game.ChangeState(std::make_unique<EndState>(false));
 
     m_eventLog.Update(dt); // HUD fade tracks real time, not game speed
@@ -122,6 +137,11 @@ void PlayingState::Update(Game& game, float dt) {
 }
 
 void PlayingState::StepSimulation(Game& game, float dt) {
+    // Call order matters: WaveManager::Update spawns queued enemies and tests for wave completion
+    // (queue empty AND no live enemies). It runs first so that the death-/summon-spawned children
+    // created later this step (SpawnChildren below, and CheckEnemyDead's split children) are already
+    // on the field by the next step's completion check. Do not move the completion check ahead of
+    // child spawning, or a wave can end with enemies still pending.
     GameData& data = game.GetGameData();
     m_waveManager.Update(dt, data, m_worldSystem, game.GetEnemyFactory());
 

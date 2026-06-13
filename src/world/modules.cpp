@@ -319,7 +319,8 @@ void ResistanceModule::PatchStats(const std::string& key, float v, bool mul) {
 
 float EvasionModule::InterceptDamage(float incoming) {
     // Same global RNG stream as the tower crit roll (tower_system.cpp), so a save replay is stable.
-    bool dodged = GetRandomValue(0, 99) < static_cast<int>(m_dodgeChance * 100.0f);
+    // Roll on a 0..9999 scale so sub-1% dodge chances aren't truncated to 0% (a 0.5% chance fires).
+    bool dodged = GetRandomValue(0, 9999) < static_cast<int>(m_dodgeChance * 10000.0f);
     return dodged ? 0.0f : incoming;
 }
 

@@ -31,6 +31,7 @@ private:
     void Layout(Game& game);
     void RebuildCatalog(Game& game);     // scan maps/, parse meta, load previews, build card entries
     void SyncBuffControls();             // value range + mul default for the active buff stat
+    void SyncBuffValueRange();           // re-derive the value slider's range from the add/mul mode
 
     // --- Catalog actions ---
     void UnloadPreviews();

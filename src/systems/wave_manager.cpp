@@ -250,12 +250,26 @@ void WaveManager::Update(float dt, GameData& data, WorldSystem& worldSystem, Ene
 void WaveManager::StartWave(GameData& data, const EnemyFactory& enemyFactory) {
     if (data.m_waveActive) return;
 
+    // Refuse to start a wave that would spawn nothing — an empty/misconfigured enemy pool or a map
+    // with no nests would otherwise build an empty queue that auto-completes on the first frame (and
+    // could trip the victory condition with no combat). Reset the auto-spawn timer so this retries at
+    // most once per delay rather than every frame.
+    int nestCount = static_cast<int>(data.m_map.GetNests().size());
+    int pendingCount = 0;
+    for (const auto& grp : m_pendingDef.m_groups)
+        pendingCount += grp.m_count;
+    if (nestCount <= 0 || pendingCount <= 0) {
+        std::cerr << "WaveManager: skipping empty wave " << (data.m_waveNumber + 1)
+                  << " (no spawns generated)\n";
+        m_autoSpawnTimer = 0.0f;
+        return;
+    }
+
     data.m_waveNumber++;
     data.m_waveActive = true;
 
     m_activeTier = UpgradeTierFor(data.m_waveNumber);
 
-    int nestCount = static_cast<int>(data.m_map.GetNests().size());
     BuildSpawnQueue(m_pendingDef, nestCount); // m_pendingDef holds this wave's composition
 
     // The preview prototypes were already upgraded to exactly this wave's tier, so promote them to

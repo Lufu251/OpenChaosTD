@@ -1,6 +1,7 @@
 #include <app/game_data.hpp>
 #include <systems/serialization.hpp>
 #include <engine/util/file_store.hpp>
+#include <algorithm>
 #include <iostream>
 
 // Bumped when the on-disk save schema changes incompatibly; older versions are rejected.
@@ -17,6 +18,13 @@ void GameData::Load(FileStore& fileStore, const std::string& dataDir) {
     m_sellRefundRate = data["sellRefundRate"].value_or(m_sellRefundRate);
     m_autoSpawnDelay = data["autoSpawnDelay"].value_or(m_autoSpawnDelay);
 
+    // Clamp externally-supplied gameplay values so a malformed datapack gameplay.toml can't start a
+    // game already lost (lives <= 0), with negative gold, or with a nonsensical refund/spawn delay.
+    m_startingLives  = std::max(1, m_startingLives);
+    m_startingGold   = std::max(0, m_startingGold);
+    m_sellRefundRate = std::clamp(m_sellRefundRate, 0.0f, 1.0f);
+    m_autoSpawnDelay = std::max(0.0f, m_autoSpawnDelay);
+
     m_lives = m_startingLives;
     m_gold = m_startingGold;
 
@@ -29,6 +37,14 @@ void GameData::Load(FileStore& fileStore, const std::string& dataDir) {
             m_mapGenCfg.seedTries        = (*mp)["seedTries"].value_or(m_mapGenCfg.seedTries);
             m_mapGenCfg.growTries        = (*mp)["growTries"].value_or(m_mapGenCfg.growTries);
             m_mapGenCfg.tilesPerBuffTile = (*mp)["tilesPerBuffTile"].value_or(m_mapGenCfg.tilesPerBuffTile);
+
+            // Keep generation params sane: cluster sizes ordered and positive, try-counts non-negative,
+            // and tilesPerBuffTile >= 1 since it is used as a divisor for buff-tile budgeting.
+            m_mapGenCfg.minCluster       = std::max(1, m_mapGenCfg.minCluster);
+            m_mapGenCfg.maxCluster       = std::max(m_mapGenCfg.minCluster, m_mapGenCfg.maxCluster);
+            m_mapGenCfg.seedTries        = std::max(1, m_mapGenCfg.seedTries);
+            m_mapGenCfg.growTries        = std::max(0, m_mapGenCfg.growTries);
+            m_mapGenCfg.tilesPerBuffTile = std::max(1, m_mapGenCfg.tilesPerBuffTile);
         }
     }
 }

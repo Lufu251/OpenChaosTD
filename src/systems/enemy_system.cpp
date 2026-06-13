@@ -71,8 +71,15 @@ void EnemySystem::TickEnemies(float dt, DenseSlotMap<Enemy>& enemies, const Map&
 
             // Status effects mutate the core module's live mirror directly (reset from base each
             // tick), so they stay outside the persistent PatchStats/EnemyUpgrade pipeline by design.
+            // Application order over the mirror is significant (e.g. a multiplicative Slow scales the
+            // post-bonus speed); effects don't stack (AddEffect keeps the strongest of a type), which
+            // keeps the single-pass order well-defined today. Revisit if multiple speed effects coexist.
             switch (effect.m_type) {
                 case EffectType::Burn:
+                    // Burn is a true damage-over-time tick: by design it bypasses the InterceptDamage
+                    // pipeline (shields, resistance, barrier, evasion) and burns health directly. Note
+                    // a burning enemy can therefore die while it still shows shield, so EffectiveHealth
+                    // targeting (health + shield) overestimates a burning, shielded enemy's survivability.
                     enemy.m_currentHealth -= effect.m_value * dt;
                     break;
                 case EffectType::Slow:

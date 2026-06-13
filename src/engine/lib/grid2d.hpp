@@ -13,7 +13,7 @@ public:
     Grid2D(int width, int height, const T& fill = T{})
         : m_width(width)
         , m_height(height)
-        , m_data(width * height, fill)
+        , m_data(static_cast<size_t>(width) * static_cast<size_t>(height), fill)
     {
         assert(width > 0 && height > 0 && "Grid2D: dimensions must be positive");
     }
@@ -23,7 +23,7 @@ public:
         assert(width > 0 && height > 0 && "Grid2D: dimensions must be positive");
         m_width  = width;
         m_height = height;
-        m_data.assign(width * height, fill);
+        m_data.assign(static_cast<size_t>(width) * static_cast<size_t>(height), fill);
     }
 
     // Access
@@ -37,17 +37,17 @@ public:
 
     T& Get(int x, int y) {
         CheckBounds(x, y);
-        return m_data[y * m_width + x];
+        return m_data[Index(x, y)];
     }
 
     const T& Get(int x, int y) const {
         CheckBounds(x, y);
-        return m_data[y * m_width + x];
+        return m_data[Index(x, y)];
     }
 
     void Set(int x, int y, const T& value) {
         CheckBounds(x, y);
-        m_data[y * m_width + x] = value;
+        m_data[Index(x, y)] = value;
     }
 
     // Query
@@ -71,6 +71,11 @@ public:
     typename std::vector<T>::const_iterator end() const { return m_data.end(); }
 
 private:
+    // Flat row-major index computed in size_t so the multiply can't overflow on a large grid.
+    size_t Index(int x, int y) const {
+        return static_cast<size_t>(y) * static_cast<size_t>(m_width) + static_cast<size_t>(x);
+    }
+
     void CheckBounds(int x, int y) const {
         assert(InBounds(x, y) && "Grid2D: index out of range");
     }

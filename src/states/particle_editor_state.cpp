@@ -321,6 +321,10 @@ void ParticleEditorState::NewPreset() {
 }
 
 void ParticleEditorState::DeleteSelected(Game& game) {
+    // Guard both ends of the index: the caller checks >= 0, but the preset list can shrink (e.g. a
+    // delete elsewhere) and leave m_selectedPreset stale-high, which would index out of bounds.
+    if (m_selectedPreset < 0 || m_selectedPreset >= static_cast<int>(m_presetNames.size()))
+        return;
     const std::string name = m_presetNames[m_selectedPreset];
     if (!game.GetEmitterPresets().DeletePreset(game.GetFileStore(), name)) {
         SetStatus("Delete failed - see log");

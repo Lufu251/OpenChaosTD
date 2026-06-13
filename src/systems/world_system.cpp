@@ -4,6 +4,7 @@
 #include <content/enemy_factory.hpp>
 #include <engine/systems/sound_system.hpp>
 #include <raymath.h>
+#include <iostream>
 #include <vector>
 
 bool WorldSystem::PlaceTower(int x, int y, Tower& tower, GameData& gameData){
@@ -62,13 +63,29 @@ bool WorldSystem::ValidateTowerPlacement(int x, int y, GameData& gameData){
 }
 
 void WorldSystem::SpawnEnemy(int nest, Enemy&& enemy, GameData& gameData){
+    // Guard the nest index and its path before indexing: an out-of-range nest is undefined
+    // behaviour, and a path shorter than two nodes would make the size()-2 waypoint index
+    // (computed in unsigned arithmetic) underflow into a garbage value. Skip the spawn instead.
+    const auto& nests = gameData.m_map.GetNests();
+    const auto& paths = gameData.m_map.GetPaths();
+    if (nest < 0 || nest >= static_cast<int>(nests.size()) || nest >= static_cast<int>(paths.size())) {
+        std::cerr << "SpawnEnemy: nest index " << nest << " out of range; skipping spawn\n";
+        return;
+    }
+    const std::vector<Vector2>& path = paths[nest];
+    if (path.size() < 2) {
+        std::cerr << "SpawnEnemy: nest " << nest << " has no usable path; skipping spawn\n";
+        return;
+    }
+
+    const int tileSize = gameData.m_map.GetTileSize();
     enemy.m_position = {
-        static_cast<float>(gameData.m_map.GetNests()[nest].first * gameData.m_map.GetTileSize() + static_cast<float>(gameData.m_map.GetTileSize()) /2),
-        static_cast<float>(gameData.m_map.GetNests()[nest].second * gameData.m_map.GetTileSize()+ static_cast<float>(gameData.m_map.GetTileSize()) /2)
+        static_cast<float>(nests[nest].first * tileSize) + static_cast<float>(tileSize) / 2,
+        static_cast<float>(nests[nest].second * tileSize) + static_cast<float>(tileSize) / 2
     };
 
     enemy.m_spawnedNest = nest;
-    enemy.m_waypointIndex = gameData.m_map.GetPaths()[nest].size() -2;
+    enemy.m_waypointIndex = static_cast<int>(path.size()) - 2;
 
     gameData.m_enemies.Insert(std::move(enemy));
 }
@@ -87,7 +104,9 @@ void WorldSystem::CheckEnemyReachedCore(GameData& gameData){
     }
 
     for(auto& erase : enemyErase){
-        gameData.m_lives -= gameData.m_enemies.Get(erase)->GetBaseStats()->m_livesOnReach;
+        Enemy* enemy = gameData.m_enemies.Get(erase);
+        if (!enemy) continue; // defensive: keys are distinct so this shouldn't happen, but don't deref null
+        gameData.m_lives -= enemy->GetBaseStats()->m_livesOnReach;
         RemoveEnemy(erase, gameData);
     }
 }

@@ -2,6 +2,7 @@
 
 #include <systems/pathfinder.hpp>
 #include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <limits>
 #include <vector>
@@ -131,6 +132,11 @@ bool Map::ValidatePathMesh() {
 }
 
 void Map::ConstructPaths() {
+    // m_paths and m_nests are kept in lock-step (AddNest pushes both; ClearNests/RestoreFromSave
+    // resize them together), so indexing m_nests[i] by the m_paths loop variable is safe. Assert the
+    // invariant rather than risk a silent out-of-bounds read if the two ever drift apart.
+    assert(m_paths.size() == m_nests.size() && "Map: paths/nests out of sync");
+
     float half = static_cast<float>(m_tileSize) / 2.0f;
 
     for (size_t i = 0; i < m_paths.size(); i++) {

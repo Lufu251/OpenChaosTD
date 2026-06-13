@@ -244,6 +244,14 @@ struct PendingChildSpawn {
     float m_progress;
 };
 
+// Damage-interception phase keys (lower runs first); see EnemyModule::InterceptOrder. Ordering by
+// phase rather than module declaration order makes combat results independent of how a datapack
+// lists an enemy's modules.
+inline constexpr int kInterceptNegate  = 0;   // evasion, barrier — fully negate before anything is spent
+inline constexpr int kInterceptAbsorb  = 10;  // shield pools — absorb flat damage
+inline constexpr int kInterceptReduce  = 20;  // resistance — scale the remainder
+inline constexpr int kInterceptDefault = 100; // pass-through modules (e.g. adrenaline trigger)
+
 // DescribeStats/PatchStats are inherited from IStatModule (shared with TowerModule).
 class EnemyModule : public IStatModule {
 public:
@@ -259,6 +267,8 @@ public:
     virtual void ContributeStats(BaseStatsModule&) const {}
     // Stateful damage hook (e.g. ShieldModule depletes its pool); non-const for the same reason.
     virtual float InterceptDamage(float incoming) { return incoming; }
+    // Phase key controlling the order InterceptDamage runs in (lower first); see kIntercept* above.
+    virtual int InterceptOrder() const { return kInterceptDefault; }
     virtual std::optional<SpawnRequest> OnDeath() const { return std::nullopt; }
     virtual bool ShouldBlock(EffectType) const { return false; }
     virtual float GetShield() const { return 0.0f; }
@@ -328,6 +338,7 @@ public:
     std::unique_ptr<EnemyModule> Clone() const override { return std::make_unique<ShieldModule>(*this); }
     float GetShield() const override { return m_currentShield; }
     float InterceptDamage(float incoming) override;
+    int InterceptOrder() const override { return kInterceptAbsorb; }
     void DescribeStats(std::vector<DescLine>& out) const override;
     void PatchStats(const std::string& key, float v, bool mul) override;
 };
@@ -356,6 +367,7 @@ public:
     explicit ResistanceModule(float percent) : m_percent(percent) {}
     std::unique_ptr<EnemyModule> Clone() const override { return std::make_unique<ResistanceModule>(*this); }
     float InterceptDamage(float incoming) override;
+    int InterceptOrder() const override { return kInterceptReduce; }
     void DescribeStats(std::vector<DescLine>& out) const override;
     void PatchStats(const std::string& key, float v, bool mul) override;
 };
@@ -368,6 +380,7 @@ public:
     explicit EvasionModule(float dodgeChance) : m_dodgeChance(dodgeChance) {}
     std::unique_ptr<EnemyModule> Clone() const override { return std::make_unique<EvasionModule>(*this); }
     float InterceptDamage(float incoming) override;
+    int InterceptOrder() const override { return kInterceptNegate; }
     void DescribeStats(std::vector<DescLine>& out) const override;
     void PatchStats(const std::string& key, float v, bool mul) override;
 };
@@ -382,6 +395,7 @@ public:
     explicit BarrierModule(int hitCount) : m_maxHits(hitCount), m_hitsLeft(hitCount) {}
     std::unique_ptr<EnemyModule> Clone() const override { return std::make_unique<BarrierModule>(*this); }
     float InterceptDamage(float incoming) override;
+    int InterceptOrder() const override { return kInterceptNegate; }
     void DescribeStats(std::vector<DescLine>& out) const override;
     void PatchStats(const std::string& key, float v, bool mul) override;
 };
@@ -419,6 +433,7 @@ public:
     std::unique_ptr<EnemyModule> Clone() const override { return std::make_unique<ShieldRegenModule>(*this); }
     float GetShield() const override { return m_currentShield; }
     float InterceptDamage(float incoming) override;
+    int InterceptOrder() const override { return kInterceptAbsorb; }
     void Tick(float dt, Enemy& enemy, std::vector<SpawnRequest>& outSpawns) override;
     void DescribeStats(std::vector<DescLine>& out) const override;
     void PatchStats(const std::string& key, float v, bool mul) override;

@@ -100,6 +100,10 @@ template<class T>
 void from_json(const nlohmann::json& j, Grid2D<T>& g) {
     int w = j.at("width").get<int>();
     int h = j.at("height").get<int>();
+    // Reject non-positive dimensions before the product check: a 0x0 grid would otherwise pass
+    // (0 == empty data) and build a degenerate grid / trip Grid2D::Resize's positivity assert.
+    if (w <= 0 || h <= 0)
+        throw std::runtime_error("Grid2D: width and height must be positive");
     auto data = j.at("data").template get<std::vector<T>>();
     if (static_cast<size_t>(w) * static_cast<size_t>(h) != data.size())
         throw std::runtime_error("Grid2D: data size does not match width*height");

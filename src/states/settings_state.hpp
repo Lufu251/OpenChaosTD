@@ -57,6 +57,7 @@ private:
     void BeginRebind(const std::string& action);
     void HandleRebindCapture(Game& game);
     int  StepFps(int current, int dir) const;
+    static int SnapFps(int fps); // nearest kFpsOptions entry, so an off-grid config value is corrected
     std::string* WorkingKey(const std::string& action); // null if action missing
     bool IsKeyDuplicated(const std::string& key) const;  // key bound to >1 action
     bool AnyDuplicates() const;

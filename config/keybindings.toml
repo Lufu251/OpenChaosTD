@@ -1,6 +1,8 @@
 [Game]
 Debug = 'GRAVE'
 Speed = 'SPACE'
+SaveGame = 'F5'
+LoadGame = 'F9'
 
 [Interface]
 Cancel = 'ESCAPE'

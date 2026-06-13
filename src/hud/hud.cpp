@@ -44,6 +44,9 @@ void HUD::ClampPanelToScreen(int screenW, int screenH) {
 
 bool HUD::BeginInput(Input& input, Vector2& mousePos, bool& pressed) {
     if (!m_visible) return false;
+    // Bail if an earlier (higher) panel already handled this frame's click. Panels can overlap (e.g.
+    // the floating tower info panel over a docked bar), so without this the same click acts twice.
+    if (input.IsMouseInputConsumed()) return false;
     mousePos = input.GetMousePosition();
     pressed = input.IsMousePressed(MOUSE_LEFT_BUTTON);
     ConsumePanelClick(input);
@@ -52,6 +55,7 @@ bool HUD::BeginInput(Input& input, Vector2& mousePos, bool& pressed) {
 
 bool HUD::BeginInput(Input& input) {
     if (!m_visible) return false;
+    if (input.IsMouseInputConsumed()) return false;
     ConsumePanelClick(input);
     return true;
 }

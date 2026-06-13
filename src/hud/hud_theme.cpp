@@ -2,16 +2,18 @@
 #include <engine/util/file_store.hpp>
 #include <engine/systems/ui_widgets.hpp>
 #include <toml++/toml.hpp>
+#include <algorithm>
 
 namespace {
 
 Color ParseColor(const toml::array& a) {
-    return {
-        static_cast<unsigned char>(a[0].value_or(0)),
-        static_cast<unsigned char>(a[1].value_or(0)),
-        static_cast<unsigned char>(a[2].value_or(0)),
-        static_cast<unsigned char>(a.size() >= 4 ? a[3].value_or(255) : 255)
+    // Read each channel only if present (a short array reads as the default, not out of bounds) and
+    // clamp into 0..255 so an out-of-range entry saturates instead of wrapping via the cast.
+    auto channel = [&](size_t i, int def) -> unsigned char {
+        int v = (i < a.size()) ? a[i].value_or(def) : def;
+        return static_cast<unsigned char>(std::clamp(v, 0, 255));
     };
+    return { channel(0, 0), channel(1, 0), channel(2, 0), channel(3, 255) };
 }
 
 // Mix a color toward white (lighten) or black (darken); WithAlpha overrides opacity only.

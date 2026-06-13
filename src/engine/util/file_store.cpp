@@ -234,6 +234,12 @@ std::vector<unsigned char> FileStore::LoadBytes(const std::string& path) {
         file.seekg(0, std::ios::beg);
         std::vector<unsigned char> bytes(static_cast<size_t>(size));
         file.read(reinterpret_cast<char*>(bytes.data()), size);
+        // A short/failed read would leave garbage in the tail; report it as unreadable (empty) per
+        // the contract instead of handing back a partially-filled buffer with no error signal.
+        if (file.gcount() != size) {
+            std::cerr << "filestore: short read (" << file.gcount() << " of " << size << " bytes)\n";
+            return {};
+        }
         return bytes;
     };
 

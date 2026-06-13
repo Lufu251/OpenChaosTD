@@ -2,6 +2,7 @@
 #include <engine/util/file_store.hpp>
 #include <raylib.h>
 #include <toml++/toml.hpp>
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <string>
@@ -34,6 +35,16 @@ void GameConfig::Load(FileStore& fileStore) {
         if (auto v = (*a)["musicVolume"].value<float>()) musicVolume = *v;
         if (auto v = (*a)["sfxVolume"].value<float>())   sfxVolume   = *v;
     }
+
+    // Clamp externally-supplied values to sane ranges so a hand-edited or corrupt settings.toml
+    // can't put the app into a degenerate state (zero-size window, silent muting, inverted margin).
+    gameWidth   = std::max(320, gameWidth);
+    gameHeight  = std::max(240, gameHeight);
+    fps         = std::max(1, fps);
+    hudScale    = std::clamp(hudScale, 0.5f, 4.0f);
+    musicVolume = std::clamp(musicVolume, 0.0f, 1.0f);
+    sfxVolume   = std::clamp(sfxVolume, 0.0f, 1.0f);
+    clampMargin = std::clamp(clampMargin, 0.1f, 1.0f);
 }
 
 void GameConfig::Save(FileStore& fileStore) {

@@ -17,6 +17,10 @@ void SoundSystem::PlaySfx(const std::string& key) {
 
 // Music
 void SoundSystem::PlayMusic(const std::string& key) {
+    // No-op for an unset key or one that never loaded (mirrors PlaySfx), so a missing/typo'd or
+    // failed-to-decode music key silently does nothing instead of dereferencing a missing entry.
+    if (key.empty() || !m_resources->HasMusic(key)) return;
+
     if (m_activeMusic)
         StopMusicStream(*m_activeMusic);
 
@@ -54,5 +58,15 @@ void SoundSystem::SetSfxVolume(float volume) {
 // Tick
 void SoundSystem::Tick(float dt) {
     (void)dt;
-    if (m_activeMusic) UpdateMusicStream(*m_activeMusic);
+    if (!m_activeMusic) return;
+    // Re-resolve the stream from Resources by key each tick. If the datapack unloaded it (e.g. on a
+    // datapack switch) the cached pointer would dangle, so drop it instead of updating freed memory;
+    // the map is node-based, so re-fetching also survives the key being unloaded and reloaded.
+    if (!m_resources->HasMusic(m_activeKey)) {
+        m_activeMusic = nullptr;
+        m_activeKey.clear();
+        return;
+    }
+    m_activeMusic = &m_resources->GetMusic(m_activeKey);
+    UpdateMusicStream(*m_activeMusic);
 }

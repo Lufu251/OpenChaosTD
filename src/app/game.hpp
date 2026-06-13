@@ -110,4 +110,5 @@ private:
     PendingOp m_pendingOp = PendingOp::None;
     std::unique_ptr<GameState> m_pendingState; // payload for Replace / Push
     void ApplyPendingState();                  // performs the pending op at a safe point
+    void WarnIfTransitionPending() const;      // warns if a transition is already queued this frame
 };

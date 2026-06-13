@@ -60,15 +60,22 @@ void TowerSystem::Fire(Tower& tower, const std::vector<DenseSlotMap<Enemy>::Key>
     for (auto& mod : tower.m_modules) // note: after the cooldown reset, so a new stack affects the next-but-one shot
         mod->OnFire();
 
+    // Build the resolved key list and their positions in one pass so the two stay positionally
+    // aligned: only keys that still resolve are kept, in the same order as their positions. (All
+    // keys resolve on the fire frame, so this matches the old behaviour but can never drift.)
+    std::vector<DenseSlotMap<Enemy>::Key> liveKeys;
     std::vector<Vector2> targetPositions;
+    liveKeys.reserve(targetKeys.size());
     targetPositions.reserve(targetKeys.size());
     for (auto& key : targetKeys) {
-        if (Enemy* e = enemies.Get(key))
+        if (Enemy* e = enemies.Get(key)) {
+            liveKeys.push_back(key);
             targetPositions.push_back(e->m_position);
+        }
     }
 
     Attack attack;
-    attack.m_combat.m_targetKeys = targetKeys;
+    attack.m_combat.m_targetKeys = std::move(liveKeys);
     BuildPayload(tower, attack.m_combat);
     attack.m_visual = BuildVisual(tower, std::move(targetPositions));
     attack.m_duration = attack.m_maxDuration = tower.m_presentation.m_attackDuration;
@@ -136,14 +143,17 @@ void TowerSystem::BuildPayload(const Tower& tower, AttackPayload& payload) {
 static float ResolveDamage(const AttackPayload& payload, const Enemy& enemy, bool& outCrit) {
     float armor = std::max(0.0f, enemy.GetBaseStats()->m_liveArmor - payload.m_armorPierce);
     float dmg = payload.m_damage;
+    // Roll on a 0..9999 scale so sub-1% crit chances aren't truncated to 0% (a 0.5% chance now
+    // fires); a configured 100% still always crits. Single GetRandomValue draw keeps replays stable.
     outCrit = payload.m_critChance > 0.0f
-        && GetRandomValue(0, 99) < (int)(payload.m_critChance * 100.0f);
+        && GetRandomValue(0, 9999) < (int)(payload.m_critChance * 10000.0f);
     if (outCrit)
         dmg *= payload.m_critMultiplier;
     // Armor never fully nullifies a hit: when it meets or exceeds the attack, the hit still chips
-    // min(attack, 1.0) instead of dropping to 0 (and so can never heal the enemy).
+    // min(attack, 1.0) instead of dropping to 0. The final std::max clamp guarantees damage is never
+    // negative (so a misconfigured negative base/crit can never heal the enemy).
     float net = dmg - armor;
-    return (net > 0.0f) ? net : std::min(dmg, 1.0f);
+    return std::max(0.0f, (net > 0.0f) ? net : std::min(dmg, 1.0f));
 }
 
 // A pre-existing Weakness adds flat bonus damage to this hit, then is consumed (0 if none).
@@ -187,12 +197,26 @@ void TowerSystem::TickAttacks(float dt, DenseSlotMap<Enemy>& enemies, std::vecto
 
                 bool crit = false;
                 float net = ResolveDamage(payload, *enemy, crit);
-                net += ConsumeWeaknessBonus(*enemy); // before interception/health, per effect rules
-                // Each module gets a shot at the incoming damage, in declaration order: shields absorb,
-                // resistance scales, evasion/barrier can negate it outright. ShieldModule is just one
-                // of these (no longer special-cased).
+
+                // Each intercepting module gets a shot at the incoming damage, but in defined phase
+                // order (negation -> absorption -> reduction) rather than module declaration order,
+                // so combat results don't depend on how a datapack lists an enemy's modules. See
+                // EnemyModule::InterceptOrder. A stable sort keeps declaration order within a phase.
+                std::vector<EnemyModule*> interceptors;
+                interceptors.reserve(enemy->m_modules.size());
                 for (auto& mod : enemy->m_modules)
+                    interceptors.push_back(mod.get());
+                std::stable_sort(interceptors.begin(), interceptors.end(),
+                    [](const EnemyModule* a, const EnemyModule* b) { return a->InterceptOrder() < b->InterceptOrder(); });
+                for (EnemyModule* mod : interceptors)
                     net = mod->InterceptDamage(net);
+
+                // Weakness is flat bonus damage applied after interception so shields/resistance/evasion
+                // can't water it down, and is consumed only when the base hit actually lands (net > 0)
+                // so it isn't wasted on a fully dodged, blocked or absorbed hit.
+                if (net > 0.0f)
+                    net += ConsumeWeaknessBonus(*enemy);
+
                 enemy->m_currentHealth -= net;
                 ApplyOnHitEffects(payload, *enemy); // stun cleared after damage; new effects applied last
                 EmitImpact(particles, *enemy, crit, payload);

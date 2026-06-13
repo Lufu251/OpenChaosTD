@@ -88,6 +88,9 @@ public:
         // Invalidate the erased slot
         slot.occupied = false;
         slot.generation++;           // invalidates all existing keys to this slot
+        // Accepted limit: generation is a uint32_t and is not saturated, so after 2^32 erase/reuse
+        // cycles on the same slot it wraps and a long-dead key could alias the reused slot. This is
+        // unreachable in practice (billions of reuses of one slot); document rather than guard.
         m_freeList.push_back(key.index);
 
         return true;

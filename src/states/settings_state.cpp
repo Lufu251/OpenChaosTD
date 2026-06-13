@@ -31,7 +31,7 @@ std::vector<SettingsState::BindingGroup> SettingsState::DefaultBindings() {
     return {
         {"Movement",  {{"Up", "W"}, {"Down", "S"}, {"Left", "A"}, {"Right", "D"}}},
         {"Interface", {{"Confirm", "ENTER"}, {"Cancel", "ESCAPE"}, {"WaveInfo", "TAB"}}},
-        {"Game",      {{"Speed", "SPACE"}, {"Debug", "GRAVE"}}},
+        {"Game",      {{"Speed", "SPACE"}, {"Debug", "GRAVE"}, {"SaveGame", "F5"}, {"LoadGame", "F9"}}},
     };
 }
 
@@ -64,7 +64,7 @@ void SettingsState::OnEnter(Game& game) {
     const GameConfig& cfg = game.GetGameConfig();
     m_snapshot.musicVolume = cfg.musicVolume;
     m_snapshot.sfxVolume = cfg.sfxVolume;
-    m_snapshot.fps = cfg.fps;
+    m_snapshot.fps = SnapFps(cfg.fps); // correct an off-grid config value so the stepper stays aligned
     m_snapshot.hudScale = cfg.hudScale;
     m_snapshot.bindings = LoadBindings(game);
 
@@ -177,6 +177,17 @@ bool SettingsState::AnyDuplicates() const {
         for (auto& b : grp.bindings)
             if (IsKeyDuplicated(b.key)) return true;
     return false;
+}
+
+int SettingsState::SnapFps(int fps) {
+    // Pick the closest curated option so a hand-edited / off-grid config value lands on the stepper.
+    int best = kFpsOptions[0];
+    for (int opt : kFpsOptions) {
+        int dBest = (best > fps) ? best - fps : fps - best;
+        int dOpt  = (opt  > fps) ? opt  - fps : fps - opt;
+        if (dOpt < dBest) best = opt;
+    }
+    return best;
 }
 
 int SettingsState::StepFps(int current, int dir) const {

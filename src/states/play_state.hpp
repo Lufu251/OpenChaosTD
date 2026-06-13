@@ -20,6 +20,7 @@ public:
 
     void OnEnter(Game& game) override;
     void OnExit(Game& game) override;
+    void OnResume(Game& game) override; // rebuild HUD layout if hudScale changed in the settings overlay
 
     void ProcessInput(Game& game, float dt) override;
     void Update(Game& game, float dt) override;
@@ -34,6 +35,9 @@ private:
     void HandleSaveLoad(Game& game); // F5 save / F9 load, only valid between waves
     void SaveGame(Game& game);       // write the save slot (+ event-log feedback)
     bool LoadGame(Game& game);       // restore the save slot; false if none/invalid
+
+    // (Re)build all HUD layout from the current hudScale + screen size; safe to call again on resume.
+    void BuildHuds(Game& game);
 
     // Build the per-frame read-only views handed to the HUDs (keeps HUDs off GameData/WaveManager).
     StatusView MakeStatusView(Game& game);
@@ -61,6 +65,7 @@ private:
     bool m_debug = false;
     bool m_gameOver = false;
     bool m_paused = false;
+    float m_builtHudScale = 0.0f; // hudScale the HUDs were last laid out with (resume rebuilds on change)
 
     Tower m_hoveredTowerCache; // rebuilt only when hoveredTowerName changes
 
