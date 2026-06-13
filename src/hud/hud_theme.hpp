@@ -14,14 +14,15 @@ class FileStore;
 namespace Hud {
 
 // --- Palette ----------------------------------------------------------------
-// One unified family: deep blue-slate surfaces, warm amber for headers and focus, mint/rose for
-// positive/negative status, sky cyan for informational accents. Every color a panel draws is a
-// semantic role named here — concrete draw methods never reach for raw raylib color literals.
+// One unified family of semantic roles, shared by every HUD panel AND every full-screen state:
+// deep blue-slate surfaces, warm amber for headers and focus, mint/rose for positive/negative
+// status, sky cyan for informational accents. Every color drawn anywhere is a role named here —
+// concrete draw methods never reach for raw raylib color literals.
 
-// Text hierarchy: every string a panel renders picks exactly one of these roles.
-inline Color kTextHeader{240, 198, 92, 255}; // active panel headers and titles
-inline Color kTextPrimary{230, 235, 243, 255}; // primary readouts, button labels, card names
-inline Color kTextSecondary{156, 166, 184, 255}; // secondary labels: descriptions, budgets, hints
+// Text hierarchy: every string a panel or screen renders picks exactly one of these roles.
+inline Color kTextHeader{240, 198, 92, 255}; // panel/screen headers, titles, category sub-headers, event toasts
+inline Color kTextPrimary{230, 235, 243, 255}; // primary readouts, button labels, card names, dialog titles
+inline Color kTextSecondary{156, 166, 184, 255}; // secondary labels: descriptions, budgets, hints, subtitles
 // Disabled label text. Text-specific on purpose: a disabled widget's *background* comes from the
 // widget style (kDisabledStyle), but its label always reads through this key so disabled text
 // stays equally legible on every panel.
@@ -29,30 +30,28 @@ inline Color kTextDisabled{102, 110, 126, 255};
 
 // Functional status accents, shared by every affordance of the same polarity.
 inline Color kStatusPositive{110, 212, 140, 255}; // affordable cost, upgrade ready, sell value
-inline Color kStatusNegative{232, 93, 102, 255}; // unaffordable cost, warn states
-inline Color kHighlight{255, 200, 87, 255}; // focus: active toggles, tooltip border, level badges
+inline Color kStatusNegative{232, 93, 102, 255}; // unaffordable cost, warn/fail states, defeat title, delete action
+inline Color kHighlight{255, 200, 87, 255}; // focus: active toggles, tooltip/dialog border, badges, warnings, victory title
 // Informational accent shared across HUD and screens: retarget label, settings binding-group
-// headers, key-capture indicator.
+// headers, key-capture indicator, status-bar endless-mode infinity glyph.
 inline Color kAccent{108, 178, 230, 255};
 
-// Panel chrome.
-inline Color kPanelBorder{62, 72, 94, 255};
-// Wave enemy card frame.
-inline Color kCardFill{28, 33, 46, 200};
-inline Color kCardBorder{74, 86, 110, 255};
-// Status-bar endless-mode infinity glyph.
-inline Color kInfinityGlyph{108, 178, 230, 255};
+// Surfaces and chrome.
+inline Color kPanelBorder{62, 72, 94, 255}; // panel / card / dialog borders and widget outlines
+inline Color kWorldBackground{21, 24, 32, 255}; // gameplay clear behind the map, full-screen state clear, placeholder fills
+inline Color kBgDark{13, 15, 21, 255}; // high-contrast dark backing: thumbnails, preview frames, swatch backs
+inline Color kScreenDim{8, 10, 16, 130}; // full-screen dim behind the pause menu and modal dialogs
 // Sprite tint for icon draws (build-bar towers, datapack icons); white = untinted.
 inline Color kIconTint{255, 255, 255, 255};
 
-// RGB bases for the two dynamic-alpha helpers below; alpha is ignored and set per call.
+// RGB base for the dynamic-alpha fill helper; alpha is ignored here and supplied per call.
 inline Color kPanelBgRgb{17, 20, 28, 255};
-inline Color kEventTextRgb{255, 214, 112, 255};
 
-// The dark panel fill is shared but drawn at varying opacity, so it is a helper rather than a
-// constant. The event toast text likewise fades, so its RGB lives behind a helper too.
-inline Color PanelBg(unsigned char alpha)   { return {kPanelBgRgb.r,   kPanelBgRgb.g,   kPanelBgRgb.b,   alpha}; }
-inline Color EventText(unsigned char alpha) { return {kEventTextRgb.r, kEventTextRgb.g, kEventTextRgb.b, alpha}; }
+// The dark panel fill is shared but drawn at varying opacity (window/docked/tooltip/card/dialog),
+// so it is a helper rather than a constant. The event toast text fades too and reads through the
+// header amber, so its RGB lives behind a helper keyed on kTextHeader.
+inline Color PanelBg(unsigned char alpha)   { return {kPanelBgRgb.r, kPanelBgRgb.g, kPanelBgRgb.b, alpha}; }
+inline Color EventText(unsigned char alpha) { return {kTextHeader.r, kTextHeader.g, kTextHeader.b, alpha}; }
 
 // --- Panel-class background standards ---------------------------------------
 // Every panel falls into one of three semantic classes; each class has one opacity (and border
@@ -62,7 +61,7 @@ inline unsigned char kPanelAlphaDocked = 200; // Docked bars: Status, Build (no 
 inline unsigned char kOverlayBgAlpha   = 160; // Ephemeral toast background, before the fade factor
 inline unsigned char kOverlayTextAlpha = 220; // Ephemeral toast text, before the fade factor
 inline unsigned char kTooltipBgAlpha   = 235; // Upgrade tooltip fill
-inline Color kScreenDim{8, 10, 16, 130};      // Full-screen dim behind the modal pause menu
+inline unsigned char kDialogAlpha      = 245; // Modal dialog panel fill (PanelBg(kDialogAlpha))
 
 // --- Semantic typographic scale ---------------------------------------------
 // Concrete HUDs request a role rather than a raw font-size integer; every panel that shows the same
@@ -94,22 +93,11 @@ inline float kFontStateTitle  = 40.0f; // main-menu / datapack-select screen tit
 inline float kFontScreenTitle = 48.0f; // settings header, end-screen result title
 inline float kFontMenuButton  = 24.0f; // menu / end / back button labels
 
-// Screen-text hierarchy: every string a full-screen state renders picks one of these roles
-// (kSubtle below covers description subtitles, kDisabledText covers greyed labels).
-inline Color kStateTitle{230, 235, 243, 255}; // screen and dialog titles
-inline Color kStateTextPrimary{230, 235, 243, 255}; // menu button labels, control labels and values
-inline Color kStateCategory{240, 198, 92, 255}; // section/category headers (AUDIO, BRUSH, PRESETS, ...)
-
-inline Color kStateBackground{26, 30, 40, 255}; // full-screen clear
-inline Color kWorldBackground{21, 24, 32, 255}; // gameplay clear behind the map (PlayingState)
-inline Color kDialogBg{17, 20, 28, 245}; // modal dialog panel fill
-inline Color kDialogOverlay{8, 10, 16, 150}; // screen dim behind a modal dialog
-inline Color kDisabledText{102, 110, 126, 255}; // greyed action-button label text
-inline Color kWarning{255, 200, 87, 255}; // section headers, conflict highlight, dialog border
-inline Color kPlaceholderBg{22, 26, 36, 255}; // missing-icon fill and scrollbar track
-inline Color kSubtle{156, 166, 184, 255}; // secondary text on selection screens
-inline Color kVictory{255, 200, 87, 255}; // end-screen win title
-inline Color kDefeat{232, 93, 102, 255}; // end-screen loss title
+// Full-screen states draw text, surfaces and status through the shared palette above: titles and
+// menu labels use kTextPrimary, section headers kTextHeader, subtitles kTextSecondary, greyed
+// labels kTextDisabled; the screen clear and placeholder fills use kWorldBackground; warnings and
+// the victory title use kHighlight, the defeat title kStatusNegative; the modal panel fill is
+// PanelBg(kDialogAlpha) and both the pause and modal dims use kScreenDim.
 
 // --- State-specific cosmetics -------------------------------------------------
 // Highly specialized colors owned by a single screen, grouped per state so config/hud.toml
@@ -117,15 +105,13 @@ inline Color kDefeat{232, 93, 102, 255}; // end-screen loss title
 // defaults match the file so its removal is safe. Tints that need transparency carry their
 // alpha here (and as the fourth TOML component) so opacity stays configurable.
 
-// Selection screens (map / map-editor catalogs).
+// Selection screens (map / map-editor catalogs). Preview thumbnails use the shared kBgDark.
 struct SelectTheme {
     Color autoCardTint{40, 50, 68, 255}; // procedural-map card's distinct thumbnail backing
-    Color thumbBg{13, 15, 21, 255};      // dark backing behind map preview thumbnails
 };
 
-// Map editor canvas and catalog.
+// Map editor canvas and catalog. The delete/failed-action color routes through kStatusNegative.
 struct MapEditorTheme {
-    Color deleteWarn{240, 130, 80, 255};    // delete-button label and failed-action status
     Color canvasBg{20, 23, 32, 255};        // edit canvas backdrop
     Color exportBg{0, 0, 0, 255};           // offscreen clear behind the exported map.png
     Color grid{230, 235, 243, 30};          // translucent grid overlay lines
@@ -138,15 +124,8 @@ struct MapEditorTheme {
     Color brushBuff{108, 178, 230, 150};
 };
 
-// Particle editor preview and swatches.
-struct ParticleEditorTheme {
-    Color previewBg{13, 15, 21, 255}; // dark preview frame so bright particles read well
-    Color swatchBg{13, 15, 21, 255};  // backing under color swatches so low alpha stays readable
-};
-
 inline SelectTheme g_selectTheme;
 inline MapEditorTheme g_mapEditorTheme;
-inline ParticleEditorTheme g_particleEditorTheme;
 
 // --- Sibling layout anchor --------------------------------------------------
 // Unscaled height of the top StatusHUD bar. EventHUD and WaveHUD position their content below the

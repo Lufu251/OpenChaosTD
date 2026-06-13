@@ -57,15 +57,15 @@ void EditorSelectState::Draw(Game& game) {
     const int titleSize = static_cast<int>(Hud::kFontStateTitle);
     const int btnFont = static_cast<int>(Hud::kFontMenuButton);
 
-    ClearBackground(Hud::kStateBackground);
-    Text::Draw("SELECT EDITOR", cx - Text::Measure("SELECT EDITOR", titleSize) / 2, cy - 100, titleSize, Hud::kStateTitle);
+    ClearBackground(Hud::kWorldBackground);
+    Text::Draw("SELECT EDITOR", cx - Text::Measure("SELECT EDITOR", titleSize) / 2, cy - 100, titleSize, Hud::kTextPrimary);
 
     m_particleEditorButton.Draw();
-    m_particleEditorButton.DrawLabel(btnFont, Hud::kStateTextPrimary);
+    m_particleEditorButton.DrawLabel(btnFont, Hud::kTextPrimary);
 
     m_mapEditorButton.Draw();
-    m_mapEditorButton.DrawLabel(btnFont, Hud::kStateTextPrimary);
+    m_mapEditorButton.DrawLabel(btnFont, Hud::kTextPrimary);
 
     m_backButton.Draw();
-    m_backButton.DrawLabel(btnFont, Hud::kStateTextPrimary);
+    m_backButton.DrawLabel(btnFont, Hud::kTextPrimary);
 }

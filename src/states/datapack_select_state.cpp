@@ -79,13 +79,13 @@ void DatapackSelectState::Draw(Game& game) {
     float listTop = m_list.ListTop();
     float listBottom = m_list.ListBottom(screenH);
 
-    ClearBackground(Hud::kStateBackground);
+    ClearBackground(Hud::kWorldBackground);
 
     const auto& packs = game.GetDatapackRegistry().Packs();
     int count = static_cast<int>(packs.size());
 
     if (packs.empty()) {
-        DrawCenteredText("No datapacks found", screenW / 2.0f, screenH / 2.0f - 12.0f, 28, Hud::kSubtle);
+        DrawCenteredText("No datapacks found", screenW / 2.0f, screenH / 2.0f - 12.0f, 28, Hud::kTextSecondary);
     }
 
     // Cards. Overflow past the band is hidden by the header/footer masks below.
@@ -110,7 +110,7 @@ void DatapackSelectState::Draw(Game& game) {
                               static_cast<float>(pack.m_icon.height) };
             DrawTexturePro(pack.m_icon, src, iconRect, { 0.0f, 0.0f }, 0.0f, Hud::kIconTint);
         } else {
-            DrawRectangleRec(iconRect, Hud::kPlaceholderBg);
+            DrawRectangleRec(iconRect, Hud::kWorldBackground);
             DrawRectangleLinesEx(iconRect, 1.0f, kDefaultStyle.m_border);
         }
 
@@ -126,19 +126,19 @@ void DatapackSelectState::Draw(Game& game) {
         Text::Draw(meta.c_str(), static_cast<int>(textX), static_cast<int>(card.y + 50.0f), 16, kDefaultStyle.m_accent);
 
         std::string desc = TruncateToWidth(pack.m_description, 16, textW);
-        Text::Draw(desc.c_str(), static_cast<int>(textX), static_cast<int>(card.y + 78.0f), 16, Hud::kSubtle);
+        Text::Draw(desc.c_str(), static_cast<int>(textX), static_cast<int>(card.y + 78.0f), 16, Hud::kTextSecondary);
     }
 
     // Scrollbar (only when there is something to scroll).
-    m_list.DrawScrollbar(count, screenW, screenH, Hud::kPlaceholderBg, kDefaultStyle.m_border);
+    m_list.DrawScrollbar(count, screenW, screenH, Hud::kWorldBackground, kDefaultStyle.m_border);
 
     // Header mask + title (drawn over any card that scrolled up into this band).
-    DrawRectangle(0, 0, static_cast<int>(screenW), static_cast<int>(listTop), Hud::kStateBackground);
-    DrawCenteredText("SELECT DATAPACK", screenW / 2.0f, 40.0f, static_cast<int>(Hud::kFontStateTitle), Hud::kStateTitle);
+    DrawRectangle(0, 0, static_cast<int>(screenW), static_cast<int>(listTop), Hud::kWorldBackground);
+    DrawCenteredText("SELECT DATAPACK", screenW / 2.0f, 40.0f, static_cast<int>(Hud::kFontStateTitle), Hud::kTextPrimary);
 
     // Footer mask + back button.
     DrawRectangle(0, static_cast<int>(listBottom), static_cast<int>(screenW),
-                  static_cast<int>(screenH - listBottom), Hud::kStateBackground);
+                  static_cast<int>(screenH - listBottom), Hud::kWorldBackground);
     m_backButton.Draw();
-    m_backButton.DrawLabel(static_cast<int>(Hud::kFontMenuButton), Hud::kStateTextPrimary);
+    m_backButton.DrawLabel(static_cast<int>(Hud::kFontMenuButton), Hud::kTextPrimary);
 }

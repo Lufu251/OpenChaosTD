@@ -132,7 +132,7 @@ void MapSelectState::Draw(Game& game) {
     float listTop = m_list.ListTop();
     float listBottom = m_list.ListBottom(screenH);
 
-    ClearBackground(Hud::kStateBackground);
+    ClearBackground(Hud::kWorldBackground);
 
     int count = static_cast<int>(m_entries.size());
     for (int i = 0; i < count; i++) {
@@ -155,14 +155,14 @@ void MapSelectState::Draw(Game& game) {
             DrawCenteredText("AUTO", thumb.x + thumb.width / 2.0f,
                              thumb.y + thumb.height / 2.0f - 12.0f, 24, kDefaultStyle.m_accent);
         } else if (entry.m_hasPreview) {
-            DrawRectangleRec(thumb, Hud::g_selectTheme.thumbBg);
+            DrawRectangleRec(thumb, Hud::kBgDark);
             DrawTextureFitted(entry.m_preview, thumb);
             DrawRectangleLinesEx(thumb, 1.0f, kDefaultStyle.m_border);
         } else {
-            DrawRectangleRec(thumb, Hud::kPlaceholderBg);
+            DrawRectangleRec(thumb, Hud::kWorldBackground);
             DrawRectangleLinesEx(thumb, 1.0f, kDefaultStyle.m_border);
             DrawCenteredText("no preview", thumb.x + thumb.width / 2.0f,
-                             thumb.y + thumb.height / 2.0f - 8.0f, 16, Hud::kSubtle);
+                             thumb.y + thumb.height / 2.0f - 8.0f, 16, Hud::kTextSecondary);
         }
 
         // Text column.
@@ -175,19 +175,19 @@ void MapSelectState::Draw(Game& game) {
                    26, nameColor);
 
         std::string desc = TruncateToWidth(entry.m_description, 16, textW);
-        Text::Draw(desc.c_str(), static_cast<int>(textX), static_cast<int>(card.y + 64.0f), 16, Hud::kSubtle);
+        Text::Draw(desc.c_str(), static_cast<int>(textX), static_cast<int>(card.y + 64.0f), 16, Hud::kTextSecondary);
     }
 
     // Scrollbar (only when there is something to scroll).
-    m_list.DrawScrollbar(count, screenW, screenH, Hud::kPlaceholderBg, kDefaultStyle.m_border);
+    m_list.DrawScrollbar(count, screenW, screenH, Hud::kWorldBackground, kDefaultStyle.m_border);
 
     // Header mask + title (covers any card scrolled up into this band).
-    DrawRectangle(0, 0, static_cast<int>(screenW), static_cast<int>(listTop), Hud::kStateBackground);
-    DrawCenteredText("SELECT MAP", screenW / 2.0f, 40.0f, static_cast<int>(Hud::kFontStateTitle), Hud::kStateTitle);
+    DrawRectangle(0, 0, static_cast<int>(screenW), static_cast<int>(listTop), Hud::kWorldBackground);
+    DrawCenteredText("SELECT MAP", screenW / 2.0f, 40.0f, static_cast<int>(Hud::kFontStateTitle), Hud::kTextPrimary);
 
     // Footer mask + back button.
     DrawRectangle(0, static_cast<int>(listBottom), static_cast<int>(screenW),
-                  static_cast<int>(screenH - listBottom), Hud::kStateBackground);
+                  static_cast<int>(screenH - listBottom), Hud::kWorldBackground);
     m_backButton.Draw();
-    m_backButton.DrawLabel(static_cast<int>(Hud::kFontMenuButton), Hud::kStateTextPrimary);
+    m_backButton.DrawLabel(static_cast<int>(Hud::kFontMenuButton), Hud::kTextPrimary);
 }

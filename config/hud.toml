@@ -1,33 +1,32 @@
-# Every HUD panel color, keyed by semantic role — panels name a role, never a raw color. One
-# unified family: deep blue-slate surfaces, warm amber for headers and focus, mint/rose for
-# positive/negative status, sky cyan for informational accents.
+# One unified family of semantic color roles, shared by every HUD panel AND every full-screen
+# state — panels and screens name a role, never a raw color. Deep blue-slate surfaces, warm amber
+# for headers and focus, mint/rose for positive/negative status, sky cyan for informational accents.
 [palette]
-# Text hierarchy — every string a panel renders picks exactly one role.
-textHeader = [240, 198, 92, 255] # active panel headers and titles
-textPrimary = [230, 235, 243, 255] # primary readouts, button labels, card names
-textSecondary = [156, 166, 184, 255] # secondary labels: descriptions, budgets, hints
-textDisabled = [102, 110, 126, 255] # disabled button label text (backgrounds come from the widget style)
+# Text hierarchy — every string a panel or screen renders picks exactly one role.
+textHeader = [240, 198, 92, 255] # headers, titles, category sub-headers, event toasts
+textPrimary = [230, 235, 243, 255] # primary readouts, button labels, card names, dialog titles
+textSecondary = [156, 166, 184, 255] # secondary labels: descriptions, budgets, hints, subtitles
+textDisabled = [102, 110, 126, 255] # disabled label text (backgrounds come from the widget style)
 # Functional status accents, shared by every affordance of the same polarity.
 statusPositive = [110, 212, 140, 255] # affordable cost, upgrade ready, sell value
-statusNegative = [232, 93, 102, 255] # unaffordable cost, warn states
-highlight = [255, 200, 87, 255] # focus: active toggles, tooltip border, level badges
-accent = [108, 178, 230, 255] # informational accent: retarget label, category sub-headers, key capture
-# Panel chrome.
-panelBorder = [62, 72, 94, 255]
-cardFill = [28, 33, 46, 200] # wave enemy card frame
-cardBorder = [74, 86, 110, 255]
-infinityGlyph = [108, 178, 230, 255] # status-bar endless-mode glyph
+statusNegative = [232, 93, 102, 255] # unaffordable cost, warn/fail states, defeat title, delete action
+highlight = [255, 200, 87, 255] # focus: active toggles, tooltip/dialog border, badges, warnings, victory
+accent = [108, 178, 230, 255] # informational accent: retarget label, category headers, key capture, infinity glyph
+# Surfaces and chrome.
+panelBorder = [62, 72, 94, 255] # panel / card / dialog borders and widget outlines
+worldBg = [21, 24, 32, 255] # gameplay clear behind the map, full-screen state clear, placeholder fills
+bgDark = [13, 15, 21, 255] # high-contrast dark backing: thumbnails, preview frames, swatch backs
+screenDim = [8, 10, 16, 130] # full-screen dim behind the pause menu and modal dialogs
 iconTint = [255, 255, 255, 255] # sprite tint for icon draws (build bar, datapack icons); white = untinted
-panelBgRgb = [17, 20, 28, 255] # alpha is ignored; PanelBg() supplies it per call
-eventTextRgb = [255, 214, 112, 255] # alpha is ignored; EventText() supplies it per call
-screenDim = [8, 10, 16, 130]
+panelBgRgb = [17, 20, 28, 255] # alpha is ignored; PanelBg() supplies it per call (panel/card/dialog fill)
 
 [alpha]
 window      = 220 # primary windows: Pause, TowerInfo, Wave (drawn with border)
-docked      = 200 # docked bars: Status, Build (no border)
+docked      = 200 # docked bars: Status, Build (no border); also the wave enemy card fill
 overlayBg   = 160 # ephemeral toast background before fade
 overlayText = 220 # ephemeral toast text before fade
 tooltipBg   = 235 # upgrade tooltip fill
+dialog      = 245 # modal dialog panel fill — PanelBg(dialog)
 
 [typography]
 title       = 28.0 # modal title (PAUSED)
@@ -43,33 +42,19 @@ title       = 40.0 # main-menu / datapack-select screen title
 screenTitle = 48.0 # settings header and end-screen result title
 menuButton  = 24.0 # menu / end / back button labels
 
-# Harmonized with [palette]: same slate surfaces, amber accent, and rose negative.
-[state_ui.colors]
-# Screen-text hierarchy — every string a full-screen state renders picks one role
-# (subtle below covers description subtitles, disabledText covers greyed labels).
-title = [230, 235, 243, 255] # screen and dialog titles
-textPrimary = [230, 235, 243, 255] # menu button labels, control labels and values
-category = [240, 198, 92, 255] # section/category headers (AUDIO, BRUSH, PRESETS, ...)
-# Surfaces and status
-background = [26, 30, 40, 255] # full-screen clear
-worldBg = [21, 24, 32, 255] # gameplay clear behind the map
-dialogBg = [17, 20, 28, 245] # modal dialog panel fill
-dialogOverlay = [8, 10, 16, 150] # screen dim behind a modal dialog
-disabledText = [102, 110, 126, 255] # greyed action-button label text
-warning = [255, 200, 87, 255] # conflict highlight, dialog border, editor warnings
-placeholderBg = [22, 26, 36, 255] # missing-icon fill and scrollbar track
-subtle = [156, 166, 184, 255] # description subtitles, hints, secondary text
-victory = [255, 200, 87, 255] # end-screen win title
-defeat = [232, 93, 102, 255] # end-screen loss title
+# Full-screen states draw text, surfaces and status through the shared [palette] above: titles and
+# menu labels use textPrimary, section headers textHeader, subtitles textSecondary, greyed labels
+# textDisabled; the screen clear and placeholder fills use worldBg; warnings and the victory title
+# use highlight, the defeat title statusNegative; the modal fill is PanelBg(dialog) and both the
+# pause and modal dims use screenDim. Only genuinely state-specific cosmetics live below.
 
-# Selection screens (map / map-editor catalogs).
+# Selection screens (map / map-editor catalogs). Preview thumbnails use the shared bgDark.
 [state_ui.select]
 autoCardTint = [40, 50, 68, 255] # procedural-map card's distinct thumbnail backing
-thumbBg = [13, 15, 21, 255] # dark backing behind map preview thumbnails
 
 # Map editor canvas and catalog. Tints that need transparency carry their alpha here.
+# The delete-button label and failed-action status route through the shared statusNegative.
 [state_ui.map_editor]
-deleteWarn = [240, 130, 80, 255] # delete-button label and failed-action status
 canvasBg = [20, 23, 32, 255] # edit canvas backdrop
 exportBg = [0, 0, 0, 255] # offscreen clear behind the exported map.png
 grid = [230, 235, 243, 30] # translucent grid overlay lines
@@ -81,32 +66,11 @@ brushCore = [255, 200, 87, 150]
 brushNest = [232, 93, 102, 150]
 brushBuff = [108, 178, 230, 150]
 
-# Particle editor preview and swatches.
-[state_ui.particle_editor]
-previewBg = [13, 15, 21, 255] # dark preview frame so bright particles read well
-swatchBg = [13, 15, 21, 255] # backing under color swatches so low alpha stays readable
+# Particle editor preview frames and color swatches both use the shared bgDark backing.
 
-# Global widget styles, overlaid onto the engine defaults at load. Every Button/Slider/
-# Toggle/TextInput drawn without an explicit style follows these.
-[widgets.default]
-bgNormal = [33, 38, 52, 255]
-bgHovered = [47, 54, 72, 255]
-bgInput = [22, 26, 36, 255]
-bgActive = [110, 212, 140, 255] # toggle-on fill (matches statusPositive)
-border = [62, 72, 94, 255] # matches panelBorder
-borderSel = [255, 200, 87, 255] # selection border (matches highlight)
-accent = [108, 178, 230, 255] # slider fill, focused input border (matches accent)
-text = [230, 235, 243, 255] # matches textPrimary
-
-[widgets.disabled]
-bgNormal = [24, 27, 36, 200]
-bgHovered = [24, 27, 36, 200]
-bgInput = [18, 21, 29, 200]
-bgActive = [30, 34, 46, 200]
-border = [44, 50, 66, 255]
-borderSel = [44, 50, 66, 255]
-accent = [44, 50, 66, 255]
-text = [102, 110, 126, 255] # matches textDisabled
+# Global widget styles (Button/Slider/Toggle/TextInput drawn without an explicit style) are derived
+# in code from the palette above — see ApplyWidgetStyles() in src/hud/hud_theme.cpp — so they can
+# never drift out of alignment with it. There is intentionally no [widgets.*] table here.
 
 # Shared, semantic layout anchors. Per-panel button heights, line heights, glyph/label offsets and
 # toast padding are no longer knobs here — they are derived in code from the typographic scale

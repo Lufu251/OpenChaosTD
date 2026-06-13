@@ -393,8 +393,8 @@ void SettingsState::Update(Game& /*game*/, float dt) {
 void SettingsState::Draw(Game& game) {
     float gw = static_cast<float>(game.GetScreen().GetGameWidth());
 
-    ClearBackground(Hud::kStateBackground);
-    DrawCenteredText("SETTINGS", gw / 2.0f, 50.0f, static_cast<int>(Hud::kFontScreenTitle), Hud::kStateTitle);
+    ClearBackground(Hud::kWorldBackground);
+    DrawCenteredText("SETTINGS", gw / 2.0f, 50.0f, static_cast<int>(Hud::kFontScreenTitle), Hud::kTextPrimary);
 
     DrawControls(game);
 
@@ -406,53 +406,53 @@ void SettingsState::DrawControls(Game& game) {
     float gw = static_cast<float>(game.GetScreen().GetGameWidth());
 
     // ----- Left column: audio -----
-    Text::Draw("AUDIO", static_cast<int>(kLeftLabelX), static_cast<int>(kAudioHeaderY), 28, Hud::kStateCategory, Text::Kind::Heading);
+    Text::Draw("AUDIO", static_cast<int>(kLeftLabelX), static_cast<int>(kAudioHeaderY), 28, Hud::kTextHeader, Text::Kind::Heading);
 
-    DrawLabelInRow("Music", kLeftLabelX, kMusicY, kSliderH, 20, Hud::kStateTextPrimary);
+    DrawLabelInRow("Music", kLeftLabelX, kMusicY, kSliderH, 20, Hud::kTextPrimary);
     m_musicSlider.Draw();
     DrawLabelInRow(TextFormat("%d%%", static_cast<int>(std::lround(m_working.musicVolume * 100.0f))),
-        kValueX, kMusicY, kSliderH, 20, Hud::kStateTextPrimary);
+        kValueX, kMusicY, kSliderH, 20, Hud::kTextPrimary);
 
-    DrawLabelInRow("SFX", kLeftLabelX, kSfxY, kSliderH, 20, Hud::kStateTextPrimary);
+    DrawLabelInRow("SFX", kLeftLabelX, kSfxY, kSliderH, 20, Hud::kTextPrimary);
     m_sfxSlider.Draw();
     DrawLabelInRow(TextFormat("%d%%", static_cast<int>(std::lround(m_working.sfxVolume * 100.0f))),
-        kValueX, kSfxY, kSliderH, 20, Hud::kStateTextPrimary);
+        kValueX, kSfxY, kSliderH, 20, Hud::kTextPrimary);
 
     // ----- Left column: display -----
-    Text::Draw("DISPLAY", static_cast<int>(kLeftLabelX), static_cast<int>(kDisplayHdrY), 28, Hud::kStateCategory, Text::Kind::Heading);
+    Text::Draw("DISPLAY", static_cast<int>(kLeftLabelX), static_cast<int>(kDisplayHdrY), 28, Hud::kTextHeader, Text::Kind::Heading);
 
-    DrawLabelInRow("Target FPS", kLeftLabelX, kFpsY, 30.0f, 20, Hud::kStateTextPrimary);
+    DrawLabelInRow("Target FPS", kLeftLabelX, kFpsY, 30.0f, 20, Hud::kTextPrimary);
     m_fpsDownBtn.Draw();
-    m_fpsDownBtn.DrawLabel(20, Hud::kStateTextPrimary);
+    m_fpsDownBtn.DrawLabel(20, Hud::kTextPrimary);
     m_fpsUpBtn.Draw();
-    m_fpsUpBtn.DrawLabel(20, Hud::kStateTextPrimary);
+    m_fpsUpBtn.DrawLabel(20, Hud::kTextPrimary);
     DrawCenteredText(TextFormat("%d", m_working.fps),
         m_fpsValueRect.x + m_fpsValueRect.width / 2.0f,
-        m_fpsValueRect.y + (m_fpsValueRect.height - 22) / 2.0f, 22, Hud::kStateTextPrimary);
+        m_fpsValueRect.y + (m_fpsValueRect.height - 22) / 2.0f, 22, Hud::kTextPrimary);
 
-    DrawLabelInRow("HUD Scale", kLeftLabelX, kHudScaleY, kSliderH, 20, Hud::kStateTextPrimary);
+    DrawLabelInRow("HUD Scale", kLeftLabelX, kHudScaleY, kSliderH, 20, Hud::kTextPrimary);
     m_hudScaleSlider.Draw();
     DrawLabelInRow(TextFormat("%.2fx", m_working.hudScale),
-        kValueX, kHudScaleY, kSliderH, 20, Hud::kStateTextPrimary);
+        kValueX, kHudScaleY, kSliderH, 20, Hud::kTextPrimary);
 
     // ----- Right column: controls -----
-    Text::Draw("CONTROLS", static_cast<int>(kCtrlHeaderX), static_cast<int>(kCtrlHeaderY), 28, Hud::kStateCategory, Text::Kind::Heading);
+    Text::Draw("CONTROLS", static_cast<int>(kCtrlHeaderX), static_cast<int>(kCtrlHeaderY), 28, Hud::kTextHeader, Text::Kind::Heading);
 
     for (auto& gh : m_groupHeaders)
         Text::Draw(gh.category.c_str(), static_cast<int>(kActionLabelX), static_cast<int>(gh.y), 22, Hud::kAccent, Text::Kind::Heading);
 
     for (auto& row : m_keyRows) {
-        DrawLabelInRow(row.action.c_str(), kActionLabelX, row.cell.m_rect.y, kKeyCellH, 20, Hud::kStateTextPrimary);
+        DrawLabelInRow(row.action.c_str(), kActionLabelX, row.cell.m_rect.y, kKeyCellH, 20, Hud::kTextPrimary);
         row.cell.Draw();
 
         const std::string* key = WorkingKey(row.action);
         bool capturing = m_rebinding && row.action == m_rebindAction;
         const char* cellText = capturing ? "..." : (key && !key->empty() ? key->c_str() : "—");
-        Color cellColor = Hud::kStateTextPrimary;
+        Color cellColor = Hud::kTextPrimary;
         if (capturing)
             cellColor = Hud::kAccent;
         else if (key && IsKeyDuplicated(*key))
-            cellColor = Hud::kWarning;
+            cellColor = Hud::kHighlight;
         DrawCenteredText(cellText,
             row.cell.m_rect.x + row.cell.m_rect.width / 2.0f,
             row.cell.m_rect.y + (kKeyCellH - 20) / 2.0f, 20, cellColor);
@@ -460,21 +460,21 @@ void SettingsState::DrawControls(Game& game) {
 
     if (AnyDuplicates())
         Text::Draw("! Some keys are bound to multiple actions",
-            static_cast<int>(kActionLabelX), static_cast<int>(m_controlsBottomY + 4.0f), 18, Hud::kWarning);
+            static_cast<int>(kActionLabelX), static_cast<int>(m_controlsBottomY + 4.0f), 18, Hud::kHighlight);
 
     // ----- Bottom buttons (Save/Discard greyed when there is nothing to act on) -----
     bool dirty = IsDirty();
     const WidgetStyle& saveStyle = dirty ? kDefaultStyle : kDisabledStyle;
-    Color actionableText = dirty ? Hud::kStateTextPrimary : Hud::kDisabledText;
+    Color actionableText = dirty ? Hud::kTextPrimary : Hud::kTextDisabled;
 
     m_saveBtn.Draw(false, saveStyle);
     m_saveBtn.DrawLabel(18, actionableText);
     m_discardBtn.Draw(false, saveStyle);
     m_discardBtn.DrawLabel(18, actionableText);
     m_resetBtn.Draw();
-    m_resetBtn.DrawLabel(18, Hud::kStateTextPrimary);
+    m_resetBtn.DrawLabel(18, Hud::kTextPrimary);
     m_backBtn.Draw();
-    m_backBtn.DrawLabel(18, Hud::kStateTextPrimary);
+    m_backBtn.DrawLabel(18, Hud::kTextPrimary);
 
     // ----- Status toast -----
     m_status.Draw(gw / 2.0f, kBottomBtnY - 36.0f, 20, Hud::kStatusPositive);
@@ -485,20 +485,20 @@ void SettingsState::DrawDialog(Game& game) {
     int gh = game.GetScreen().GetGameHeight();
 
     // Dim the whole screen behind the modal.
-    DrawRectangle(0, 0, gw, gh, Hud::kDialogOverlay);
+    DrawRectangle(0, 0, gw, gh, Hud::kScreenDim);
 
-    DrawRectangleRec(m_dialogPanel, Hud::kDialogBg);
-    DrawRectangleLinesEx(m_dialogPanel, 2.0f, Hud::kWarning);
+    DrawRectangleRec(m_dialogPanel, Hud::PanelBg(Hud::kDialogAlpha));
+    DrawRectangleLinesEx(m_dialogPanel, 2.0f, Hud::kHighlight);
 
     float centerX = m_dialogPanel.x + m_dialogPanel.width / 2.0f;
-    DrawCenteredText("UNSAVED CHANGES", centerX, m_dialogPanel.y + 36.0f, 28, Hud::kStateTitle);
+    DrawCenteredText("UNSAVED CHANGES", centerX, m_dialogPanel.y + 36.0f, 28, Hud::kTextPrimary);
     DrawCenteredText("You have unsaved changes. What would you like to do?",
-        centerX, m_dialogPanel.y + 84.0f, 18, Hud::kSubtle);
+        centerX, m_dialogPanel.y + 84.0f, 18, Hud::kTextSecondary);
 
     m_dlgSaveBtn.Draw();
-    m_dlgSaveBtn.DrawLabel(18, Hud::kStateTextPrimary);
+    m_dlgSaveBtn.DrawLabel(18, Hud::kTextPrimary);
     m_dlgDiscardBtn.Draw();
-    m_dlgDiscardBtn.DrawLabel(18, Hud::kStateTextPrimary);
+    m_dlgDiscardBtn.DrawLabel(18, Hud::kTextPrimary);
     m_dlgCancelBtn.Draw();
-    m_dlgCancelBtn.DrawLabel(18, Hud::kStateTextPrimary);
+    m_dlgCancelBtn.DrawLabel(18, Hud::kTextPrimary);
 }

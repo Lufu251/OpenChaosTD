@@ -138,7 +138,7 @@ void StatusHUD::DrawWaveReadout(const StatusView& view, int centerX) {
 
     Text::Draw(left, static_cast<int>(startX), m_textY, font, Hud::kTextPrimary, Text::Kind::Number);
     float glyphX = startX + static_cast<float>(leftW) + gap;
-    DrawInfinity(glyphX, static_cast<float>(m_textY) + glyphH / 2.0f, glyphH, Hud::kInfinityGlyph);
+    DrawInfinity(glyphX, static_cast<float>(m_textY) + glyphH / 2.0f, glyphH, Hud::kAccent);
 }
 
 void StatusHUD::DrawInfinity(float x, float yMid, float h, Color color) const {

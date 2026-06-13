@@ -112,7 +112,7 @@ void WaveEnemyCard::Draw(Rectangle bounds, Resources& assets) const {
     const float pad = m_metrics.pad;
 
     // Card frame: subtle fill plus a border so each enemy type reads as a distinct tile.
-    Hud::DrawFramedBox(bounds, Hud::kCardFill, Hud::kCardBorder);
+    Hud::DrawFramedBox(bounds, Hud::PanelBg(Hud::kPanelAlphaDocked), Hud::kPanelBorder);
 
     // Icon tile on the left; the sprite draws directly over the card with a transparent backing.
     Rectangle icon = { bounds.x + pad, bounds.y + pad, m_metrics.iconSize, m_metrics.iconSize };

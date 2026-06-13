@@ -12,7 +12,7 @@
 namespace {
     // Color swatch over a dark backing so low-alpha values stay readable.
     void DrawSwatch(Rectangle rect, Color color) {
-        DrawRectangleRec(rect, Hud::g_particleEditorTheme.swatchBg);
+        DrawRectangleRec(rect, Hud::kBgDark);
         DrawRectangleRec(rect, color);
         DrawRectangleLinesEx(rect, 1.0f, Hud::kPanelBorder);
     }
@@ -487,8 +487,8 @@ void ParticleEditorState::Update(Game& /*game*/, float dt) {
 void ParticleEditorState::Draw(Game& game) {
     float gw = static_cast<float>(game.GetScreen().GetGameWidth());
 
-    ClearBackground(Hud::kStateBackground);
-    DrawCenteredText("PARTICLE EDITOR", gw / 2.0f, 40.0f, static_cast<int>(Hud::kFontStateTitle), Hud::kStateTitle);
+    ClearBackground(Hud::kWorldBackground);
+    DrawCenteredText("PARTICLE EDITOR", gw / 2.0f, 40.0f, static_cast<int>(Hud::kFontStateTitle), Hud::kTextPrimary);
 
     DrawBrowser();
     DrawParams();
@@ -497,17 +497,17 @@ void ParticleEditorState::Draw(Game& game) {
 }
 
 void ParticleEditorState::DrawBrowser() {
-    Text::Draw("PRESETS", static_cast<int>(kBrowserX), static_cast<int>(kTopY), 28, Hud::kStateCategory);
+    Text::Draw("PRESETS", static_cast<int>(kBrowserX), static_cast<int>(kTopY), 28, Hud::kTextHeader);
 
     m_newBtn.Draw();
-    m_newBtn.DrawLabel(14, Hud::kStateTextPrimary);
+    m_newBtn.DrawLabel(14, Hud::kTextPrimary);
     bool canDelete = m_selectedPreset >= 0;
     m_deleteBtn.Draw(false, canDelete ? kDefaultStyle : kDisabledStyle);
-    m_deleteBtn.DrawLabel(14, canDelete ? Hud::kStateTextPrimary : Hud::kDisabledText);
+    m_deleteBtn.DrawLabel(14, canDelete ? Hud::kTextPrimary : Hud::kTextDisabled);
 
     if (m_presetNames.empty()) {
         Text::Draw("No presets found", static_cast<int>(kBrowserX),
-            static_cast<int>(m_browserRect.y), 16, Hud::kSubtle);
+            static_cast<int>(m_browserRect.y), 16, Hud::kTextSecondary);
         return;
     }
 
@@ -515,23 +515,23 @@ void ParticleEditorState::DrawBrowser() {
     for (size_t i = 0; i < m_presetButtons.size(); i++) {
         bool selected = start + static_cast<int>(i) == m_selectedPreset;
         m_presetButtons[i].Draw(selected);
-        m_presetButtons[i].DrawLabel(14, Hud::kStateTextPrimary);
+        m_presetButtons[i].DrawLabel(14, Hud::kTextPrimary);
     }
 
     if (PageCount() > 1) {
         m_pagePrevBtn.Draw();
-        m_pagePrevBtn.DrawLabel(16, Hud::kStateTextPrimary);
+        m_pagePrevBtn.DrawLabel(16, Hud::kTextPrimary);
         m_pageNextBtn.Draw();
-        m_pageNextBtn.DrawLabel(16, Hud::kStateTextPrimary);
+        m_pageNextBtn.DrawLabel(16, Hud::kTextPrimary);
         DrawCenteredText(TextFormat("%d/%d", m_presetPage + 1, PageCount()),
-            kBrowserX + kBrowserW / 2.0f, m_pagePrevBtn.m_rect.y + 7.0f, 16, Hud::kStateTextPrimary);
+            kBrowserX + kBrowserW / 2.0f, m_pagePrevBtn.m_rect.y + 7.0f, 16, Hud::kTextPrimary);
     }
 }
 
 void ParticleEditorState::DrawRow(const SliderRow& row) const {
     bool enabled = RowEnabled(row);
     const WidgetStyle& style = enabled ? kDefaultStyle : kDisabledStyle;
-    Color textColor = enabled ? Hud::kStateTextPrimary : Hud::kDisabledText;
+    Color textColor = enabled ? Hud::kTextPrimary : Hud::kTextDisabled;
 
     const Rectangle& r = row.m_slider.m_rect;
     DrawLabelInRow(row.m_label, r.x - kLabelW, r.y, r.height, 16, textColor);
@@ -545,7 +545,7 @@ void ParticleEditorState::DrawRow(const SliderRow& row) const {
 
 void ParticleEditorState::DrawParams() {
     for (const Header& h : m_headers)
-        Text::Draw(h.m_text, static_cast<int>(h.m_pos.x), static_cast<int>(h.m_pos.y), 24, Hud::kStateCategory);
+        Text::Draw(h.m_text, static_cast<int>(h.m_pos.x), static_cast<int>(h.m_pos.y), 24, Hud::kTextHeader);
 
     for (const SliderRow* row : m_allRows)
         DrawRow(*row);
@@ -556,40 +556,40 @@ void ParticleEditorState::DrawParams() {
     for (int i = 0; i < 5; i++) {
         bool selected = m_working.m_shape == static_cast<SpawnShape>(i);
         m_shapeButtons[i].Draw(selected);
-        m_shapeButtons[i].DrawLabel(12, Hud::kStateTextPrimary);
+        m_shapeButtons[i].DrawLabel(12, Hud::kTextPrimary);
     }
 }
 
 void ParticleEditorState::DrawPreview(Game& game) {
     // Near-black backdrop so bright particles read well; clip to the rect.
-    DrawRectangleRec(m_previewRect, Hud::g_particleEditorTheme.previewBg);
+    DrawRectangleRec(m_previewRect, Hud::kBgDark);
     game.GetScreen().BeginScissor(m_previewRect);
     m_previewParticles.Draw();
     game.GetScreen().EndScissor();
     DrawRectangleLinesEx(m_previewRect, 1.0f, Hud::kPanelBorder);
 
     float cx = m_previewRect.x + m_previewRect.width / 2.0f;
-    DrawCenteredText("Click to burst", cx, m_previewRect.y + 8.0f, 14, Hud::kSubtle);
+    DrawCenteredText("Click to burst", cx, m_previewRect.y + 8.0f, 14, Hud::kTextSecondary);
     if (m_working.m_count <= 0)
-        DrawCenteredText("count is 0 - bursts spawn nothing", cx, m_previewRect.y + 28.0f, 14, Hud::kWarning);
+        DrawCenteredText("count is 0 - bursts spawn nothing", cx, m_previewRect.y + 28.0f, 14, Hud::kHighlight);
     else if (m_continuousToggle.m_value && m_working.m_emitRate <= 0.0f)
-        DrawCenteredText("emitRate is 0 - no continuous emission", cx, m_previewRect.y + 28.0f, 14, Hud::kWarning);
+        DrawCenteredText("emitRate is 0 - no continuous emission", cx, m_previewRect.y + 28.0f, 14, Hud::kHighlight);
 
     m_continuousToggle.Draw();
     m_clearBtn.Draw();
-    m_clearBtn.DrawLabel(14, Hud::kStateTextPrimary);
+    m_clearBtn.DrawLabel(14, Hud::kTextPrimary);
 }
 
 void ParticleEditorState::DrawBottomBar(Game& game) {
     float barY = m_nameInput.m_rect.y;
-    DrawLabelInRow("NAME", kBrowserX, barY, m_nameInput.m_rect.height, 20, Hud::kStateTextPrimary);
+    DrawLabelInRow("NAME", kBrowserX, barY, m_nameInput.m_rect.height, 20, Hud::kTextPrimary);
     m_nameInput.Draw();
 
     bool canSave = !m_nameInput.m_text.empty();
     m_saveBtn.Draw(false, canSave ? kDefaultStyle : kDisabledStyle);
-    m_saveBtn.DrawLabel(18, canSave ? Hud::kStateTextPrimary : Hud::kDisabledText);
+    m_saveBtn.DrawLabel(18, canSave ? Hud::kTextPrimary : Hud::kTextDisabled);
     m_backBtn.Draw();
-    m_backBtn.DrawLabel(18, Hud::kStateTextPrimary);
+    m_backBtn.DrawLabel(18, Hud::kTextPrimary);
 
     m_status.Draw(static_cast<float>(game.GetScreen().GetGameWidth()) / 2.0f, barY - 26.0f, 18, Hud::kStatusPositive);
 }

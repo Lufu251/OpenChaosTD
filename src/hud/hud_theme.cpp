@@ -14,26 +14,56 @@ Color ParseColor(const toml::array& a) {
     };
 }
 
-// Overlay the colors of one [widgets.*] table onto a widget style; absent keys keep their
-// current value, so the engine defaults remain the graceful fallback.
-void ParseWidgetStyle(const toml::table& t, WidgetStyle& style) {
-    if (auto a = t["bgNormal"].as_array()) style.m_bgNormal = ParseColor(*a);
-    if (auto a = t["bgHovered"].as_array()) style.m_bgHovered = ParseColor(*a);
-    if (auto a = t["bgInput"].as_array()) style.m_bgInput = ParseColor(*a);
-    if (auto a = t["bgActive"].as_array()) style.m_bgActive = ParseColor(*a);
-    if (auto a = t["border"].as_array()) style.m_border = ParseColor(*a);
-    if (auto a = t["borderSel"].as_array()) style.m_borderSel = ParseColor(*a);
-    if (auto a = t["accent"].as_array()) style.m_accent = ParseColor(*a);
-    if (auto a = t["text"].as_array()) style.m_text = ParseColor(*a);
+// Derive the global widget styles from the palette so they can never drift out of alignment.
+// Interactive accents map straight to palette roles; the recessed widget surfaces (bgNormal /
+// bgHovered / bgInput and the disabled greys) are not palette roles — they belong to the widget
+// chrome alone — so they are named here rather than left to the engine's generic-grey defaults.
+// Called unconditionally at load, so widgets follow the palette whether or not config/hud.toml
+// exists; m_borderWidth / m_borderWidthActive keep the engine defaults (config never set them).
+void ApplyWidgetStyles() {
+    using namespace Hud;
+
+    // Default (interactive) widget surfaces.
+    constexpr Color kWidgetBg{33, 38, 52, 255};
+    constexpr Color kWidgetBgHover{47, 54, 72, 255};
+    constexpr Color kWidgetInput{22, 26, 36, 255};
+
+    kDefaultStyle.m_bgNormal  = kWidgetBg;
+    kDefaultStyle.m_bgHovered = kWidgetBgHover;
+    kDefaultStyle.m_bgInput   = kWidgetInput;
+    kDefaultStyle.m_bgActive  = kStatusPositive; // toggle-on fill
+    kDefaultStyle.m_border    = kPanelBorder;
+    kDefaultStyle.m_borderSel = kHighlight;      // selection border
+    kDefaultStyle.m_accent    = kAccent;         // slider fill, focused input border
+    kDefaultStyle.m_text      = kTextPrimary;
+
+    // Disabled widget surfaces: muted slate, all at the same low alpha.
+    constexpr Color kDisabledBg{24, 27, 36, 200};
+    constexpr Color kDisabledInput{18, 21, 29, 200};
+    constexpr Color kDisabledActive{30, 34, 46, 200};
+    constexpr Color kDisabledChrome{44, 50, 66, 255}; // border, selection border and accent
+
+    kDisabledStyle.m_bgNormal  = kDisabledBg;
+    kDisabledStyle.m_bgHovered = kDisabledBg;
+    kDisabledStyle.m_bgInput   = kDisabledInput;
+    kDisabledStyle.m_bgActive  = kDisabledActive;
+    kDisabledStyle.m_border    = kDisabledChrome;
+    kDisabledStyle.m_borderSel = kDisabledChrome;
+    kDisabledStyle.m_accent    = kDisabledChrome;
+    kDisabledStyle.m_text      = kTextDisabled;
 }
 
 } // namespace
 
 void Hud::LoadConfig(FileStore& fileStore) {
-    if (!fileStore.Exists("config/hud.toml")) return;
+    if (!fileStore.Exists("config/hud.toml")) {
+        // No file: palette keeps its header defaults — still derive the widget styles from them.
+        ApplyWidgetStyles();
+        return;
+    }
     const toml::table tbl = fileStore.LoadToml("config/hud.toml");
 
-    // Palette: text hierarchy, then functional status accents, then panel chrome.
+    // Palette: text hierarchy, then functional status accents, then surfaces and chrome.
     if (const toml::table* pal = tbl["palette"].as_table()) {
         if (auto a = (*pal)["textHeader"].as_array()) kTextHeader = ParseColor(*a);
         if (auto a = (*pal)["textPrimary"].as_array()) kTextPrimary = ParseColor(*a);
@@ -44,13 +74,11 @@ void Hud::LoadConfig(FileStore& fileStore) {
         if (auto a = (*pal)["highlight"].as_array()) kHighlight = ParseColor(*a);
         if (auto a = (*pal)["accent"].as_array()) kAccent = ParseColor(*a);
         if (auto a = (*pal)["panelBorder"].as_array()) kPanelBorder = ParseColor(*a);
-        if (auto a = (*pal)["cardFill"].as_array()) kCardFill = ParseColor(*a);
-        if (auto a = (*pal)["cardBorder"].as_array()) kCardBorder = ParseColor(*a);
-        if (auto a = (*pal)["infinityGlyph"].as_array()) kInfinityGlyph = ParseColor(*a);
+        if (auto a = (*pal)["worldBg"].as_array()) kWorldBackground = ParseColor(*a);
+        if (auto a = (*pal)["bgDark"].as_array()) kBgDark = ParseColor(*a);
+        if (auto a = (*pal)["screenDim"].as_array()) kScreenDim = ParseColor(*a);
         if (auto a = (*pal)["iconTint"].as_array()) kIconTint = ParseColor(*a);
         if (auto a = (*pal)["panelBgRgb"].as_array()) kPanelBgRgb = ParseColor(*a);
-        if (auto a = (*pal)["eventTextRgb"].as_array()) kEventTextRgb = ParseColor(*a);
-        if (auto a = (*pal)["screenDim"].as_array()) kScreenDim = ParseColor(*a);
     }
 
     // Alpha values
@@ -60,6 +88,7 @@ void Hud::LoadConfig(FileStore& fileStore) {
         if (auto v = (*al)["overlayBg"].value<int>())   kOverlayBgAlpha   = static_cast<unsigned char>(*v);
         if (auto v = (*al)["overlayText"].value<int>()) kOverlayTextAlpha = static_cast<unsigned char>(*v);
         if (auto v = (*al)["tooltipBg"].value<int>())   kTooltipBgAlpha   = static_cast<unsigned char>(*v);
+        if (auto v = (*al)["dialog"].value<int>())      kDialogAlpha      = static_cast<unsigned char>(*v);
     }
 
     // Typographic scale
@@ -76,29 +105,12 @@ void Hud::LoadConfig(FileStore& fileStore) {
         if (auto v = (*su)["title"].value<float>())       kFontStateTitle  = *v;
         if (auto v = (*su)["screenTitle"].value<float>()) kFontScreenTitle = *v;
         if (auto v = (*su)["menuButton"].value<float>())  kFontMenuButton  = *v;
-        if (const toml::table* c = (*su)["colors"].as_table()) {
-            if (auto a = (*c)["title"].as_array()) kStateTitle = ParseColor(*a);
-            if (auto a = (*c)["textPrimary"].as_array()) kStateTextPrimary = ParseColor(*a);
-            if (auto a = (*c)["category"].as_array()) kStateCategory = ParseColor(*a);
-            if (auto a = (*c)["background"].as_array()) kStateBackground = ParseColor(*a);
-            if (auto a = (*c)["worldBg"].as_array()) kWorldBackground = ParseColor(*a);
-            if (auto a = (*c)["dialogBg"].as_array()) kDialogBg = ParseColor(*a);
-            if (auto a = (*c)["dialogOverlay"].as_array()) kDialogOverlay = ParseColor(*a);
-            if (auto a = (*c)["disabledText"].as_array()) kDisabledText = ParseColor(*a);
-            if (auto a = (*c)["warning"].as_array()) kWarning = ParseColor(*a);
-            if (auto a = (*c)["placeholderBg"].as_array()) kPlaceholderBg = ParseColor(*a);
-            if (auto a = (*c)["subtle"].as_array()) kSubtle = ParseColor(*a);
-            if (auto a = (*c)["victory"].as_array()) kVictory = ParseColor(*a);
-            if (auto a = (*c)["defeat"].as_array()) kDefeat = ParseColor(*a);
-        }
 
         // State-specific cosmetics, one sub-section per owning screen.
         if (const toml::table* sel = (*su)["select"].as_table()) {
             if (auto a = (*sel)["autoCardTint"].as_array()) g_selectTheme.autoCardTint = ParseColor(*a);
-            if (auto a = (*sel)["thumbBg"].as_array()) g_selectTheme.thumbBg = ParseColor(*a);
         }
         if (const toml::table* me = (*su)["map_editor"].as_table()) {
-            if (auto a = (*me)["deleteWarn"].as_array()) g_mapEditorTheme.deleteWarn = ParseColor(*a);
             if (auto a = (*me)["canvasBg"].as_array()) g_mapEditorTheme.canvasBg = ParseColor(*a);
             if (auto a = (*me)["exportBg"].as_array()) g_mapEditorTheme.exportBg = ParseColor(*a);
             if (auto a = (*me)["grid"].as_array()) g_mapEditorTheme.grid = ParseColor(*a);
@@ -109,18 +121,10 @@ void Hud::LoadConfig(FileStore& fileStore) {
             if (auto a = (*me)["brushNest"].as_array()) g_mapEditorTheme.brushNest = ParseColor(*a);
             if (auto a = (*me)["brushBuff"].as_array()) g_mapEditorTheme.brushBuff = ParseColor(*a);
         }
-        if (const toml::table* pe = (*su)["particle_editor"].as_table()) {
-            if (auto a = (*pe)["previewBg"].as_array()) g_particleEditorTheme.previewBg = ParseColor(*a);
-            if (auto a = (*pe)["swatchBg"].as_array()) g_particleEditorTheme.swatchBg = ParseColor(*a);
-        }
     }
 
-    // Global widget styles: overlay onto the engine defaults so every Button/Slider/Toggle/
-    // TextInput drawn without an explicit style picks the configured look up automatically.
-    if (const toml::table* w = tbl["widgets"].as_table()) {
-        if (const toml::table* d = (*w)["default"].as_table()) ParseWidgetStyle(*d, kDefaultStyle);
-        if (const toml::table* d = (*w)["disabled"].as_table()) ParseWidgetStyle(*d, kDisabledStyle);
-    }
+    // Derive the global widget styles from the (now loaded) palette.
+    ApplyWidgetStyles();
 
     // Shared layout anchors
     if (const toml::table* la = tbl["layout"].as_table()) {
