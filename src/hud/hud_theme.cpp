@@ -113,16 +113,11 @@ void Hud::LoadConfig(FileStore& fileStore) {
         if (const toml::table* sel = (*su)["select"].as_table()) {
             if (auto a = (*sel)["autoCardTint"].as_array()) g_selectTheme.autoCardTint = ParseColor(*a);
         }
+        // Only the canvas/export backdrops remain state-specific; grid, outline and brush ghosts
+        // derive from palette roles in map_editor_state.cpp.
         if (const toml::table* me = (*su)["map_editor"].as_table()) {
             if (auto a = (*me)["canvasBg"].as_array()) g_mapEditorTheme.canvasBg = ParseColor(*a);
             if (auto a = (*me)["exportBg"].as_array()) g_mapEditorTheme.exportBg = ParseColor(*a);
-            if (auto a = (*me)["grid"].as_array()) g_mapEditorTheme.grid = ParseColor(*a);
-            if (auto a = (*me)["brushOutline"].as_array()) g_mapEditorTheme.brushOutline = ParseColor(*a);
-            if (auto a = (*me)["brushGrass"].as_array()) g_mapEditorTheme.brushGrass = ParseColor(*a);
-            if (auto a = (*me)["brushRock"].as_array()) g_mapEditorTheme.brushRock = ParseColor(*a);
-            if (auto a = (*me)["brushCore"].as_array()) g_mapEditorTheme.brushCore = ParseColor(*a);
-            if (auto a = (*me)["brushNest"].as_array()) g_mapEditorTheme.brushNest = ParseColor(*a);
-            if (auto a = (*me)["brushBuff"].as_array()) g_mapEditorTheme.brushBuff = ParseColor(*a);
         }
     }
 
@@ -144,33 +139,28 @@ void Hud::LoadConfig(FileStore& fileStore) {
         if (auto v = (*ev)["fadeTime"].value<float>())   g_eventCfg.fadeTime   = *v;
     }
 
-    // Per-panel dimensions
-    if (const toml::table* panels = tbl["panels"].as_table()) {
-        if (const toml::table* p = (*panels)["pause"].as_table()) {
-            if (auto v = (*p)["width"].value<float>())         g_pauseCfg.width      = *v;
-            if (auto v = (*p)["height"].value<float>())        g_pauseCfg.height     = *v;
-            if (auto v = (*p)["buttonWidth"].value<float>())   g_pauseCfg.btnW       = *v;
-        }
-        if (const toml::table* s = (*panels)["status"].as_table()) {
-            if (auto v = (*s)["waveButtonWidth"].value<float>())   g_statusCfg.waveW  = *v;
-            if (auto v = (*s)["autoButtonWidth"].value<float>())   g_statusCfg.autoW  = *v;
-            if (auto v = (*s)["wavesButtonWidth"].value<float>())  g_statusCfg.wavesW = *v;
-            if (auto v = (*s)["margin"].value<float>())            g_statusCfg.margin = *v;
-        }
-        if (const toml::table* w = (*panels)["wave"].as_table()) {
-            if (auto v = (*w)["width"].value<float>())       g_waveCfg.width       = *v;
-            if (auto v = (*w)["cardGap"].value<float>())     g_waveCfg.cardGap     = *v;
-            if (auto v = (*w)["cardPadding"].value<float>()) g_waveCfg.cardPadding = *v;
-            if (auto v = (*w)["iconSize"].value<float>())    g_waveCfg.iconSize    = *v;
-        }
-        if (const toml::table* b = (*panels)["tower_build"].as_table()) {
-            if (auto v = (*b)["buttonSize"].value<float>())  g_buildCfg.btnSize = *v;
-            if (auto v = (*b)["panelHeight"].value<float>()) g_buildCfg.panelH  = *v;
-            if (auto v = (*b)["gap"].value<float>())         g_buildCfg.gap     = *v;
-        }
-        if (const toml::table* i = (*panels)["tower_info"].as_table()) {
-            if (auto v = (*i)["width"].value<float>())       g_infoCfg.width     = *v;
-            if (auto v = (*i)["anchorGap"].value<float>())   g_infoCfg.anchorGap = *v;
-        }
+    // Per-panel dimensions — one flat [panels] table, each key prefixed by its panel. Every read
+    // falls back to the struct default, so a partial table still loads.
+    if (const toml::table* p = tbl["panels"].as_table()) {
+        if (auto v = (*p)["pauseWidth"].value<float>())          g_pauseCfg.width      = *v;
+        if (auto v = (*p)["pauseHeight"].value<float>())         g_pauseCfg.height     = *v;
+        if (auto v = (*p)["pauseButtonWidth"].value<float>())    g_pauseCfg.btnW       = *v;
+
+        if (auto v = (*p)["statusWaveButtonWidth"].value<float>())   g_statusCfg.waveW  = *v;
+        if (auto v = (*p)["statusAutoButtonWidth"].value<float>())   g_statusCfg.autoW  = *v;
+        if (auto v = (*p)["statusWavesButtonWidth"].value<float>())  g_statusCfg.wavesW = *v;
+        if (auto v = (*p)["statusMargin"].value<float>())            g_statusCfg.margin = *v;
+
+        if (auto v = (*p)["waveWidth"].value<float>())       g_waveCfg.width       = *v;
+        if (auto v = (*p)["waveCardGap"].value<float>())     g_waveCfg.cardGap     = *v;
+        if (auto v = (*p)["waveCardPadding"].value<float>()) g_waveCfg.cardPadding = *v;
+        if (auto v = (*p)["waveIconSize"].value<float>())    g_waveCfg.iconSize    = *v;
+
+        if (auto v = (*p)["buildButtonSize"].value<float>())  g_buildCfg.btnSize = *v;
+        if (auto v = (*p)["buildPanelHeight"].value<float>()) g_buildCfg.panelH  = *v;
+        if (auto v = (*p)["buildGap"].value<float>())         g_buildCfg.gap     = *v;
+
+        if (auto v = (*p)["infoWidth"].value<float>())     g_infoCfg.width     = *v;
+        if (auto v = (*p)["infoAnchorGap"].value<float>()) g_infoCfg.anchorGap = *v;
     }
 }

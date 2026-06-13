@@ -20,32 +20,34 @@ namespace Hud {
 // concrete draw methods never reach for raw raylib color literals.
 
 // Text hierarchy: every string a panel or screen renders picks exactly one of these roles.
-inline Color kTextHeader{255, 206, 102, 255}; // panel/screen headers, titles, category sub-headers, event toasts
-inline Color kTextPrimary{236, 241, 249, 255}; // primary readouts, button labels, card names, dialog titles
-inline Color kTextSecondary{178, 189, 209, 255}; // secondary labels: descriptions, budgets, hints, subtitles
+inline Color kTextHeader{228, 214, 160, 255}; // panel/screen headers, titles, category sub-headers, event toasts
+inline Color kTextPrimary{233, 238, 246, 255}; // primary readouts, button labels, card names, dialog titles
+inline Color kTextSecondary{162, 174, 196, 255}; // secondary labels: descriptions, budgets, hints, subtitles
 // Disabled label text. Text-specific on purpose: a disabled widget's *background* comes from the
 // widget style (kDisabledStyle), but its label always reads through this key so disabled text
 // stays equally legible on every panel.
-inline Color kTextDisabled{112, 122, 142, 255};
+inline Color kTextDisabled{100, 110, 132, 255};
 
-// Functional status accents, shared by every affordance of the same polarity.
-inline Color kStatusPositive{102, 222, 146, 255}; // affordable cost, upgrade ready, sell value
-inline Color kStatusNegative{244, 100, 110, 255}; // unaffordable cost, warn/fail states, defeat title, delete action
-inline Color kHighlight{255, 197, 78, 255}; // focus: active toggles, tooltip/dialog border, badges, warnings, victory title
+// Functional status accents, shared by every affordance of the same polarity. Action-oriented roles
+// carry dedicated high-saturation hues so affordability, warnings and focus read at a glance.
+inline Color kStatusPositive{84, 200, 120, 255}; // affordable cost, upgrade ready, sell value
+inline Color kStatusNegative{230, 80, 84, 255}; // unaffordable cost, warn/fail states, defeat title, delete action
+inline Color kHighlight{255, 194, 64, 255}; // focus: active toggles, tooltip/dialog border, badges, warnings, victory title
 // Informational accent shared across HUD and screens: retarget label, settings binding-group
 // headers, key-capture indicator, status-bar endless-mode infinity glyph.
-inline Color kAccent{110, 188, 248, 255};
+inline Color kAccent{82, 168, 240, 255};
 
-// Surfaces and chrome. Panels sit a clear step above the backdrop, with bright borders for definition.
-inline Color kPanelBorder{96, 112, 146, 255}; // panel / card / dialog borders and widget outlines
-inline Color kWorldBackground{30, 34, 46, 255}; // gameplay clear behind the map, full-screen state clear, placeholder fills
-inline Color kBgDark{11, 13, 20, 255}; // high-contrast dark backing: thumbnails, preview frames, swatch backs
-inline Color kScreenDim{6, 8, 14, 140}; // full-screen dim behind the pause menu and modal dialogs
+// Surfaces and chrome. Surfaces step deep→up for contrast; panels sit a clear step above the
+// backdrop, framed by a bright dedicated border.
+inline Color kPanelBorder{92, 106, 138, 255}; // panel / card / dialog borders and widget outlines
+inline Color kWorldBackground{22, 26, 38, 255}; // gameplay clear behind the map, full-screen state clear, placeholder fills
+inline Color kBgDark{12, 14, 22, 255}; // high-contrast dark backing: thumbnails, preview frames, swatch backs
+inline Color kScreenDim{8, 10, 16, 165}; // full-screen dim behind the pause menu and modal dialogs
 // Sprite tint for icon draws (build-bar towers, datapack icons); white = untinted.
 inline Color kIconTint{255, 255, 255, 255};
 
 // RGB base for the dynamic-alpha fill helper; alpha is ignored here and supplied per call.
-inline Color kPanelBgRgb{32, 38, 56, 255};
+inline Color kPanelBgRgb{34, 40, 56, 255};
 
 // The dark panel fill is shared but drawn at varying opacity (window/docked/tooltip/card/dialog),
 // so it is a helper rather than a constant. The event toast text fades too and reads through the
@@ -110,18 +112,12 @@ struct SelectTheme {
     Color autoCardTint{40, 50, 68, 255}; // procedural-map card's distinct thumbnail backing
 };
 
-// Map editor canvas and catalog. The delete/failed-action color routes through kStatusNegative.
+// Map editor canvas. The grid lines, brush ghost tints and tile outline are derived in code from
+// palette roles (see BrushTint / DrawEditCanvas in map_editor_state.cpp); only the two backdrops
+// that are not palette roles — the canvas backing and the export clear — live here.
 struct MapEditorTheme {
-    Color canvasBg{20, 23, 32, 255};        // edit canvas backdrop
-    Color exportBg{0, 0, 0, 255};           // offscreen clear behind the exported map.png
-    Color grid{230, 235, 243, 30};          // translucent grid overlay lines
-    Color brushOutline{230, 235, 243, 255}; // hovered-tile outline around the brush ghost
-    // Translucent ghost tints per brush, harmonized with the palette accents.
-    Color brushGrass{110, 212, 140, 130};
-    Color brushRock{120, 128, 144, 130};
-    Color brushCore{255, 200, 87, 150};
-    Color brushNest{232, 93, 102, 150};
-    Color brushBuff{108, 178, 230, 150};
+    Color canvasBg{20, 23, 32, 255}; // edit canvas backdrop
+    Color exportBg{0, 0, 0, 255};    // offscreen clear behind the exported map.png
 };
 
 inline SelectTheme g_selectTheme;
@@ -159,8 +155,9 @@ inline constexpr float kInfoSellGapToMargin  = 6.0f  / 8.0f;  // info button gap
 inline constexpr float kToastRowToBody       = 20.0f / 11.0f; // event toast row stride / body font (20)
 
 // --- Per-panel layout config ------------------------------------------------
-// Unscaled base dimensions for each HUD panel. LoadConfig() overwrites these from config/hud.toml;
-// the defaults match the previous hardcoded values so removal of the file is safe.
+// Unscaled base dimensions for each HUD panel. LoadConfig() overwrites these from the flat
+// [panels] table in config/hud.toml; the defaults match the previous hardcoded values so removal
+// of the file is safe.
 
 struct PausePanelCfg {
     float width  = 240.0f;

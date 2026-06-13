@@ -20,16 +20,23 @@ namespace {
     // Stat keys a Buff tile can apply, parallel to the three buff brush buttons.
     const char* kBuffStats[3] = {"range", "damage", "shotsPerMinute"};
 
-    // Translucent tint for the active brush ghost / hover highlight. Index = Brush value;
-    // the tints themselves come from the [state_ui.map_editor] theme block.
+    // Alpha for the translucent brush ghost and the faint grid overlay.
+    constexpr unsigned char kBrushGhostAlpha = 140;
+    constexpr unsigned char kGridAlpha = 30;
+
+    // Tint for the active brush ghost / hover highlight, derived from semantic palette roles so it
+    // tracks the theme rather than carrying its own colors. Index = Brush value.
     Color BrushTint(int brush) {
+        Color c;
         switch (brush) {
-            case 1: return Hud::g_mapEditorTheme.brushRock;
-            case 2: return Hud::g_mapEditorTheme.brushCore;
-            case 3: return Hud::g_mapEditorTheme.brushNest;
-            case 4: return Hud::g_mapEditorTheme.brushBuff;
-            default: return Hud::g_mapEditorTheme.brushGrass;
+            case 1:  c = Hud::kPanelBorder;    break; // ROCK  — neutral slate
+            case 2:  c = Hud::kHighlight;      break; // CORE  — focus gold
+            case 3:  c = Hud::kStatusNegative; break; // NEST  — danger red
+            case 4:  c = Hud::kAccent;         break; // BUFF  — informational accent
+            default: c = Hud::kStatusPositive; break; // GRASS — positive green
         }
+        c.a = kBrushGhostAlpha;
+        return c;
     }
 }
 
@@ -701,7 +708,8 @@ void MapEditorState::DrawEditCanvas(Game& game) {
     int cols = m_map.GetCols();
     int rows = m_map.GetRows();
     int ts = m_map.GetTileSize();
-    Color gridColor = Hud::g_mapEditorTheme.grid;
+    Color gridColor = Hud::kTextPrimary; // faint translucent overlay
+    gridColor.a = kGridAlpha;
     for (int x = 0; x <= cols; x++)
         DrawLine(x * ts, 0, x * ts, rows * ts, gridColor);
     for (int y = 0; y <= rows; y++)
@@ -713,7 +721,7 @@ void MapEditorState::DrawEditCanvas(Game& game) {
         DrawRectangle(static_cast<int>(wp.x), static_cast<int>(wp.y), ts, ts,
                       BrushTint(static_cast<int>(m_brush)));
         DrawRectangleLines(static_cast<int>(wp.x), static_cast<int>(wp.y), ts, ts,
-                           Hud::g_mapEditorTheme.brushOutline);
+                           Hud::kTextPrimary);
     }
 
     EndMode2D();

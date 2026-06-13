@@ -1,56 +1,43 @@
-# Font assignment per semantic text kind.
-#
-# Each value is a font NAME, resolved in this order:
-#   1. assets/fonts/<name>.ttf  or  assets/fonts/<name>.otf   (file override)
-#   2. a built-in embedded font: "EBGaramond" or "VictorMono"
-#   3. otherwise the body font is used as a fallback (with a warning)
-#
-# So to use a custom font, drop "MyFont.ttf" into assets/fonts/ and set a kind
-# to "MyFont". Several kinds may share one font; each unique font loads once.
-
-# TEMPORARY ("for now"): every kind forced to VictorMono; restore per-kind fonts later.
+# Font name per semantic text kind. Resolved as assets/fonts/<name>.{ttf,otf}, then a built-in
+# ("EBGaramond"/"VictorMono"), else the body font. (Temporary: every kind forced to VictorMono.)
 [fonts]
-title   = "VictorMono"   # menu title, victory / game-over banners
-heading = "VictorMono"   # section headers, panel titles ("Next Wave", tower name)
-body    = "VictorMono"   # general UI copy (the default kind)
-label   = "VictorMono"   # small captions / meta lines
-number  = "VictorMono"   # numeric readouts (gold, budget, costs, levels)
-button  = "VictorMono"   # button captions
-tooltip = "VictorMono"   # tower / enemy description lines
+title   = "VictorMono" # menu title, victory / game-over banners
+heading = "VictorMono" # section headers, panel titles
+body    = "VictorMono" # general UI copy (the default kind)
+label   = "VictorMono" # small captions / meta lines
+number  = "VictorMono" # numeric readouts (gold, costs, levels)
+button  = "VictorMono" # button captions
+tooltip = "VictorMono" # tower / enemy description lines
 
-# One unified family of semantic color roles, shared by every HUD panel AND every full-screen state.
-# "Modern Interface" (Lospec, 8 colors): cool greys and digital greens for a clean retro-futurist UI.
-# Navy-slate surfaces, cream/lavender text, pale yellow-green for headers and focus, digital green for
-# positive status, muted purple for negative, lavender for informational accents. With only 8 source
-# colors some roles share a color (header/highlight, secondary/accent, disabled/border); the dark
-# backing and dim are derived darker from the navy since the palette has nothing darker than it.
+# Unified semantic color roles, shared by every HUD panel and full-screen state. Surfaces step
+# deep→up for contrast, a bright dedicated border frames panels, and action-oriented roles
+# (status / highlight / accent) carry high-saturation hues for affordability, warnings and focus.
 [palette]
-# Text hierarchy — every string a panel or screen renders picks exactly one role.
-textHeader = [213, 212, 155, 255] # headers, titles, category sub-headers, event toasts
-textPrimary = [236, 236, 211, 255] # primary readouts, button labels, card names, dialog titles
-textSecondary = [184, 181, 208, 255] # secondary labels: descriptions, budgets, hints, subtitles
-textDisabled = [144, 142, 158, 255] # disabled label text (backgrounds come from the widget style)
-# Functional status accents, shared by every affordance of the same polarity.
-statusPositive = [142, 173, 88, 255] # affordable cost, upgrade ready, sell value
-statusNegative = [83, 74, 104, 255] # unaffordable cost, warn/fail states, defeat title, delete action
-highlight = [213, 212, 155, 255] # focus: active toggles, tooltip/dialog border, badges, warnings, victory
-accent = [184, 181, 208, 255] # informational accent: retarget label, category headers, key capture, infinity glyph
-# Surfaces and chrome. Panels sit a clear step above the backdrop, with bright borders for definition.
-panelBorder = [144, 142, 158, 255] # panel / card / dialog borders and widget outlines
-worldBg = [48, 50, 69, 255] # gameplay clear behind the map, full-screen state clear, placeholder fills
-bgDark = [24, 26, 36, 255] # high-contrast dark backing: thumbnails, preview frames, swatch backs
-screenDim = [16, 17, 24, 150] # full-screen dim behind the pause menu and modal dialogs
-iconTint = [255, 255, 255, 255] # sprite tint for icon draws (build bar, datapack icons); white = untinted
-panelBgRgb = [48, 50, 69, 255] # alpha is ignored; PanelBg() supplies it per call (panel/card/dialog fill)
+textHeader     = [228, 214, 160, 255] # headers, titles, category sub-headers, event toasts
+textPrimary    = [233, 238, 246, 255] # primary readouts, button labels, card names, dialog titles
+textSecondary  = [162, 174, 196, 255] # descriptions, budgets, hints, subtitles
+textDisabled   = [100, 110, 132, 255] # disabled label text
+statusPositive = [84, 200, 120, 255]  # affordable cost, upgrade ready, sell value
+statusNegative = [230, 80, 84, 255]   # unaffordable cost, warn/fail states, defeat title, delete
+highlight      = [255, 194, 64, 255]  # focus: active toggles, tooltip/dialog border, badges, victory
+accent         = [82, 168, 240, 255]  # informational accent: retarget, category headers, key capture
+panelBorder    = [92, 106, 138, 255]  # panel / card / dialog borders and widget outlines
+worldBg        = [22, 26, 38, 255]    # gameplay/state clear behind the map, placeholder fills
+bgDark         = [12, 14, 22, 255]    # deepest backing: thumbnails, preview frames, swatch backs
+screenDim      = [8, 10, 16, 165]     # full-screen dim behind the pause menu and modal dialogs
+iconTint       = [255, 255, 255, 255] # sprite tint for icon draws; white = untinted
+panelBgRgb     = [34, 40, 56, 255]    # panel fill base; alpha supplied per call by PanelBg()
 
+# Panel-class opacities applied to the shared panel fill (PanelBg).
 [alpha]
 window      = 220 # primary windows: Pause, TowerInfo, Wave (drawn with border)
 docked      = 200 # docked bars: Status, Build (no border); also the wave enemy card fill
 overlayBg   = 160 # ephemeral toast background before fade
 overlayText = 220 # ephemeral toast text before fade
 tooltipBg   = 235 # upgrade tooltip fill
-dialog      = 245 # modal dialog panel fill — PanelBg(dialog)
+dialog      = 245 # modal dialog panel fill
 
+# HUD typographic scale (unscaled bases; FontSize() applies hudScale).
 [typography]
 title       = 28.0 # modal title (PAUSED)
 header      = 14.0 # panel headers, status readout
@@ -58,46 +45,23 @@ body        = 11.0 # descriptions, stat rows, card text
 buttonLabel = 12.0 # button labels
 small       = 8.0  # compact build-bar name/cost
 
-# Full-screen menu/state typography and chrome (menu, settings, end, datapack-select).
-# Unlike the HUD scale above, these are fixed sizes — full-screen states do not apply hudScale.
+# Full-screen state typography (fixed sizes — full-screen states do not apply hudScale). All other
+# full-screen colors/surfaces route through [palette]; only genuinely state-specific cosmetics follow.
 [state_ui]
 title       = 40.0 # main-menu / datapack-select screen title
 screenTitle = 48.0 # settings header and end-screen result title
 menuButton  = 24.0 # menu / end / back button labels
 
-# Full-screen states draw text, surfaces and status through the shared [palette] above: titles and
-# menu labels use textPrimary, section headers textHeader, subtitles textSecondary, greyed labels
-# textDisabled; the screen clear and placeholder fills use worldBg; warnings and the victory title
-# use highlight, the defeat title statusNegative; the modal fill is PanelBg(dialog) and both the
-# pause and modal dims use screenDim. Only genuinely state-specific cosmetics live below.
-
-# Selection screens (map / map-editor catalogs). Preview thumbnails use the shared bgDark.
+# Selection screens: the procedural-map card's distinct thumbnail backing (preview thumbs use bgDark).
 [state_ui.select]
-autoCardTint = [59, 99, 61, 255] # procedural-map card's distinct thumbnail backing (forest green)
+autoCardTint = [59, 99, 61, 255] # forest green
 
-# Map editor canvas and catalog. Tints that need transparency carry their alpha here.
-# The delete-button label and failed-action status route through the shared statusNegative.
+# Map editor backdrops. Grid lines, brush ghosts and the tile outline derive from palette roles in code.
 [state_ui.map_editor]
 canvasBg = [38, 40, 55, 255] # edit canvas backdrop
-exportBg = [0, 0, 0, 255] # offscreen clear behind the exported map.png
-grid = [236, 236, 211, 30] # translucent grid overlay lines
-brushOutline = [236, 236, 211, 255] # hovered-tile outline around the brush ghost
-# Translucent ghost tints per brush, harmonized with the palette accents.
-brushGrass = [142, 173, 88, 130]  # digital green
-brushRock = [144, 142, 158, 130]  # cool grey
-brushCore = [213, 212, 155, 150]  # pale yellow-green
-brushNest = [83, 74, 104, 150]    # muted purple
-brushBuff = [184, 181, 208, 150]  # lavender
+exportBg = [0, 0, 0, 255]    # offscreen clear behind the exported map.png
 
-# Particle editor preview frames and color swatches both use the shared bgDark backing.
-
-# Global widget styles (Button/Slider/Toggle/TextInput drawn without an explicit style) are derived
-# in code from the palette above — see ApplyWidgetStyles() in src/hud/hud_theme.cpp — so they can
-# never drift out of alignment with it. There is intentionally no [widgets.*] table here.
-
-# Shared, semantic layout anchors. Per-panel button heights, line heights, glyph/label offsets and
-# toast padding are no longer knobs here — they are derived in code from the typographic scale
-# (see "derived layout ratios" in src/hud/hud_theme.hpp).
+# Shared semantic layout anchors (per-panel offsets are derived in code from the typographic scale).
 [layout]
 statusBarBaseH = 36.0 # unscaled height of the top status bar
 wavePanelGap   = 6.0  # extra gap wave panel leaves below the status bar
@@ -105,38 +69,31 @@ marginBase     = 8.0  # default margin for every text panel
 lineHBase      = 14.0 # default line height
 headerHBase    = 20.0 # default header row height
 
+# Event toast limits.
 [events]
 maxEntries = 5   # maximum simultaneous event toast rows
 fadeTime   = 1.0 # seconds over which toasts fade out
 
-[panels.pause]
-width       = 240.0
-height      = 460.0
-buttonWidth = 180.0
+# Per-panel unscaled geometry, one flat table; each key prefixed by its panel.
+[panels]
+pauseWidth             = 240.0
+pauseHeight            = 460.0
+pauseButtonWidth       = 180.0
+statusWaveButtonWidth  = 90.0
+statusAutoButtonWidth  = 48.0
+statusWavesButtonWidth = 56.0
+statusMargin           = 6.0
+waveWidth              = 200.0
+waveCardGap            = 6.0
+waveCardPadding        = 6.0
+waveIconSize           = 44.0
+buildButtonSize        = 64.0
+buildPanelHeight       = 80.0
+buildGap               = 4.0
+infoWidth              = 160.0
+infoAnchorGap          = 20.0
 
-[panels.status]
-waveButtonWidth  = 90.0
-autoButtonWidth  = 48.0
-wavesButtonWidth = 56.0
-margin           = 6.0
-
-[panels.wave]
-width       = 200.0
-cardGap     = 6.0
-cardPadding = 6.0
-iconSize    = 44.0
-
-[panels.tower_build]
-buttonSize  = 64.0
-panelHeight = 80.0
-gap         = 4.0
-
-[panels.tower_info]
-width       = 160.0
-anchorGap   = 20.0
-
-# In-world enemy health bar styling (drawn by the render system, not a HUD panel,
-# but a visual element themed alongside the rest of the UI).
+# In-world enemy health bar (drawn by the render system, themed alongside the rest of the UI).
 [health_bar]
 width     = 20.0
 height    = 4.0

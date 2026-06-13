@@ -1,14 +1,14 @@
-[Movement]
-Up = "W"
-Down = "S"
-Left = "A"
-Right = "D"
+[Game]
+Debug = 'GRAVE'
+Speed = 'SPACE'
 
 [Interface]
-Confirm = "ENTER"
-Cancel = "ESCAPE"
-WaveInfo = "TAB"
+Cancel = 'ESCAPE'
+Confirm = 'ENTER'
+WaveInfo = 'TAB'
 
-[Game]
-Speed = "SPACE"
-Debug = "GRAVE"
+[Movement]
+Down = 'S'
+Left = 'A'
+Right = 'D'
+Up = 'W'
