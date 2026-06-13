@@ -18,27 +18,30 @@ number  = "VictorMono"   # numeric readouts (gold, budget, costs, levels)
 button  = "VictorMono"   # button captions
 tooltip = "VictorMono"   # tower / enemy description lines
 
-# One unified family of semantic color roles, shared by every HUD panel AND every full-screen
-# state — panels and screens name a role, never a raw color. Deep blue-slate surfaces, warm amber
-# for headers and focus, mint/rose for positive/negative status, sky cyan for informational accents.
+# One unified family of semantic color roles, shared by every HUD panel AND every full-screen state.
+# "Modern Interface" (Lospec, 8 colors): cool greys and digital greens for a clean retro-futurist UI.
+# Navy-slate surfaces, cream/lavender text, pale yellow-green for headers and focus, digital green for
+# positive status, muted purple for negative, lavender for informational accents. With only 8 source
+# colors some roles share a color (header/highlight, secondary/accent, disabled/border); the dark
+# backing and dim are derived darker from the navy since the palette has nothing darker than it.
 [palette]
 # Text hierarchy — every string a panel or screen renders picks exactly one role.
-textHeader = [255, 206, 102, 255] # headers, titles, category sub-headers, event toasts
-textPrimary = [236, 241, 249, 255] # primary readouts, button labels, card names, dialog titles
-textSecondary = [178, 189, 209, 255] # secondary labels: descriptions, budgets, hints, subtitles
-textDisabled = [112, 122, 142, 255] # disabled label text (backgrounds come from the widget style)
+textHeader = [213, 212, 155, 255] # headers, titles, category sub-headers, event toasts
+textPrimary = [236, 236, 211, 255] # primary readouts, button labels, card names, dialog titles
+textSecondary = [184, 181, 208, 255] # secondary labels: descriptions, budgets, hints, subtitles
+textDisabled = [144, 142, 158, 255] # disabled label text (backgrounds come from the widget style)
 # Functional status accents, shared by every affordance of the same polarity.
-statusPositive = [102, 222, 146, 255] # affordable cost, upgrade ready, sell value
-statusNegative = [244, 100, 110, 255] # unaffordable cost, warn/fail states, defeat title, delete action
-highlight = [255, 197, 78, 255] # focus: active toggles, tooltip/dialog border, badges, warnings, victory
-accent = [110, 188, 248, 255] # informational accent: retarget label, category headers, key capture, infinity glyph
+statusPositive = [142, 173, 88, 255] # affordable cost, upgrade ready, sell value
+statusNegative = [83, 74, 104, 255] # unaffordable cost, warn/fail states, defeat title, delete action
+highlight = [213, 212, 155, 255] # focus: active toggles, tooltip/dialog border, badges, warnings, victory
+accent = [184, 181, 208, 255] # informational accent: retarget label, category headers, key capture, infinity glyph
 # Surfaces and chrome. Panels sit a clear step above the backdrop, with bright borders for definition.
-panelBorder = [96, 112, 146, 255] # panel / card / dialog borders and widget outlines
-worldBg = [30, 34, 46, 255] # gameplay clear behind the map, full-screen state clear, placeholder fills
-bgDark = [11, 13, 20, 255] # high-contrast dark backing: thumbnails, preview frames, swatch backs
-screenDim = [6, 8, 14, 140] # full-screen dim behind the pause menu and modal dialogs
+panelBorder = [144, 142, 158, 255] # panel / card / dialog borders and widget outlines
+worldBg = [48, 50, 69, 255] # gameplay clear behind the map, full-screen state clear, placeholder fills
+bgDark = [24, 26, 36, 255] # high-contrast dark backing: thumbnails, preview frames, swatch backs
+screenDim = [16, 17, 24, 150] # full-screen dim behind the pause menu and modal dialogs
 iconTint = [255, 255, 255, 255] # sprite tint for icon draws (build bar, datapack icons); white = untinted
-panelBgRgb = [32, 38, 56, 255] # alpha is ignored; PanelBg() supplies it per call (panel/card/dialog fill)
+panelBgRgb = [48, 50, 69, 255] # alpha is ignored; PanelBg() supplies it per call (panel/card/dialog fill)
 
 [alpha]
 window      = 220 # primary windows: Pause, TowerInfo, Wave (drawn with border)
@@ -70,21 +73,21 @@ menuButton  = 24.0 # menu / end / back button labels
 
 # Selection screens (map / map-editor catalogs). Preview thumbnails use the shared bgDark.
 [state_ui.select]
-autoCardTint = [40, 50, 68, 255] # procedural-map card's distinct thumbnail backing
+autoCardTint = [59, 99, 61, 255] # procedural-map card's distinct thumbnail backing (forest green)
 
 # Map editor canvas and catalog. Tints that need transparency carry their alpha here.
 # The delete-button label and failed-action status route through the shared statusNegative.
 [state_ui.map_editor]
-canvasBg = [20, 23, 32, 255] # edit canvas backdrop
+canvasBg = [38, 40, 55, 255] # edit canvas backdrop
 exportBg = [0, 0, 0, 255] # offscreen clear behind the exported map.png
-grid = [230, 235, 243, 30] # translucent grid overlay lines
-brushOutline = [230, 235, 243, 255] # hovered-tile outline around the brush ghost
+grid = [236, 236, 211, 30] # translucent grid overlay lines
+brushOutline = [236, 236, 211, 255] # hovered-tile outline around the brush ghost
 # Translucent ghost tints per brush, harmonized with the palette accents.
-brushGrass = [110, 212, 140, 130]
-brushRock = [120, 128, 144, 130]
-brushCore = [255, 200, 87, 150]
-brushNest = [232, 93, 102, 150]
-brushBuff = [108, 178, 230, 150]
+brushGrass = [142, 173, 88, 130]  # digital green
+brushRock = [144, 142, 158, 130]  # cool grey
+brushCore = [213, 212, 155, 150]  # pale yellow-green
+brushNest = [83, 74, 104, 150]    # muted purple
+brushBuff = [184, 181, 208, 150]  # lavender
 
 # Particle editor preview frames and color swatches both use the shared bgDark backing.
 
