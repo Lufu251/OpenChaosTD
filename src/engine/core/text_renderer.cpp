@@ -563,9 +563,9 @@ TextRenderer::FontId FontFor(Text::Kind kind) {
 // --- font name configuration -------------------------------------------------
 // One font name per Text::Kind: a file stem under resources/fonts/ ("MyFont" ->
 // resources/fonts/MyFont.ttf) or an embedded canonical name ("EBGaramond"/"VictorMono").
-// Read from config/fonts.toml; missing file/keys keep the defaults. This is an
-// implementation detail of the text subsystem (formerly the standalone FontConfig),
-// so it lives here rather than as a public core header.
+// Read from the [fonts] table of config/hud.toml; missing file/keys keep the defaults.
+// This is an implementation detail of the text subsystem (formerly the standalone
+// FontConfig), so it lives here rather than as a public core header.
 using FontNames = std::array<std::string, Text::KindCount>;
 
 FontNames DefaultFontNames() {
@@ -580,13 +580,13 @@ FontNames LoadFontNames(FileStore& fileStore) {
         "title", "heading", "body", "label", "number", "button", "tooltip",
     };
     FontNames names = DefaultFontNames();
-    if (!fileStore.Exists("config/fonts.toml"))
+    if (!fileStore.Exists("config/hud.toml"))
         return names; // keep defaults
 
-    const toml::table table = fileStore.LoadToml("config/fonts.toml");
+    const toml::table table = fileStore.LoadToml("config/hud.toml");
     const toml::table* fonts = table["fonts"].as_table();
     if (fonts == nullptr) {
-        TraceLog(LOG_WARNING, "FONTS: config/fonts.toml has no [fonts] table — using defaults");
+        TraceLog(LOG_WARNING, "FONTS: config/hud.toml has no [fonts] table — using defaults");
         return names;
     }
     for (int k = 0; k < Text::KindCount; ++k)

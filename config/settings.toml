@@ -6,6 +6,10 @@ sfxVolume = 0.25
 fps = 120
 hudScale = 1.75
 
+# Discrete camera zoom steps cycled at runtime by the render system.
+[zoom]
+levels = [0.5, 1.0, 2.0, 4.0]
+
 [window]
 height = 1200
 title = 'OpenChaos TD'

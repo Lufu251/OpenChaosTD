@@ -14,42 +14,45 @@ Color ParseColor(const toml::array& a) {
     };
 }
 
+// Mix a color toward white (lighten) or black (darken); WithAlpha overrides opacity only.
+// These let the widget surfaces be derived from the palette instead of hand-picked, so the
+// recessed widget chrome tracks any palette automatically (see ApplyWidgetStyles).
+Color Lighten(Color c, float amt)            { return ColorLerp(c, WHITE, amt); }
+Color Darken(Color c, float amt)             { return ColorLerp(c, BLACK, amt); }
+Color WithAlpha(Color c, unsigned char a)    { c.a = a; return c; }
+
 // Derive the global widget styles from the palette so they can never drift out of alignment.
 // Interactive accents map straight to palette roles; the recessed widget surfaces (bgNormal /
-// bgHovered / bgInput and the disabled greys) are not palette roles — they belong to the widget
-// chrome alone — so they are named here rather than left to the engine's generic-grey defaults.
-// Called unconditionally at load, so widgets follow the palette whether or not config/hud.toml
-// exists; m_borderWidth / m_borderWidthActive keep the engine defaults (config never set them).
+// bgHovered / bgInput and the disabled set) are not palette roles of their own, so they are
+// derived from the panel fill (kPanelBgRgb) rather than hand-picked — change the palette and the
+// widget chrome follows. Called unconditionally at load, so widgets follow the palette whether or
+// not config/hud.toml exists; m_borderWidth / m_borderWidthActive keep the engine defaults.
 void ApplyWidgetStyles() {
     using namespace Hud;
 
-    // Default (interactive) widget surfaces.
-    constexpr Color kWidgetBg{33, 38, 52, 255};
-    constexpr Color kWidgetBgHover{47, 54, 72, 255};
-    constexpr Color kWidgetInput{22, 26, 36, 255};
-
-    kDefaultStyle.m_bgNormal  = kWidgetBg;
-    kDefaultStyle.m_bgHovered = kWidgetBgHover;
-    kDefaultStyle.m_bgInput   = kWidgetInput;
+    // Default (interactive) widget surfaces — a clear step above the panel fill so buttons,
+    // sliders and cards lift off the chrome, brightening further on hover; inputs sit recessed.
+    kDefaultStyle.m_bgNormal  = Lighten(kPanelBgRgb, 0.06f);
+    kDefaultStyle.m_bgHovered = Lighten(kPanelBgRgb, 0.15f);
+    kDefaultStyle.m_bgInput   = Darken(kPanelBgRgb, 0.19f);
     kDefaultStyle.m_bgActive  = kStatusPositive; // toggle-on fill
     kDefaultStyle.m_border    = kPanelBorder;
     kDefaultStyle.m_borderSel = kHighlight;      // selection border
     kDefaultStyle.m_accent    = kAccent;         // slider fill, focused input border
     kDefaultStyle.m_text      = kTextPrimary;
 
-    // Disabled widget surfaces: muted slate, all at the same low alpha.
-    constexpr Color kDisabledBg{24, 27, 36, 200};
-    constexpr Color kDisabledInput{18, 21, 29, 200};
-    constexpr Color kDisabledActive{30, 34, 46, 200};
-    constexpr Color kDisabledChrome{44, 50, 66, 255}; // border, selection border and accent
+    // Disabled widget surfaces: dimmed panel-fill tints at a uniform low alpha, with chrome
+    // sitting halfway between the panel fill and its border so it reads muted but present.
+    constexpr unsigned char kDisabledAlpha = 200;
+    const Color disabledChrome = ColorLerp(kPanelBgRgb, kPanelBorder, 0.5f);
 
-    kDisabledStyle.m_bgNormal  = kDisabledBg;
-    kDisabledStyle.m_bgHovered = kDisabledBg;
-    kDisabledStyle.m_bgInput   = kDisabledInput;
-    kDisabledStyle.m_bgActive  = kDisabledActive;
-    kDisabledStyle.m_border    = kDisabledChrome;
-    kDisabledStyle.m_borderSel = kDisabledChrome;
-    kDisabledStyle.m_accent    = kDisabledChrome;
+    kDisabledStyle.m_bgNormal  = WithAlpha(Darken(kPanelBgRgb, 0.08f), kDisabledAlpha);
+    kDisabledStyle.m_bgHovered = kDisabledStyle.m_bgNormal;
+    kDisabledStyle.m_bgInput   = WithAlpha(Darken(kPanelBgRgb, 0.33f), kDisabledAlpha);
+    kDisabledStyle.m_bgActive  = WithAlpha(Lighten(kPanelBgRgb, 0.03f), kDisabledAlpha);
+    kDisabledStyle.m_border    = disabledChrome;
+    kDisabledStyle.m_borderSel = disabledChrome;
+    kDisabledStyle.m_accent    = disabledChrome;
     kDisabledStyle.m_text      = kTextDisabled;
 }
 

@@ -6,29 +6,34 @@
 #include <raymath.h>
 
 void RenderSystem::Load(FileStore& fileStore) {
-    if (!fileStore.Exists("config/render.toml")) return;
-    const toml::table tbl = fileStore.LoadToml("config/render.toml");
-
-    if (const toml::table* hb = tbl["health_bar"].as_table()) {
-        m_hbWidth    = (*hb)["width"].value_or(m_hbWidth);
-        m_hbHeight   = (*hb)["height"].value_or(m_hbHeight);
-        m_hbPadding  = (*hb)["padding"].value_or(m_hbPadding);
-        m_hbRound    = (*hb)["roundness"].value_or(m_hbRound);
-        m_hbSegs     = (*hb)["segments"].value_or(m_hbSegs);
-        if (const toml::array* c = (*hb)["bgColor"].as_array(); c && c->size() >= 4)
-            m_hbBgColor = {
-                static_cast<unsigned char>((*c)[0].value_or(0)),
-                static_cast<unsigned char>((*c)[1].value_or(0)),
-                static_cast<unsigned char>((*c)[2].value_or(0)),
-                static_cast<unsigned char>((*c)[3].value_or(255))};
+    // Health bar styling is themed with the rest of the UI in config/hud.toml.
+    if (fileStore.Exists("config/hud.toml")) {
+        const toml::table tbl = fileStore.LoadToml("config/hud.toml");
+        if (const toml::table* hb = tbl["health_bar"].as_table()) {
+            m_hbWidth    = (*hb)["width"].value_or(m_hbWidth);
+            m_hbHeight   = (*hb)["height"].value_or(m_hbHeight);
+            m_hbPadding  = (*hb)["padding"].value_or(m_hbPadding);
+            m_hbRound    = (*hb)["roundness"].value_or(m_hbRound);
+            m_hbSegs     = (*hb)["segments"].value_or(m_hbSegs);
+            if (const toml::array* c = (*hb)["bgColor"].as_array(); c && c->size() >= 4)
+                m_hbBgColor = {
+                    static_cast<unsigned char>((*c)[0].value_or(0)),
+                    static_cast<unsigned char>((*c)[1].value_or(0)),
+                    static_cast<unsigned char>((*c)[2].value_or(0)),
+                    static_cast<unsigned char>((*c)[3].value_or(255))};
+        }
     }
 
-    if (const toml::array* zl = tbl["zoom"]["levels"].as_array(); zl && !zl->empty()) {
-        m_zoomLevels.clear();
-        for (auto&& node : *zl)
-            if (auto v = node.value<float>()) m_zoomLevels.push_back(*v);
-        // Clamp the current zoom index to the new range
-        m_zoomIndex = Clamp(m_zoomIndex, 0, static_cast<int>(m_zoomLevels.size()) - 1);
+    // Camera zoom levels are a display setting, alongside fps/hudScale in config/settings.toml.
+    if (fileStore.Exists("config/settings.toml")) {
+        const toml::table tbl = fileStore.LoadToml("config/settings.toml");
+        if (const toml::array* zl = tbl["zoom"]["levels"].as_array(); zl && !zl->empty()) {
+            m_zoomLevels.clear();
+            for (auto&& node : *zl)
+                if (auto v = node.value<float>()) m_zoomLevels.push_back(*v);
+            // Clamp the current zoom index to the new range
+            m_zoomIndex = Clamp(m_zoomIndex, 0, static_cast<int>(m_zoomLevels.size()) - 1);
+        }
     }
 }
 
@@ -158,7 +163,7 @@ void RenderSystem::DrawEnemies(const DenseSlotMap<Enemy>& enemies, Resources& as
 
         DrawTextureV(texture, {enemy.m_position.x - hw, enemy.m_position.y - hh}, WHITE);
 
-        // Health bar floats above the sprite; dimensions come from config/render.toml
+        // Health bar floats above the sprite; dimensions come from config/hud.toml
         DrawHealthBar({enemy.m_position.x, enemy.m_position.y + hh + 2.0f}, enemy.m_currentHealth, enemy.GetBaseStats()->m_maxHealth);
     }
 }

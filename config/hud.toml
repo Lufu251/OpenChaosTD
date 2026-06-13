@@ -1,24 +1,44 @@
+# Font assignment per semantic text kind.
+#
+# Each value is a font NAME, resolved in this order:
+#   1. assets/fonts/<name>.ttf  or  assets/fonts/<name>.otf   (file override)
+#   2. a built-in embedded font: "EBGaramond" or "VictorMono"
+#   3. otherwise the body font is used as a fallback (with a warning)
+#
+# So to use a custom font, drop "MyFont.ttf" into assets/fonts/ and set a kind
+# to "MyFont". Several kinds may share one font; each unique font loads once.
+
+# TEMPORARY ("for now"): every kind forced to VictorMono; restore per-kind fonts later.
+[fonts]
+title   = "VictorMono"   # menu title, victory / game-over banners
+heading = "VictorMono"   # section headers, panel titles ("Next Wave", tower name)
+body    = "VictorMono"   # general UI copy (the default kind)
+label   = "VictorMono"   # small captions / meta lines
+number  = "VictorMono"   # numeric readouts (gold, budget, costs, levels)
+button  = "VictorMono"   # button captions
+tooltip = "VictorMono"   # tower / enemy description lines
+
 # One unified family of semantic color roles, shared by every HUD panel AND every full-screen
 # state — panels and screens name a role, never a raw color. Deep blue-slate surfaces, warm amber
 # for headers and focus, mint/rose for positive/negative status, sky cyan for informational accents.
 [palette]
 # Text hierarchy — every string a panel or screen renders picks exactly one role.
-textHeader = [240, 198, 92, 255] # headers, titles, category sub-headers, event toasts
-textPrimary = [230, 235, 243, 255] # primary readouts, button labels, card names, dialog titles
-textSecondary = [156, 166, 184, 255] # secondary labels: descriptions, budgets, hints, subtitles
-textDisabled = [102, 110, 126, 255] # disabled label text (backgrounds come from the widget style)
+textHeader = [255, 206, 102, 255] # headers, titles, category sub-headers, event toasts
+textPrimary = [236, 241, 249, 255] # primary readouts, button labels, card names, dialog titles
+textSecondary = [178, 189, 209, 255] # secondary labels: descriptions, budgets, hints, subtitles
+textDisabled = [112, 122, 142, 255] # disabled label text (backgrounds come from the widget style)
 # Functional status accents, shared by every affordance of the same polarity.
-statusPositive = [110, 212, 140, 255] # affordable cost, upgrade ready, sell value
-statusNegative = [232, 93, 102, 255] # unaffordable cost, warn/fail states, defeat title, delete action
-highlight = [255, 200, 87, 255] # focus: active toggles, tooltip/dialog border, badges, warnings, victory
-accent = [108, 178, 230, 255] # informational accent: retarget label, category headers, key capture, infinity glyph
-# Surfaces and chrome.
-panelBorder = [62, 72, 94, 255] # panel / card / dialog borders and widget outlines
-worldBg = [21, 24, 32, 255] # gameplay clear behind the map, full-screen state clear, placeholder fills
-bgDark = [13, 15, 21, 255] # high-contrast dark backing: thumbnails, preview frames, swatch backs
-screenDim = [8, 10, 16, 130] # full-screen dim behind the pause menu and modal dialogs
+statusPositive = [102, 222, 146, 255] # affordable cost, upgrade ready, sell value
+statusNegative = [244, 100, 110, 255] # unaffordable cost, warn/fail states, defeat title, delete action
+highlight = [255, 197, 78, 255] # focus: active toggles, tooltip/dialog border, badges, warnings, victory
+accent = [110, 188, 248, 255] # informational accent: retarget label, category headers, key capture, infinity glyph
+# Surfaces and chrome. Panels sit a clear step above the backdrop, with bright borders for definition.
+panelBorder = [96, 112, 146, 255] # panel / card / dialog borders and widget outlines
+worldBg = [30, 34, 46, 255] # gameplay clear behind the map, full-screen state clear, placeholder fills
+bgDark = [11, 13, 20, 255] # high-contrast dark backing: thumbnails, preview frames, swatch backs
+screenDim = [6, 8, 14, 140] # full-screen dim behind the pause menu and modal dialogs
 iconTint = [255, 255, 255, 255] # sprite tint for icon draws (build bar, datapack icons); white = untinted
-panelBgRgb = [17, 20, 28, 255] # alpha is ignored; PanelBg() supplies it per call (panel/card/dialog fill)
+panelBgRgb = [32, 38, 56, 255] # alpha is ignored; PanelBg() supplies it per call (panel/card/dialog fill)
 
 [alpha]
 window      = 220 # primary windows: Pause, TowerInfo, Wave (drawn with border)
@@ -111,3 +131,13 @@ gap         = 4.0
 [panels.tower_info]
 width       = 160.0
 anchorGap   = 20.0
+
+# In-world enemy health bar styling (drawn by the render system, not a HUD panel,
+# but a visual element themed alongside the rest of the UI).
+[health_bar]
+width     = 20.0
+height    = 4.0
+padding   = 1.0
+roundness = 0.2
+segments  = 8
+bgColor   = [40, 40, 40, 255]

@@ -122,7 +122,9 @@ private:
     static constexpr float kColAX      = 260.0f; // emission/motion/size column
     static constexpr float kColBX      = 550.0f; // colors/shape column
     static constexpr float kLabelW     = 105.0f; // label gutter left of each slider
-    static constexpr float kSliderW    = 125.0f;
+    // Slider width leaves a value gutter wide enough for 6-char floats (e.g. "270.00") so column
+    // A's readouts never run into column B's labels (kColBX - sliderEnd - 10 ~= 70px of value room).
+    static constexpr float kSliderW    = 105.0f;
     static constexpr float kSliderH    = 22.0f;
     static constexpr float kRowH       = 30.0f;
     static constexpr float kHeaderH    = 34.0f;

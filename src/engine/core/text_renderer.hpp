@@ -78,14 +78,14 @@ private:
 
 namespace Text {
 
-// Semantic text roles. Each maps to a font name in config/fonts.toml; several
+// Semantic text roles. Each maps to a font name in the [fonts] table of config/hud.toml; several
 // kinds may resolve to the same font. Body is the default for general UI copy.
 enum class Kind { Title, Heading, Body, Label, Number, Button, Tooltip };
 
 // Number of Kind values — indexes the per-kind font table.
 inline constexpr int KindCount = 7;
 
-// Creates the renderer, reads config/fonts.toml via fileStore, and resolves each
+// Creates the renderer, reads the [fonts] table of config/hud.toml via fileStore, and resolves each
 // Kind to a font (file override in resources/fonts/ or an embedded default); warns
 // and arms the raylib font fallback on failure. Requires an initialized window.
 void Init(FileStore& fileStore);

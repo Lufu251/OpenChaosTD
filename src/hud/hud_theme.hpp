@@ -20,32 +20,32 @@ namespace Hud {
 // concrete draw methods never reach for raw raylib color literals.
 
 // Text hierarchy: every string a panel or screen renders picks exactly one of these roles.
-inline Color kTextHeader{240, 198, 92, 255}; // panel/screen headers, titles, category sub-headers, event toasts
-inline Color kTextPrimary{230, 235, 243, 255}; // primary readouts, button labels, card names, dialog titles
-inline Color kTextSecondary{156, 166, 184, 255}; // secondary labels: descriptions, budgets, hints, subtitles
+inline Color kTextHeader{255, 206, 102, 255}; // panel/screen headers, titles, category sub-headers, event toasts
+inline Color kTextPrimary{236, 241, 249, 255}; // primary readouts, button labels, card names, dialog titles
+inline Color kTextSecondary{178, 189, 209, 255}; // secondary labels: descriptions, budgets, hints, subtitles
 // Disabled label text. Text-specific on purpose: a disabled widget's *background* comes from the
 // widget style (kDisabledStyle), but its label always reads through this key so disabled text
 // stays equally legible on every panel.
-inline Color kTextDisabled{102, 110, 126, 255};
+inline Color kTextDisabled{112, 122, 142, 255};
 
 // Functional status accents, shared by every affordance of the same polarity.
-inline Color kStatusPositive{110, 212, 140, 255}; // affordable cost, upgrade ready, sell value
-inline Color kStatusNegative{232, 93, 102, 255}; // unaffordable cost, warn/fail states, defeat title, delete action
-inline Color kHighlight{255, 200, 87, 255}; // focus: active toggles, tooltip/dialog border, badges, warnings, victory title
+inline Color kStatusPositive{102, 222, 146, 255}; // affordable cost, upgrade ready, sell value
+inline Color kStatusNegative{244, 100, 110, 255}; // unaffordable cost, warn/fail states, defeat title, delete action
+inline Color kHighlight{255, 197, 78, 255}; // focus: active toggles, tooltip/dialog border, badges, warnings, victory title
 // Informational accent shared across HUD and screens: retarget label, settings binding-group
 // headers, key-capture indicator, status-bar endless-mode infinity glyph.
-inline Color kAccent{108, 178, 230, 255};
+inline Color kAccent{110, 188, 248, 255};
 
-// Surfaces and chrome.
-inline Color kPanelBorder{62, 72, 94, 255}; // panel / card / dialog borders and widget outlines
-inline Color kWorldBackground{21, 24, 32, 255}; // gameplay clear behind the map, full-screen state clear, placeholder fills
-inline Color kBgDark{13, 15, 21, 255}; // high-contrast dark backing: thumbnails, preview frames, swatch backs
-inline Color kScreenDim{8, 10, 16, 130}; // full-screen dim behind the pause menu and modal dialogs
+// Surfaces and chrome. Panels sit a clear step above the backdrop, with bright borders for definition.
+inline Color kPanelBorder{96, 112, 146, 255}; // panel / card / dialog borders and widget outlines
+inline Color kWorldBackground{30, 34, 46, 255}; // gameplay clear behind the map, full-screen state clear, placeholder fills
+inline Color kBgDark{11, 13, 20, 255}; // high-contrast dark backing: thumbnails, preview frames, swatch backs
+inline Color kScreenDim{6, 8, 14, 140}; // full-screen dim behind the pause menu and modal dialogs
 // Sprite tint for icon draws (build-bar towers, datapack icons); white = untinted.
 inline Color kIconTint{255, 255, 255, 255};
 
 // RGB base for the dynamic-alpha fill helper; alpha is ignored here and supplied per call.
-inline Color kPanelBgRgb{17, 20, 28, 255};
+inline Color kPanelBgRgb{32, 38, 56, 255};
 
 // The dark panel fill is shared but drawn at varying opacity (window/docked/tooltip/card/dialog),
 // so it is a helper rather than a constant. The event toast text fades too and reads through the

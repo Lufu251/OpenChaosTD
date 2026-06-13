@@ -26,7 +26,7 @@ public:
     void DrawEnemies(const DenseSlotMap<Enemy>& enemies, Resources& assets);
     void DrawAttacks(const std::vector<Attack>& attacks);
 
-    void Load(FileStore& fileStore); // reads config/render.toml; safe to call before first use
+    void Load(FileStore& fileStore); // reads health_bar from config/hud.toml, zoom from config/settings.toml; safe to call before first use
 
     void CenterCamera(Map& map, Screen& renderer);
     void CenterCamera(Map& map, Rectangle viewport);
@@ -42,7 +42,7 @@ private:
     int m_zoomIndex = 1;
     std::vector<float> m_zoomLevels = {0.5f, 1.0f, 2.0f, 4.0f};
 
-    // Health bar visual config (loaded from config/render.toml)
+    // Health bar visual config (loaded from config/hud.toml)
     float m_hbWidth    = 20.0f;
     float m_hbHeight   = 4.0f;
     float m_hbPadding  = 1.0f;
