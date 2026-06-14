@@ -2,8 +2,9 @@
 
 #include <hud/hud.hpp>
 #include <hud/hud_theme.hpp>
-#include <hud/button_list.hpp>
+#include <engine/systems/ui_widgets.hpp>
 #include <raylib.h>
+#include <vector>
 
 class Input;
 
@@ -17,18 +18,22 @@ public:
     void ProcessInput(Input& input);
     void Draw();
 
-    bool WasResumeRequested()   { return m_buttons.Consume(kResume); }
-    bool WasSettingsRequested() { return m_buttons.Consume(kSettings); }
-    bool WasSaveRequested()     { return m_buttons.Consume(kSave); }
-    bool WasLoadRequested()     { return m_buttons.Consume(kLoad); }
-    bool WasRestartRequested()  { return m_buttons.Consume(kRestart); }
-    bool WasMainMenuRequested() { return m_buttons.Consume(kMainMenu); }
+    bool WasResumeRequested()   { return Consume(kResume); }
+    bool WasSettingsRequested() { return Consume(kSettings); }
+    bool WasSaveRequested()     { return Consume(kSave); }
+    bool WasLoadRequested()     { return Consume(kLoad); }
+    bool WasRestartRequested()  { return Consume(kRestart); }
+    bool WasMainMenuRequested() { return Consume(kMainMenu); }
 
 private:
-    // Stable indices into m_buttons, in stack order.
-    enum : int { kResume, kSettings, kSave, kLoad, kRestart, kMainMenu };
+    bool Consume(int i) { bool v = m_raised[i]; m_raised[i] = false; return v; }
 
-    Hud::ButtonList m_buttons;
+    // Stable indices into m_pauseButtons, in stack order.
+    enum : int { kResume, kSettings, kSave, kLoad, kRestart, kMainMenu, kCount };
+
+    std::vector<Button> m_pauseButtons;
+    WidgetGroup m_pauseGroup;
+    std::vector<bool> m_raised; // one-shot click signals, one per button
     Hud::PanelMetrics m_metrics;
     float m_titleOffset = 0.0f; // title baseline below the panel top
     int m_screenW = 0;

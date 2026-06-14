@@ -1,7 +1,8 @@
 #pragma once
 
 #include <states/game_state.hpp>
-#include <hud/button_list.hpp>
+#include <engine/systems/ui_widgets.hpp>
+#include <vector>
 
 class MenuState : public GameState {
 public:
@@ -18,6 +19,8 @@ private:
 
     bool m_hasSave = false; // whether saves/savegame.json exists (Continue enabled)
 
-    Hud::ButtonList m_buttons;
-    enum Btn { Play, Continue, Settings, Editor, Exit }; // indices into m_buttons (Add order)
+    std::vector<Button> m_buttons;
+    WidgetGroup m_btnGroup;
+    std::vector<bool> m_raised; // one-shot click signals, one per button
+    enum Btn { Play, Continue, Settings, Editor, Exit, Count };
 };

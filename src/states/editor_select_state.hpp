@@ -1,7 +1,8 @@
 #pragma once
 
 #include <states/game_state.hpp>
-#include <hud/button_list.hpp>
+#include <engine/systems/ui_widgets.hpp>
+#include <vector>
 
 // Intermediate screen between DatapackSelectState and an editor, reached after
 // the player selects a datapack. Offers the choice between the Particle Editor
@@ -16,6 +17,8 @@ public:
     void Draw(Game& game) override;
 
 private:
-    Hud::ButtonList m_buttons;
-    enum Btn { Particle, MapEd, Back }; // indices into m_buttons (Add order)
+    std::vector<Button> m_buttons;
+    WidgetGroup m_btnGroup;
+    std::vector<bool> m_raised; // one-shot click signals, one per button
+    enum Btn { Particle, MapEd, Back, Count };
 };
