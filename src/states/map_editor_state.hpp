@@ -103,7 +103,9 @@ private:
     // --- Edit: brush palette ---
     Brush m_brush = Brush::Grass;
     Button m_brushButtons[5];
+    WidgetGroup m_brushGroup;
     Button m_buffStatButtons[3]; // range / damage / shotsPerMinute
+    WidgetGroup m_buffStatGroup;
     int m_buffStatIndex = 0;
     Slider m_buffValue;
     Toggle m_buffMul;
@@ -115,6 +117,7 @@ private:
     Button m_validateBtn;
     Button m_saveBtn;
     Button m_editBackBtn;
+    WidgetGroup m_editLeftBtns;
 
     // --- Layout constants (raw virtual coords) ---
     static constexpr float kTopY       = 110.0f;

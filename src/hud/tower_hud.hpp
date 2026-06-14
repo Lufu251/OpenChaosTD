@@ -46,6 +46,7 @@ private:
     };
     std::vector<BuildButton> m_buttons;
     std::string m_selectedTower;
+    WidgetGroup m_buildGroup;
 
     // Shared scaling + typographic scale; button grid geometry stays local to Build().
     Hud::PanelMetrics m_metrics;
@@ -93,6 +94,7 @@ private:
     Button m_sellBtn;
     Button m_targetBtn;
     Button m_upgradeBtn;
+    WidgetGroup m_actionGroup;
     HudSignal m_sellSignal;
     HudSignal m_targetSignal;
     HudSignal m_upgradeSignal;

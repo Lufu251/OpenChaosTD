@@ -17,4 +17,5 @@ private:
     bool m_won;
     Button m_playAgainButton;
     Button m_menuButton;
+    WidgetGroup m_btnGroup;
 };

@@ -72,6 +72,7 @@ private:
     int m_presetPage = 0;
     int m_presetsPerPage = 1;  // computed in Layout from the available height
     std::vector<Button> m_presetButtons; // one page worth, rebuilt on page flips
+    WidgetGroup m_presetGroup;
     Button m_newBtn;
     Button m_deleteBtn; // acts on the selected preset; disabled with no selection
     Button m_pagePrevBtn;
@@ -94,6 +95,7 @@ private:
 
     // Shape selector — indexed by SpawnShape value
     Button m_shapeButtons[5];
+    WidgetGroup m_shapeBtnGroup;
 
     // Preview region: a state-local particle system, isolated from
     // game.GetParticles(), drawn in virtual screen coords (no camera).

@@ -29,11 +29,23 @@ void TowerBuildHUD::Build(float scale, int screenW, int screenH, const std::vect
     for (size_t i = 0; i < options.size(); i++) {
         BuildButton entry;
         entry.m_button.m_label = options[i].m_name;
-        entry.m_button.m_rect = { margin + i * (btnSize + gap), y, btnSize, btnSize };
         entry.m_textureKey = options[i].m_textureKey;
         entry.m_cost = options[i].m_cost;
         m_buttons.push_back(std::move(entry));
     }
+
+    // Lay out buttons with WidgetGroup.
+    m_buildGroup.SetCount(static_cast<int>(m_buttons.size()));
+    m_buildGroup.m_config.m_mode = WidgetGroupConfig::Mode::Horizontal;
+    m_buildGroup.m_config.m_pack = WidgetGroupConfig::Pack::Start;
+    m_buildGroup.m_config.m_align = WidgetGroupConfig::Align::Start;
+    m_buildGroup.m_config.m_bounds = {margin, y, static_cast<float>(screenW) - 2.0f * margin, btnSize};
+    m_buildGroup.m_config.m_defaultItemW = btnSize;
+    m_buildGroup.m_config.m_defaultItemH = btnSize;
+    m_buildGroup.m_config.m_gapX = gap;
+    m_buildGroup.Layout();
+    for (int i = 0; i < m_buildGroup.Count(); i++)
+        m_buttons[i].m_button.m_rect = m_buildGroup[i].m_rect;
 
     m_selectedTower = "";
 }
@@ -56,16 +68,18 @@ void TowerBuildHUD::ProcessInput(Input& input) {
 
 const std::string& TowerBuildHUD::GetHoveredTower(Vector2 mousePos) const {
     static const std::string empty;
-    for (const auto& entry : m_buttons)
-        if (CheckCollisionPointRec(mousePos, entry.m_button.m_rect))
-            return entry.m_button.m_label;
+    int idx = m_buildGroup.HitTest(mousePos);
+    if (idx >= 0 && idx < static_cast<int>(m_buttons.size()))
+        return m_buttons[idx].m_button.m_label;
     return empty;
 }
 
 Vector2 TowerBuildHUD::GetHoveredButtonTopCenter(Vector2 mousePos) const {
-    for (const auto& entry : m_buttons)
-        if (CheckCollisionPointRec(mousePos, entry.m_button.m_rect))
-            return { entry.m_button.m_rect.x + entry.m_button.m_rect.width / 2.0f, entry.m_button.m_rect.y };
+    int idx = m_buildGroup.HitTest(mousePos);
+    if (idx >= 0 && idx < static_cast<int>(m_buttons.size())) {
+        Rectangle r = m_buildGroup[idx].m_rect;
+        return { r.x + r.width / 2.0f, r.y };
+    }
     return {};
 }
 
@@ -114,6 +128,11 @@ void TowerInfoHUD::Build(float scale) {
     m_sellH      = m_metrics.Scaled(Hud::kFontBodyBase * Hud::kInfoSellHToBody);
     m_sellGap    = m_metrics.Scaled(Hud::kMarginBase * Hud::kInfoSellGapToMargin);
     m_anchorGap  = m_metrics.Scaled(Hud::g_infoCfg.anchorGap);
+    // Auto-draw labels on the action buttons.
+    m_sellBtn.m_fontSize = m_metrics.fontBody;
+    m_targetBtn.m_fontSize = m_metrics.fontBody;
+    m_targetBtn.m_labelColor = Hud::kAccent;
+    m_upgradeBtn.m_fontSize = m_metrics.fontBody;
     Hide(); // shown only while a tower is selected or hovered
 }
 
@@ -159,17 +178,15 @@ void TowerInfoHUD::Layout(const TowerInfoView& view) {
                     panelW, panelH };
     ClampPanelToScreen(view.m_screenW, view.m_screenH);
 
-    // Lay config buttons bottom-up: Sell at the bottom, then Upgrade, then Targeting on top
+    // Lay config buttons bottom-up: Targeting at top, then Upgrade, then Sell at the bottom.
     float btnW = panelW - margin * 2.0f;
-    float btnY = m_panelRect.y + panelH - margin - m_sellH;
-    if (m_showSell) {
-        m_sellBtn.m_label = TextFormat("Sell: $%d", view.m_sellRefund);
-        m_sellBtn.m_rect = { m_panelRect.x + margin, btnY, btnW, m_sellH };
-        btnY -= m_sellGap + m_sellH;
-    }
     m_upgradeReady = false;
     m_hasNextUpgrade = false;
     m_upgradePreview.clear();
+
+    // Update labels first, then let WidgetGroup position the buttons.
+    if (m_showSell)
+        m_sellBtn.m_label = TextFormat("Sell: $%d", view.m_sellRefund);
     if (m_showUpgrade) {
         if (view.m_upgradeAtMax) {
             m_upgradeBtn.m_label = "Max Level";
@@ -179,13 +196,29 @@ void TowerInfoHUD::Layout(const TowerInfoView& view) {
             m_hasNextUpgrade = true;
             m_upgradePreview = view.m_upgradePreview;
         }
-        m_upgradeBtn.m_rect = { m_panelRect.x + margin, btnY, btnW, m_sellH };
-        btnY -= m_sellGap + m_sellH;
     }
-    if (m_showTargeting) {
+    if (m_showTargeting)
         m_targetBtn.m_label = TextFormat("Target: %s", m_targetingName.c_str());
-        m_targetBtn.m_rect = { m_panelRect.x + margin, btnY, btnW, m_sellH };
-    }
+
+    // Slot order: 0=Targeting (top), 1=Upgrade, 2=Sell (bottom).
+    m_actionGroup.SetCount(3);
+    m_actionGroup.SetSlotVisible(0, m_showTargeting);
+    m_actionGroup.SetSlotVisible(1, m_showUpgrade);
+    m_actionGroup.SetSlotVisible(2, m_showSell);
+    m_actionGroup.m_config.m_mode = WidgetGroupConfig::Mode::Vertical;
+    m_actionGroup.m_config.m_pack = WidgetGroupConfig::Pack::End;
+    m_actionGroup.m_config.m_align = WidgetGroupConfig::Align::Stretch;
+    m_actionGroup.m_config.m_bounds = {m_panelRect.x + margin, m_panelRect.y + margin, btnW, panelH - 2.0f * margin};
+    m_actionGroup.m_config.m_defaultItemH = m_sellH;
+    m_actionGroup.m_config.m_gapY = m_sellGap;
+    m_actionGroup.Layout();
+
+    if (m_showTargeting)
+        m_targetBtn.m_rect = m_actionGroup[0].m_rect;
+    if (m_showUpgrade)
+        m_upgradeBtn.m_rect = m_actionGroup[1].m_rect;
+    if (m_showSell)
+        m_sellBtn.m_rect = m_actionGroup[2].m_rect;
 }
 
 void TowerInfoHUD::ProcessInput(Input& input) {
@@ -249,18 +282,21 @@ void TowerInfoHUD::Draw() {
     y = Hud::DrawDescLines(m_statLines, x, y, m_metrics.lineH, m_metrics.fontBody);
 
     if (m_showUpgrade) {
-        Hud::DrawToggleableButton(m_upgradeBtn, m_upgradeReady, m_metrics.fontBody, Hud::kStatusPositive);
+        m_upgradeBtn.m_enabled = m_upgradeReady;
+        m_upgradeBtn.m_labelColor = Hud::kStatusPositive;
+        m_upgradeBtn.Draw();
         if (m_hasNextUpgrade && m_upgradeBtn.IsHovered())
             DrawUpgradeTooltip();
     }
 
-    if (m_showTargeting) {
+    if (m_showTargeting)
         m_targetBtn.Draw();
-        m_targetBtn.DrawLabel(m_metrics.fontBody, Hud::kAccent);
-    }
 
-    if (m_showSell)
-        Hud::DrawToggleableButton(m_sellBtn, m_sellEnabled, m_metrics.fontBody, Hud::kStatusPositive);
+    if (m_showSell) {
+        m_sellBtn.m_enabled = m_sellEnabled;
+        m_sellBtn.m_labelColor = Hud::kStatusPositive;
+        m_sellBtn.Draw();
+    }
 }
 
 void TowerInfoHUD::DrawUpgradeTooltip() {

@@ -9,14 +9,30 @@
 EndState::EndState(bool won) : m_won(won) {}
 
 void EndState::OnEnter(Game& game) {
-    float cx = game.GetScreen().GetGameWidth()  / 2.0f;
+    float gw = static_cast<float>(game.GetScreen().GetGameWidth());
     float cy = game.GetScreen().GetGameHeight() / 2.0f;
 
     m_playAgainButton.m_label = "PLAY AGAIN";
-    m_playAgainButton.m_rect = { cx - 90.0f, cy + 20.0f, 180.0f, 44.0f };
+    m_playAgainButton.m_fontSize = static_cast<int>(Hud::kFontMenuButton);
+    m_playAgainButton.m_labelColor = Hud::kTextPrimary;
 
     m_menuButton.m_label = "MAIN MENU";
-    m_menuButton.m_rect = { cx - 90.0f, cy + 74.0f, 180.0f, 44.0f };
+    m_menuButton.m_fontSize = static_cast<int>(Hud::kFontMenuButton);
+    m_menuButton.m_labelColor = Hud::kTextPrimary;
+
+    m_btnGroup.SetCount(2);
+    m_btnGroup.m_config.m_mode = WidgetGroupConfig::Mode::Vertical;
+    m_btnGroup.m_config.m_pack = WidgetGroupConfig::Pack::Start;
+    m_btnGroup.m_config.m_align = WidgetGroupConfig::Align::Center;
+    m_btnGroup.m_config.m_bounds = {0.0f, cy, gw, 200.0f};
+    m_btnGroup.m_config.m_padTop = 20.0f;
+    m_btnGroup.m_config.m_defaultItemW = 180.0f;
+    m_btnGroup.m_config.m_defaultItemH = 44.0f;
+    m_btnGroup.m_config.m_gapY = 10.0f;
+    m_btnGroup.Layout();
+
+    m_playAgainButton.m_rect = m_btnGroup[0].m_rect;
+    m_menuButton.m_rect = m_btnGroup[1].m_rect;
 }
 
 void EndState::OnExit(Game& /*game*/) {}
@@ -46,7 +62,6 @@ void EndState::Draw(Game& game) {
     float cy = game.GetScreen().GetGameHeight() / 2.0f;
 
     const int titleSize = static_cast<int>(Hud::kFontScreenTitle);
-    const int btnFont = static_cast<int>(Hud::kFontMenuButton);
 
     ClearBackground(Hud::kWorldBackground);
 
@@ -61,8 +76,5 @@ void EndState::Draw(Game& game) {
     }
 
     m_playAgainButton.Draw();
-    m_playAgainButton.DrawLabel(btnFont, Hud::kTextPrimary);
-
     m_menuButton.Draw();
-    m_menuButton.DrawLabel(btnFont, Hud::kTextPrimary);
 }

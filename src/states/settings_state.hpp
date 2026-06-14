@@ -95,6 +95,7 @@ private:
     Button m_discardBtn;
     Button m_resetBtn;
     Button m_backBtn;
+    WidgetGroup m_bottomBtns;
 
     // Unsaved-changes dialog
     bool m_showDialog = false;
@@ -102,6 +103,7 @@ private:
     Button m_dlgSaveBtn;
     Button m_dlgDiscardBtn;
     Button m_dlgCancelBtn;
+    WidgetGroup m_dlgBtns;
 
     // Rebind capture
     bool m_rebinding = false;

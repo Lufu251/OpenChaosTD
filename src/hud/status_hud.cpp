@@ -22,16 +22,38 @@ void StatusHUD::Build(float scale, int screenW) {
     m_panelRect = { 0.0f, 0.0f, w, panelH };
     m_textY = static_cast<int>((panelH - m_metrics.fontHeader) / 2.0f);
 
-    float btnY = (panelH - btnH) / 2.0f;
     m_startWaveBtn.m_label = "Start Wave";
-    m_startWaveBtn.m_rect = { w - btnWaveW - margin, btnY, btnWaveW, btnH };
+    m_startWaveBtn.m_fontSize = m_metrics.fontLabel;
+    m_startWaveBtn.m_labelColor = Hud::kTextPrimary;
+
     m_autoBtn.m_label = "Auto";
-    m_autoBtn.m_rect = { w - btnWaveW - margin - btnAutoW - margin, btnY, btnAutoW, btnH };
+    m_autoBtn.m_fontSize = m_metrics.fontLabel;
+
     m_speedBtn.m_label = "1x";
-    m_speedBtn.m_rect = { w - btnWaveW - margin - (btnAutoW + margin) * 2.0f, btnY, btnAutoW, btnH };
+    m_speedBtn.m_fontSize = m_metrics.fontLabel;
+
     m_waveInfoBtn.m_label = "Waves";
-    m_waveInfoBtn.m_rect = { w - btnWaveW - margin - (btnAutoW + margin) * 2.0f - btnWavesW - margin,
-                             btnY, btnWavesW, btnH };
+    m_waveInfoBtn.m_fontSize = m_metrics.fontLabel;
+    m_waveInfoBtn.m_labelColor = Hud::kTextPrimary;
+
+    // Right-to-left button row: slot 0=Waves (leftmost), 1=Speed, 2=Auto, 3=StartWave (rightmost).
+    m_statusGroup.SetCount(4);
+    m_statusGroup.SetSlotSize(0, btnWavesW, btnH);
+    m_statusGroup.SetSlotSize(1, btnAutoW, btnH);
+    m_statusGroup.SetSlotSize(2, btnAutoW, btnH);
+    m_statusGroup.SetSlotSize(3, btnWaveW, btnH);
+    m_statusGroup.m_config.m_mode = WidgetGroupConfig::Mode::Horizontal;
+    m_statusGroup.m_config.m_pack = WidgetGroupConfig::Pack::End;
+    m_statusGroup.m_config.m_align = WidgetGroupConfig::Align::Center;
+    m_statusGroup.m_config.m_bounds = {0.0f, 0.0f, w, panelH};
+    m_statusGroup.m_config.m_padRight = margin;
+    m_statusGroup.m_config.m_gapX = margin;
+    m_statusGroup.Layout();
+
+    m_waveInfoBtn.m_rect = m_statusGroup[0].m_rect;
+    m_speedBtn.m_rect = m_statusGroup[1].m_rect;
+    m_autoBtn.m_rect = m_statusGroup[2].m_rect;
+    m_startWaveBtn.m_rect = m_statusGroup[3].m_rect;
 }
 
 void StatusHUD::ProcessInput(Input& input, const StatusView& view) {
@@ -75,7 +97,6 @@ void StatusHUD::Draw(const StatusView& view) {
     DrawDockedBackground();
 
     int fontMain  = m_metrics.fontHeader;
-    int fontBtn   = m_metrics.fontLabel;
     int marginX   = m_metrics.ScaledInt(6.0f);
     int gapX      = m_metrics.ScaledInt(16.0f);
 
@@ -91,17 +112,19 @@ void StatusHUD::Draw(const StatusView& view) {
 
     // Wave info panel toggle
     m_waveInfoBtn.Draw();
-    m_waveInfoBtn.DrawLabel(fontBtn, Hud::kTextPrimary);
 
     // Speed cycle — highlighted when faster than 1x
     m_speedBtn.m_label = TextFormat("%dx", view.m_speed);
-    Hud::DrawHighlightButton(m_speedBtn, view.m_speed > 1, fontBtn, Hud::kHighlight, Hud::kTextPrimary);
+    m_speedBtn.m_labelColor = view.m_speed > 1 ? Hud::kHighlight : Hud::kTextPrimary;
+    m_speedBtn.Draw();
 
     // Auto toggle — highlighted when active
-    Hud::DrawHighlightButton(m_autoBtn, view.m_autoSpawn, fontBtn, Hud::kHighlight, Hud::kTextPrimary);
+    m_autoBtn.m_labelColor = view.m_autoSpawn ? Hud::kHighlight : Hud::kTextPrimary;
+    m_autoBtn.Draw();
 
     // Start wave button — greyed out while a wave is running
-    Hud::DrawToggleableButton(m_startWaveBtn, !view.m_waveActive, fontBtn, Hud::kTextPrimary);
+    m_startWaveBtn.m_enabled = !view.m_waveActive;
+    m_startWaveBtn.Draw();
 }
 
 // Hand-drawn infinity glyph proportions, relative to the readout font height.

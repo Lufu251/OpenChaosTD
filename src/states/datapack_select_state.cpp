@@ -22,7 +22,9 @@ void DatapackSelectState::OnEnter(Game& game) {
     float screenW = static_cast<float>(game.GetScreen().GetGameWidth());
     float screenH = static_cast<float>(game.GetScreen().GetGameHeight());
     m_backButton.m_label = "BACK";
-    m_backButton.m_rect = { screenW / 2.0f - 80.0f, m_list.ListBottom(screenH) + 18.0f, 160.0f, 44.0f };
+    m_backButton.m_fontSize = static_cast<int>(Hud::kFontMenuButton);
+    m_backButton.m_labelColor = Hud::kTextPrimary;
+    m_backButton.m_rect = m_list.FooterButtonRect(screenW, screenH);
 }
 
 void DatapackSelectState::OnExit(Game& game) {
@@ -134,5 +136,4 @@ void DatapackSelectState::Draw(Game& game) {
     // Header/footer masks + title, then the back button over the footer mask.
     DrawListChrome(screenW, screenH, listTop, listBottom, "SELECT DATAPACK");
     m_backButton.Draw();
-    m_backButton.DrawLabel(static_cast<int>(Hud::kFontMenuButton), Hud::kTextPrimary);
 }

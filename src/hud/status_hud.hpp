@@ -31,6 +31,7 @@ private:
     Button m_autoBtn;
     Button m_speedBtn;
     Button m_waveInfoBtn;
+    WidgetGroup m_statusGroup;
     HudSignal m_waveSignal;
     HudSignal m_autoSignal;
     HudSignal m_speedSignal;

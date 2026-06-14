@@ -18,7 +18,9 @@ void MapSelectState::OnEnter(Game& game) {
     float screenW = static_cast<float>(game.GetScreen().GetGameWidth());
     float screenH = static_cast<float>(game.GetScreen().GetGameHeight());
     m_backButton.m_label = "BACK";
-    m_backButton.m_rect = {screenW / 2.0f - 80.0f, m_list.ListBottom(screenH) + 18.0f, 160.0f, 44.0f};
+    m_backButton.m_fontSize = static_cast<int>(Hud::kFontMenuButton);
+    m_backButton.m_labelColor = Hud::kTextPrimary;
+    m_backButton.m_rect = m_list.FooterButtonRect(screenW, screenH);
 }
 
 void MapSelectState::OnExit(Game& /*game*/) {
@@ -144,7 +146,7 @@ void MapSelectState::Draw(Game& game) {
 
         // Thumbnail column. The procedural "Auto" card gets a distinct tint; real maps use the
         // shared preview/"no preview" thumbnail.
-        Rectangle thumb = {card.x + kCardIconPad, card.y + kCardIconPad, kCardThumbW, card.height - 2.0f * kCardIconPad};
+        Rectangle thumb = CardThumbRect(card);
         if (entry.m_isAuto) {
             DrawRectangleRec(thumb, Hud::g_selectTheme.autoCardTint);
             DrawRectangleLinesEx(thumb, 1.0f, kDefaultStyle.m_border);
@@ -155,9 +157,9 @@ void MapSelectState::Draw(Game& game) {
         }
 
         // Text column.
-        float textX = thumb.x + thumb.width + 20.0f;
-        float textRight = card.x + card.width - 20.0f;
-        float textW = textRight - textX;
+        auto textCol = CardTextColumn(card, thumb);
+        float textX = textCol.x;
+        float textW = textCol.width;
 
         Color nameColor = entry.m_isAuto ? kDefaultStyle.m_accent : kDefaultStyle.m_text;
         Text::Draw(entry.m_name.c_str(), static_cast<int>(textX), static_cast<int>(card.y + 24.0f),
@@ -173,5 +175,4 @@ void MapSelectState::Draw(Game& game) {
     // Header/footer masks + title, then the back button over the footer mask.
     DrawListChrome(screenW, screenH, listTop, listBottom, "SELECT MAP");
     m_backButton.Draw();
-    m_backButton.DrawLabel(static_cast<int>(Hud::kFontMenuButton), Hud::kTextPrimary);
 }

@@ -90,9 +90,13 @@ void SettingsState::Layout(Game& game) {
 
     // FPS stepper: [<] value [>]
     m_fpsDownBtn.m_label = "<";
+    m_fpsDownBtn.m_fontSize = 20;
+    m_fpsDownBtn.m_labelColor = Hud::kTextPrimary;
     m_fpsDownBtn.m_rect = {kSliderX, kFpsY, 40.0f, 30.0f};
     m_fpsValueRect = {kSliderX + 48.0f, kFpsY, 120.0f, 30.0f};
     m_fpsUpBtn.m_label = ">";
+    m_fpsUpBtn.m_fontSize = 20;
+    m_fpsUpBtn.m_labelColor = Hud::kTextPrimary;
     m_fpsUpBtn.m_rect = {kSliderX + 176.0f, kFpsY, 40.0f, 30.0f};
 
     // Keybinding rows grouped by category
@@ -115,31 +119,59 @@ void SettingsState::Layout(Game& game) {
     m_controlsBottomY = y;
 
     // Bottom action buttons, centered as a row
-    const float bw = 200.0f, bh = 50.0f, gap = 24.0f;
-    float total = bw * 4.0f + gap * 3.0f;
-    float sx = (gw - total) / 2.0f;
     m_saveBtn.m_label = "SAVE";
-    m_saveBtn.m_rect = {sx, kBottomBtnY, bw, bh};
+    m_saveBtn.m_fontSize = 18;
     m_discardBtn.m_label = "DISCARD";
-    m_discardBtn.m_rect = {sx + (bw + gap), kBottomBtnY, bw, bh};
+    m_discardBtn.m_fontSize = 18;
     m_resetBtn.m_label = "RESET DEFAULTS";
-    m_resetBtn.m_rect = {sx + 2.0f * (bw + gap), kBottomBtnY, bw, bh};
+    m_resetBtn.m_fontSize = 18;
+    m_resetBtn.m_labelColor = Hud::kTextPrimary;
     m_backBtn.m_label = "BACK";
-    m_backBtn.m_rect = {sx + 3.0f * (bw + gap), kBottomBtnY, bw, bh};
+    m_backBtn.m_fontSize = 18;
+    m_backBtn.m_labelColor = Hud::kTextPrimary;
+
+    m_bottomBtns.SetCount(4);
+    m_bottomBtns.m_config.m_mode = WidgetGroupConfig::Mode::Horizontal;
+    m_bottomBtns.m_config.m_pack = WidgetGroupConfig::Pack::Center;
+    m_bottomBtns.m_config.m_align = WidgetGroupConfig::Align::Start;
+    m_bottomBtns.m_config.m_bounds = {0.0f, kBottomBtnY, gw, 50.0f};
+    m_bottomBtns.m_config.m_defaultItemW = 200.0f;
+    m_bottomBtns.m_config.m_defaultItemH = 50.0f;
+    m_bottomBtns.m_config.m_gapX = 24.0f;
+    m_bottomBtns.Layout();
+    m_saveBtn.m_rect = m_bottomBtns[0].m_rect;
+    m_discardBtn.m_rect = m_bottomBtns[1].m_rect;
+    m_resetBtn.m_rect = m_bottomBtns[2].m_rect;
+    m_backBtn.m_rect = m_bottomBtns[3].m_rect;
 
     // Unsaved-changes dialog
     const float dw = 540.0f, dh = 240.0f;
     m_dialogPanel = {(gw - dw) / 2.0f, (gh - dh) / 2.0f, dw, dh};
-    const float dbw = 160.0f, dbh = 46.0f, dgap = 16.0f;
-    float dtotal = dbw * 3.0f + dgap * 2.0f;
-    float dsx = m_dialogPanel.x + (dw - dtotal) / 2.0f;
+    const float dbh = 46.0f;
     float dby = m_dialogPanel.y + dh - dbh - 28.0f;
+
     m_dlgSaveBtn.m_label = "SAVE & EXIT";
-    m_dlgSaveBtn.m_rect = {dsx, dby, dbw, dbh};
+    m_dlgSaveBtn.m_fontSize = 18;
+    m_dlgSaveBtn.m_labelColor = Hud::kTextPrimary;
     m_dlgDiscardBtn.m_label = "DISCARD";
-    m_dlgDiscardBtn.m_rect = {dsx + (dbw + dgap), dby, dbw, dbh};
+    m_dlgDiscardBtn.m_fontSize = 18;
+    m_dlgDiscardBtn.m_labelColor = Hud::kTextPrimary;
     m_dlgCancelBtn.m_label = "KEEP EDITING";
-    m_dlgCancelBtn.m_rect = {dsx + 2.0f * (dbw + dgap), dby, dbw, dbh};
+    m_dlgCancelBtn.m_fontSize = 18;
+    m_dlgCancelBtn.m_labelColor = Hud::kTextPrimary;
+
+    m_dlgBtns.SetCount(3);
+    m_dlgBtns.m_config.m_mode = WidgetGroupConfig::Mode::Horizontal;
+    m_dlgBtns.m_config.m_pack = WidgetGroupConfig::Pack::Center;
+    m_dlgBtns.m_config.m_align = WidgetGroupConfig::Align::Start;
+    m_dlgBtns.m_config.m_bounds = {m_dialogPanel.x, dby, dw, dbh};
+    m_dlgBtns.m_config.m_defaultItemW = 160.0f;
+    m_dlgBtns.m_config.m_defaultItemH = dbh;
+    m_dlgBtns.m_config.m_gapX = 16.0f;
+    m_dlgBtns.Layout();
+    m_dlgSaveBtn.m_rect = m_dlgBtns[0].m_rect;
+    m_dlgDiscardBtn.m_rect = m_dlgBtns[1].m_rect;
+    m_dlgCancelBtn.m_rect = m_dlgBtns[2].m_rect;
 }
 
 void SettingsState::SyncWidgetsFromWorking() {
@@ -434,9 +466,7 @@ void SettingsState::DrawControls(Game& game) {
 
     DrawLabelInRow("Target FPS", kLeftLabelX, kFpsY, 30.0f, 20, Hud::kTextPrimary);
     m_fpsDownBtn.Draw();
-    m_fpsDownBtn.DrawLabel(20, Hud::kTextPrimary);
     m_fpsUpBtn.Draw();
-    m_fpsUpBtn.DrawLabel(20, Hud::kTextPrimary);
     DrawCenteredText(TextFormat("%d", m_working.fps),
         m_fpsValueRect.x + m_fpsValueRect.width / 2.0f,
         m_fpsValueRect.y + (m_fpsValueRect.height - 22) / 2.0f, 22, Hud::kTextPrimary);
@@ -475,17 +505,15 @@ void SettingsState::DrawControls(Game& game) {
 
     // ----- Bottom buttons (Save/Discard greyed when there is nothing to act on) -----
     bool dirty = IsDirty();
-    const WidgetStyle& saveStyle = dirty ? kDefaultStyle : kDisabledStyle;
-    Color actionableText = dirty ? Hud::kTextPrimary : Hud::kTextDisabled;
+    m_saveBtn.m_enabled = dirty;
+    m_saveBtn.m_labelColor = dirty ? Hud::kTextPrimary : Hud::kTextDisabled;
+    m_discardBtn.m_enabled = dirty;
+    m_discardBtn.m_labelColor = dirty ? Hud::kTextPrimary : Hud::kTextDisabled;
 
-    m_saveBtn.Draw(false, saveStyle);
-    m_saveBtn.DrawLabel(18, actionableText);
-    m_discardBtn.Draw(false, saveStyle);
-    m_discardBtn.DrawLabel(18, actionableText);
+    m_saveBtn.Draw();
+    m_discardBtn.Draw();
     m_resetBtn.Draw();
-    m_resetBtn.DrawLabel(18, Hud::kTextPrimary);
     m_backBtn.Draw();
-    m_backBtn.DrawLabel(18, Hud::kTextPrimary);
 
     // ----- Status toast -----
     m_status.Draw(gw / 2.0f, kBottomBtnY - 36.0f, 20, Hud::kStatusPositive);
@@ -507,9 +535,6 @@ void SettingsState::DrawDialog(Game& game) {
         centerX, m_dialogPanel.y + 84.0f, 18, Hud::kTextSecondary);
 
     m_dlgSaveBtn.Draw();
-    m_dlgSaveBtn.DrawLabel(18, Hud::kTextPrimary);
     m_dlgDiscardBtn.Draw();
-    m_dlgDiscardBtn.DrawLabel(18, Hud::kTextPrimary);
     m_dlgCancelBtn.Draw();
-    m_dlgCancelBtn.DrawLabel(18, Hud::kTextPrimary);
 }

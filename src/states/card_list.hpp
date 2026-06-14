@@ -42,3 +42,23 @@ inline void DrawListChrome(float screenW, float screenH, float listTop, float li
     DrawRectangle(0, static_cast<int>(listBottom), static_cast<int>(screenW),
                   static_cast<int>(screenH - listBottom), Hud::kWorldBackground);
 }
+
+// Thumbnail rectangle inset within a card, matching the shared card layout.
+inline Rectangle CardThumbRect(Rectangle card) {
+    return {card.x + kCardIconPad, card.y + kCardIconPad, kCardThumbW, card.height - 2.0f * kCardIconPad};
+}
+
+// Text column geometry to the right of the thumbnail.
+struct CardTextArea { float x, right, width; };
+inline CardTextArea CardTextColumn(Rectangle card, Rectangle thumb, float gap = 20.0f) {
+    CardTextArea a;
+    a.x = thumb.x + thumb.width + gap;
+    a.right = card.x + card.width - gap;
+    a.width = a.right - a.x;
+    return a;
+}
+
+// Center a panel of size (pw, ph) on a screen of size (sw, sh).
+inline Rectangle CenteredPanel(float screenW, float screenH, float panelW, float panelH) {
+    return {(screenW - panelW) / 2.0f, (screenH - panelH) / 2.0f, panelW, panelH};
+}

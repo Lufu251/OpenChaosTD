@@ -119,13 +119,18 @@ void ParticleEditorState::Layout(Game& game) {
     m_continuousToggle.m_label = "Follow cursor";
     m_continuousToggle.m_rect = {kPreviewX, controlY, 26.0f, 26.0f};
     m_clearBtn.m_label = "CLEAR";
+    m_clearBtn.m_fontSize = 14;
+    m_clearBtn.m_labelColor = Hud::kTextPrimary;
     m_clearBtn.m_rect = {kPreviewX + m_previewRect.width - 90.0f, controlY, 90.0f, 26.0f};
 
     // Preset browser: new/delete actions under the header, then as many name
     // buttons as fit, then the pager underneath.
     m_newBtn.m_label = "NEW";
+    m_newBtn.m_fontSize = 14;
+    m_newBtn.m_labelColor = Hud::kTextPrimary;
     m_newBtn.m_rect = {kBrowserX, kTopY + 36.0f, 92.0f, 30.0f};
     m_deleteBtn.m_label = "DELETE";
+    m_deleteBtn.m_fontSize = 14;
     m_deleteBtn.m_rect = {kBrowserX + kBrowserW - 92.0f, kTopY + 36.0f, 92.0f, 30.0f};
 
     float listTop = kTopY + 76.0f;
@@ -133,8 +138,12 @@ void ParticleEditorState::Layout(Game& game) {
     m_presetsPerPage = std::max(1, static_cast<int>((listBottom - listTop) / (kPresetBtnH + kPresetGap)));
     m_browserRect = {kBrowserX, listTop, kBrowserW, listBottom - listTop};
     m_pagePrevBtn.m_label = "<";
+    m_pagePrevBtn.m_fontSize = 16;
+    m_pagePrevBtn.m_labelColor = Hud::kTextPrimary;
     m_pagePrevBtn.m_rect = {kBrowserX, listBottom + 6.0f, 40.0f, kPagerH};
     m_pageNextBtn.m_label = ">";
+    m_pageNextBtn.m_fontSize = 16;
+    m_pageNextBtn.m_labelColor = Hud::kTextPrimary;
     m_pageNextBtn.m_rect = {kBrowserX + kBrowserW - 40.0f, listBottom + 6.0f, 40.0f, kPagerH};
 
     // Parameter columns: rows flow downward under their group headers.
@@ -184,8 +193,20 @@ void ParticleEditorState::Layout(Game& game) {
     placeRow(m_endA, kColBX, y);
     y += kGroupGap;
     placeHeader("SHAPE", kColBX, y);
-    for (int i = 0; i < 5; i++)
-        m_shapeButtons[i].m_rect = {kColBX + i * 56.0f, y, 52.0f, 26.0f};
+    m_shapeBtnGroup.SetCount(5);
+    m_shapeBtnGroup.m_config.m_mode = WidgetGroupConfig::Mode::Horizontal;
+    m_shapeBtnGroup.m_config.m_pack = WidgetGroupConfig::Pack::Start;
+    m_shapeBtnGroup.m_config.m_align = WidgetGroupConfig::Align::Start;
+    m_shapeBtnGroup.m_config.m_bounds = {kColBX, y, 5.0f * 52.0f + 4.0f * 4.0f, 26.0f};
+    m_shapeBtnGroup.m_config.m_defaultItemW = 52.0f;
+    m_shapeBtnGroup.m_config.m_defaultItemH = 26.0f;
+    m_shapeBtnGroup.m_config.m_gapX = 4.0f;
+    m_shapeBtnGroup.Layout();
+    for (int i = 0; i < 5; i++) {
+        m_shapeButtons[i].m_rect = m_shapeBtnGroup[i].m_rect;
+        m_shapeButtons[i].m_fontSize = 12;
+        m_shapeButtons[i].m_labelColor = Hud::kTextPrimary;
+    }
     y += kRowH;
     placeRow(m_shapeWidthRow, kColBX, y);
     placeRow(m_shapeHeightRow, kColBX, y);
@@ -194,8 +215,12 @@ void ParticleEditorState::Layout(Game& game) {
     // Bottom bar: name input + save + back
     float barY = bottomBarY + 18.0f;
     m_nameInput.m_rect = {kBrowserX + 70.0f, barY, 280.0f, 40.0f};
+    m_nameInput.m_placeholder = "Name";
+    m_saveBtn.m_fontSize = 18;
     m_saveBtn.m_rect = {kBrowserX + 370.0f, barY, 160.0f, 40.0f};
     m_backBtn.m_label = "BACK";
+    m_backBtn.m_fontSize = 18;
+    m_backBtn.m_labelColor = Hud::kTextPrimary;
     m_backBtn.m_rect = {kBrowserX + 550.0f, barY, 120.0f, 40.0f};
 }
 
@@ -256,14 +281,26 @@ void ParticleEditorState::RebuildPresetButtons() {
     m_presetButtons.clear();
     int start = m_presetPage * m_presetsPerPage;
     int end = std::min(static_cast<int>(m_presetNames.size()), start + m_presetsPerPage);
-    float y = m_browserRect.y;
+
     for (int i = start; i < end; i++) {
         Button b;
         b.m_label = m_presetNames[i];
-        b.m_rect = {m_browserRect.x, y, m_browserRect.width, kPresetBtnH};
+        b.m_fontSize = 14;
+        b.m_labelColor = Hud::kTextPrimary;
         m_presetButtons.push_back(b);
-        y += kPresetBtnH + kPresetGap;
     }
+
+    int count = static_cast<int>(m_presetButtons.size());
+    m_presetGroup.SetCount(count);
+    m_presetGroup.m_config.m_mode = WidgetGroupConfig::Mode::Vertical;
+    m_presetGroup.m_config.m_pack = WidgetGroupConfig::Pack::Start;
+    m_presetGroup.m_config.m_align = WidgetGroupConfig::Align::Stretch;
+    m_presetGroup.m_config.m_bounds = m_browserRect;
+    m_presetGroup.m_config.m_defaultItemH = kPresetBtnH;
+    m_presetGroup.m_config.m_gapY = kPresetGap;
+    m_presetGroup.Layout();
+    for (int i = 0; i < count; i++)
+        m_presetButtons[i].m_rect = m_presetGroup[i].m_rect;
 }
 
 // --- Helpers -----------------------------------------------------------------
@@ -504,10 +541,10 @@ void ParticleEditorState::DrawBrowser() {
     Text::Draw("PRESETS", static_cast<int>(kBrowserX), static_cast<int>(kTopY), 28, Hud::kTextHeader);
 
     m_newBtn.Draw();
-    m_newBtn.DrawLabel(14, Hud::kTextPrimary);
     bool canDelete = m_selectedPreset >= 0;
-    m_deleteBtn.Draw(false, canDelete ? kDefaultStyle : kDisabledStyle);
-    m_deleteBtn.DrawLabel(14, canDelete ? Hud::kTextPrimary : Hud::kTextDisabled);
+    m_deleteBtn.m_enabled = canDelete;
+    m_deleteBtn.m_labelColor = canDelete ? Hud::kTextPrimary : Hud::kTextDisabled;
+    m_deleteBtn.Draw();
 
     if (m_presetNames.empty()) {
         Text::Draw("No presets found", static_cast<int>(kBrowserX),
@@ -519,14 +556,11 @@ void ParticleEditorState::DrawBrowser() {
     for (size_t i = 0; i < m_presetButtons.size(); i++) {
         bool selected = start + static_cast<int>(i) == m_selectedPreset;
         m_presetButtons[i].Draw(selected);
-        m_presetButtons[i].DrawLabel(14, Hud::kTextPrimary);
     }
 
     if (PageCount() > 1) {
         m_pagePrevBtn.Draw();
-        m_pagePrevBtn.DrawLabel(16, Hud::kTextPrimary);
         m_pageNextBtn.Draw();
-        m_pageNextBtn.DrawLabel(16, Hud::kTextPrimary);
         DrawCenteredText(TextFormat("%d/%d", m_presetPage + 1, PageCount()),
             kBrowserX + kBrowserW / 2.0f, m_pagePrevBtn.m_rect.y + 7.0f, 16, Hud::kTextPrimary);
     }
@@ -560,7 +594,6 @@ void ParticleEditorState::DrawParams() {
     for (int i = 0; i < 5; i++) {
         bool selected = m_working.m_shape == static_cast<SpawnShape>(i);
         m_shapeButtons[i].Draw(selected);
-        m_shapeButtons[i].DrawLabel(12, Hud::kTextPrimary);
     }
 }
 
@@ -581,19 +614,17 @@ void ParticleEditorState::DrawPreview(Game& game) {
 
     m_continuousToggle.Draw();
     m_clearBtn.Draw();
-    m_clearBtn.DrawLabel(14, Hud::kTextPrimary);
 }
 
 void ParticleEditorState::DrawBottomBar(Game& game) {
     float barY = m_nameInput.m_rect.y;
-    DrawLabelInRow("NAME", kBrowserX, barY, m_nameInput.m_rect.height, 20, Hud::kTextPrimary);
     m_nameInput.Draw();
 
     bool canSave = !m_nameInput.m_text.empty();
-    m_saveBtn.Draw(false, canSave ? kDefaultStyle : kDisabledStyle);
-    m_saveBtn.DrawLabel(18, canSave ? Hud::kTextPrimary : Hud::kTextDisabled);
+    m_saveBtn.m_enabled = canSave;
+    m_saveBtn.m_labelColor = canSave ? Hud::kTextPrimary : Hud::kTextDisabled;
+    m_saveBtn.Draw();
     m_backBtn.Draw();
-    m_backBtn.DrawLabel(18, Hud::kTextPrimary);
 
     m_status.Draw(static_cast<float>(game.GetScreen().GetGameWidth()) / 2.0f, barY - 26.0f, 18, Hud::kStatusPositive);
 }

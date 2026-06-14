@@ -146,15 +146,6 @@ void DrawTextRightAligned(const char* text, float rightEdge, float y, int fontSi
 // Draw each line at (x, y), advancing y by lineH per row. Returns the y past the last line.
 float DrawDescLines(const std::vector<DescLine>& lines, float x, float y, float lineH, int fontSize);
 
-// Draw a button that may be disabled: default vs. muted style, with an active-colored label when
-// enabled and the shared disabled text color when not.
-void DrawToggleableButton(const Button& btn, bool enabled, int fontSize, Color enabledColor);
-
-// Draw a button that toggles between an active highlight (gold selected border + active-colored
-// label) and a normal look. Used for stateful toggles like the Status bar Speed/Auto buttons.
-void DrawHighlightButton(const Button& btn, bool highlighted, int fontSize,
-                         Color activeColor, Color normalColor);
-
 // Draw one ephemeral toast: fill `bg` with the standard overlay panel color and draw `text` at
 // (textX, textY), both scaled by `fade` (0..1) so toasts fade out uniformly.
 void DrawOverlayToast(const char* text, Rectangle bg, float textX, float textY, int fontSize,

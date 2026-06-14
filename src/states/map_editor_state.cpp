@@ -88,7 +88,11 @@ void MapEditorState::Layout(Game& game) {
 
     // Catalog footer actions.
     m_newMapBtn.m_rect      = {kMargin, footerY + 18.0f, 180.0f, 44.0f};
+    m_newMapBtn.m_fontSize = 20;
+    m_newMapBtn.m_labelColor = Hud::kTextPrimary;
     m_catalogBackBtn.m_rect = {gw - kMargin - 160.0f, footerY + 18.0f, 160.0f, 44.0f};
+    m_catalogBackBtn.m_fontSize = 20;
+    m_catalogBackBtn.m_labelColor = Hud::kTextPrimary;
 
     // New-map modal, centered.
     float mw = 480.0f, mh = 330.0f;
@@ -96,22 +100,49 @@ void MapEditorState::Layout(Game& game) {
     float mx = m_modalRect.x + 30.0f;
     float my = m_modalRect.y + 64.0f;
     m_modalName.m_rect = {mx, my, mw - 60.0f, 40.0f};
+    m_modalName.m_placeholder = "Name";
     m_modalDesc.m_rect = {mx, my + 64.0f, mw - 60.0f, 40.0f};
+    m_modalDesc.m_placeholder = "Description";
     m_modalCols.m_rect = {mx + 90.0f, my + 138.0f, mw - 180.0f, 24.0f};
     m_modalRows.m_rect = {mx + 90.0f, my + 174.0f, mw - 180.0f, 24.0f};
     m_modalCreateBtn.m_rect = {mx, m_modalRect.y + mh - 58.0f, 170.0f, 40.0f};
+    m_modalCreateBtn.m_fontSize = 18;
     m_modalCancelBtn.m_rect = {m_modalRect.x + mw - 30.0f - 170.0f, m_modalRect.y + mh - 58.0f, 170.0f, 40.0f};
+    m_modalCancelBtn.m_fontSize = 18;
+    m_modalCancelBtn.m_labelColor = Hud::kTextPrimary;
 
-    // Edit palette (left column).
-    float py = kTopY + 30.0f;
+    // Edit palette — brush buttons (left column).
+    m_brushGroup.SetCount(5);
+    m_brushGroup.m_config.m_mode = WidgetGroupConfig::Mode::Vertical;
+    m_brushGroup.m_config.m_pack = WidgetGroupConfig::Pack::Start;
+    m_brushGroup.m_config.m_align = WidgetGroupConfig::Align::Stretch;
+    m_brushGroup.m_config.m_bounds = {kPaletteX, kTopY + 30.0f, kPaletteW, 5.0f * kBrushBtnH + 4.0f * kRowGap};
+    m_brushGroup.m_config.m_defaultItemH = kBrushBtnH;
+    m_brushGroup.m_config.m_gapY = kRowGap;
+    m_brushGroup.Layout();
     for (int i = 0; i < 5; i++) {
-        m_brushButtons[i].m_rect = {kPaletteX, py, kPaletteW, kBrushBtnH};
-        py += kBrushBtnH + kRowGap;
+        m_brushButtons[i].m_rect = m_brushGroup[i].m_rect;
+        m_brushButtons[i].m_fontSize = 18;
+        m_brushButtons[i].m_labelColor = Hud::kTextPrimary;
     }
+
+    float py = kTopY + 30.0f + 5.0f * (kBrushBtnH + kRowGap); // after brush buttons
     py += 26.0f; // gap before the buff sub-controls
     float sw = (kPaletteW - 2.0f * 6.0f) / 3.0f;
-    for (int i = 0; i < 3; i++)
-        m_buffStatButtons[i].m_rect = {kPaletteX + i * (sw + 6.0f), py, sw, 30.0f};
+    m_buffStatGroup.SetCount(3);
+    m_buffStatGroup.m_config.m_mode = WidgetGroupConfig::Mode::Horizontal;
+    m_buffStatGroup.m_config.m_pack = WidgetGroupConfig::Pack::Start;
+    m_buffStatGroup.m_config.m_align = WidgetGroupConfig::Align::Start;
+    m_buffStatGroup.m_config.m_bounds = {kPaletteX, py, kPaletteW, 30.0f};
+    m_buffStatGroup.m_config.m_defaultItemW = sw;
+    m_buffStatGroup.m_config.m_defaultItemH = 30.0f;
+    m_buffStatGroup.m_config.m_gapX = 6.0f;
+    m_buffStatGroup.Layout();
+    for (int i = 0; i < 3; i++) {
+        m_buffStatButtons[i].m_rect = m_buffStatGroup[i].m_rect;
+        m_buffStatButtons[i].m_fontSize = 12;
+        m_buffStatButtons[i].m_labelColor = Hud::kTextPrimary;
+    }
     py += 56.0f;
     m_buffValue.m_rect = {kPaletteX, py, kPaletteW, 24.0f};
     py += 38.0f;
@@ -120,9 +151,23 @@ void MapEditorState::Layout(Game& game) {
     // Edit canvas + bottom action bar.
     m_canvasRect = {kCanvasX, kTopY, gw - kMargin - kCanvasX, footerY - kTopY};
     float by = footerY + 18.0f;
-    m_validateBtn.m_rect = {kCanvasX, by, 160.0f, 44.0f};
-    m_saveBtn.m_rect     = {kCanvasX + 176.0f, by, 160.0f, 44.0f};
+    m_editLeftBtns.SetCount(2);
+    m_editLeftBtns.m_config.m_mode = WidgetGroupConfig::Mode::Horizontal;
+    m_editLeftBtns.m_config.m_pack = WidgetGroupConfig::Pack::Start;
+    m_editLeftBtns.m_config.m_align = WidgetGroupConfig::Align::Start;
+    m_editLeftBtns.m_config.m_bounds = {kCanvasX, by, 336.0f, 44.0f};
+    m_editLeftBtns.m_config.m_defaultItemW = 160.0f;
+    m_editLeftBtns.m_config.m_defaultItemH = 44.0f;
+    m_editLeftBtns.m_config.m_gapX = 16.0f;
+    m_editLeftBtns.Layout();
+    m_validateBtn.m_rect = m_editLeftBtns[0].m_rect;
+    m_validateBtn.m_fontSize = 18;
+    m_validateBtn.m_labelColor = Hud::kTextPrimary;
+    m_saveBtn.m_rect = m_editLeftBtns[1].m_rect;
+    m_saveBtn.m_fontSize = 18;
     m_editBackBtn.m_rect = {gw - kMargin - 160.0f, by, 160.0f, 44.0f};
+    m_editBackBtn.m_fontSize = 18;
+    m_editBackBtn.m_labelColor = Hud::kTextPrimary;
 }
 
 void MapEditorState::RebuildCatalog(Game& game) {
@@ -159,8 +204,11 @@ void MapEditorState::RebuildCatalog(Game& game) {
     }
 
     m_deleteButtons.assign(m_entries.size(), Button{});
-    for (size_t i = 0; i < m_entries.size(); i++)
+    for (size_t i = 0; i < m_entries.size(); i++) {
         m_deleteButtons[i].m_label = "DELETE";
+        m_deleteButtons[i].m_fontSize = 14;
+        m_deleteButtons[i].m_labelColor = Hud::kStatusNegative;
+    }
 }
 
 void MapEditorState::UnloadPreviews() {
@@ -396,6 +444,11 @@ void MapEditorState::ProcessInput(Game& game, float dt) {
     }
 }
 
+// Delete button positioned in the lower-right corner of a catalog card.
+static Rectangle CatalogDeleteBtnRect(Rectangle card) {
+    return {card.x + card.width - 110.0f, card.y + card.height - 35.0f, 90.0f, 24.0f};
+}
+
 void MapEditorState::ProcessCatalogInput(Game& game) {
     Input& input = game.GetInput();
     Vector2 mouse = input.GetMousePosition();
@@ -430,11 +483,7 @@ void MapEditorState::ProcessCatalogInput(Game& game) {
     for (int i = 0; i < count; i++) {
         Rectangle card = m_list.CardRect(i, screenW, screenH);
         if (card.y + card.height < listTop || card.y > listBottom) continue;
-        m_deleteButtons[i].m_rect = {
-            card.x + card.width - 110.0f,
-            card.y + card.height - 35.0f,
-            90.0f, 24.0f
-        };
+        m_deleteButtons[i].m_rect = CatalogDeleteBtnRect(card);
         m_deleteButtons[i].Update(mouse, clicked);
         if (m_deleteButtons[i].IsClicked()) {
             game.GetSoundSystem().PlaySfx("button_click");
@@ -607,13 +656,13 @@ void MapEditorState::DrawCatalog(Game& game) {
         DrawCardFrame(card, hovered);
 
         // Thumbnail column.
-        Rectangle thumb = {card.x + kCardIconPad, card.y + kCardIconPad, kCardThumbW, card.height - 2.0f * kCardIconPad};
+        Rectangle thumb = CardThumbRect(card);
         DrawCardThumbnail(thumb, entry.m_hasPreview ? &entry.m_preview : nullptr);
 
         // Text column.
-        float textX = thumb.x + thumb.width + 20.0f;
-        float textRight = card.x + card.width - 20.0f;
-        float textW = textRight - textX;
+        auto textCol = CardTextColumn(card, thumb);
+        float textX = textCol.x;
+        float textW = textCol.width;
 
         Text::Draw(entry.m_name.c_str(), static_cast<int>(textX),
                    static_cast<int>(card.y + 24.0f), 26, kDefaultStyle.m_text);
@@ -623,13 +672,8 @@ void MapEditorState::DrawCatalog(Game& game) {
                    static_cast<int>(card.y + 64.0f), 16, Hud::kTextSecondary);
 
         // Delete button (position repeated here so drawing never depends on input order).
-        m_deleteButtons[i].m_rect = {
-            card.x + card.width - 110.0f,
-            card.y + card.height - 35.0f,
-            90.0f, 24.0f
-        };
-        m_deleteButtons[i].Draw(false, kDefaultStyle);
-        m_deleteButtons[i].DrawLabel(14, Hud::kStatusNegative);
+        m_deleteButtons[i].m_rect = CatalogDeleteBtnRect(card);
+        m_deleteButtons[i].Draw();
     }
 
     // Scrollbar (only when there is something to scroll).
@@ -637,11 +681,8 @@ void MapEditorState::DrawCatalog(Game& game) {
 
     // Header/footer masks + title, then the action buttons over the footer mask.
     DrawListChrome(screenW, screenH, listTop, listBottom, "MAP EDITOR");
-    const int btnFont = static_cast<int>(Hud::kFontMenuButton);
     m_newMapBtn.Draw();
-    m_newMapBtn.DrawLabel(btnFont, Hud::kTextPrimary);
     m_catalogBackBtn.Draw();
-    m_catalogBackBtn.DrawLabel(btnFont, Hud::kTextPrimary);
 }
 
 void MapEditorState::DrawNewMapModal(Game& /*game*/) {
@@ -652,11 +693,7 @@ void MapEditorState::DrawNewMapModal(Game& /*game*/) {
     DrawCenteredText("NEW MAP", m_modalRect.x + m_modalRect.width / 2.0f,
                      m_modalRect.y + 18.0f, 26, Hud::kTextPrimary);
 
-    Text::Draw("Name", static_cast<int>(m_modalName.m_rect.x),
-               static_cast<int>(m_modalName.m_rect.y - 18.0f), 14, Hud::kTextSecondary);
     m_modalName.Draw();
-    Text::Draw("Description", static_cast<int>(m_modalDesc.m_rect.x),
-               static_cast<int>(m_modalDesc.m_rect.y - 18.0f), 14, Hud::kTextSecondary);
     m_modalDesc.Draw();
 
     DrawLabelInRow(TextFormat("Cols  %d", static_cast<int>(std::lround(m_modalCols.m_value))),
@@ -667,29 +704,25 @@ void MapEditorState::DrawNewMapModal(Game& /*game*/) {
     m_modalRows.Draw();
 
     bool canCreate = !m_modalName.m_text.empty();
-    m_modalCreateBtn.Draw(false, canCreate ? kDefaultStyle : kDisabledStyle);
-    m_modalCreateBtn.DrawLabel(18, canCreate ? Hud::kTextPrimary : Hud::kTextDisabled);
+    m_modalCreateBtn.m_enabled = canCreate;
+    m_modalCreateBtn.m_labelColor = canCreate ? Hud::kTextPrimary : Hud::kTextDisabled;
+    m_modalCreateBtn.Draw();
     m_modalCancelBtn.Draw();
-    m_modalCancelBtn.DrawLabel(18, Hud::kTextPrimary);
 }
 
 void MapEditorState::DrawPalette(Game& /*game*/) {
     Text::Draw("BRUSH", static_cast<int>(kPaletteX), static_cast<int>(kTopY), 24, Hud::kTextHeader);
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 5; i++)
         m_brushButtons[i].Draw(m_brush == static_cast<Brush>(i));
-        m_brushButtons[i].DrawLabel(18, Hud::kTextPrimary);
-    }
 
     if (m_brush != Brush::Buff)
         return;
 
     float headerY = m_buffStatButtons[0].m_rect.y - 24.0f;
     Text::Draw("BUFF", static_cast<int>(kPaletteX), static_cast<int>(headerY), 18, Hud::kTextHeader);
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; i++)
         m_buffStatButtons[i].Draw(m_buffStatIndex == i);
-        m_buffStatButtons[i].DrawLabel(12, Hud::kTextPrimary);
-    }
     m_buffValue.Draw();
     DrawLabelInRow(TextFormat("%.1f", m_buffValue.m_value),
                    m_buffValue.m_rect.x, m_buffValue.m_rect.y - 22.0f, 20.0f, 14, Hud::kTextPrimary);
@@ -737,12 +770,11 @@ void MapEditorState::DrawEditCanvas(Game& game) {
 
 void MapEditorState::DrawBottomBar(Game& /*game*/) {
     m_validateBtn.Draw();
-    m_validateBtn.DrawLabel(18, Hud::kTextPrimary);
 
     bool canSave = m_lastValidateOk;
-    m_saveBtn.Draw(false, canSave ? kDefaultStyle : kDisabledStyle);
-    m_saveBtn.DrawLabel(18, canSave ? Hud::kTextPrimary : Hud::kTextDisabled);
+    m_saveBtn.m_enabled = canSave;
+    m_saveBtn.m_labelColor = canSave ? Hud::kTextPrimary : Hud::kTextDisabled;
+    m_saveBtn.Draw();
 
     m_editBackBtn.Draw();
-    m_editBackBtn.DrawLabel(18, Hud::kTextPrimary);
 }

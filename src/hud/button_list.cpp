@@ -11,13 +11,23 @@ int ButtonList::Add(const std::string& label) {
 }
 
 void ButtonList::LayoutVertical(float x, float firstY, float w, float h, float spacing) {
-    for (size_t i = 0; i < items.size(); i++)
-        items[i].button.m_rect = { x, firstY + spacing * static_cast<float>(i), w, h };
+    int n = static_cast<int>(items.size());
+    m_group.SetCount(n);
+    m_group.m_config.m_mode = WidgetGroupConfig::Mode::Vertical;
+    m_group.m_config.m_pack = WidgetGroupConfig::Pack::Start;
+    m_group.m_config.m_align = WidgetGroupConfig::Align::Start;
+    m_group.m_config.m_bounds = {x, firstY, w, spacing * static_cast<float>(n - 1) + h};
+    m_group.m_config.m_defaultItemW = w;
+    m_group.m_config.m_defaultItemH = h;
+    m_group.m_config.m_gapY = spacing - h;
+    m_group.Layout();
+    for (int i = 0; i < n; i++)
+        items[i].button.m_rect = m_group[i].m_rect;
 }
 
 void ButtonList::Update(Vector2 mouse, bool pressed, bool& clicked) {
     for (auto& item : items)
-        if (item.enabled) item.button.Update(mouse, pressed);
+        item.button.Update(mouse, pressed);
     for (auto& item : items) {
         if (item.enabled && item.button.IsClicked()) {
             item.signal.Raise();
@@ -26,12 +36,12 @@ void ButtonList::Update(Vector2 mouse, bool pressed, bool& clicked) {
     }
 }
 
-void ButtonList::Draw(int fontSize, Color labelColor) const {
-    for (const auto& item : items) {
-        // A disabled item draws with the muted style and disabled label color (mirrors how
-        // MenuState's "Continue" used to gray itself out by hand).
-        item.button.Draw(false, item.enabled ? kDefaultStyle : kDisabledStyle);
-        item.button.DrawLabel(fontSize, item.enabled ? labelColor : kTextDisabled);
+void ButtonList::Draw(int fontSize, Color labelColor) {
+    for (auto& item : items) {
+        item.button.m_fontSize = fontSize;
+        item.button.m_enabled = item.enabled;
+        item.button.m_labelColor = item.enabled ? labelColor : kTextDisabled;
+        item.button.Draw();
     }
 }
 

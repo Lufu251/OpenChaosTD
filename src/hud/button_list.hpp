@@ -18,6 +18,7 @@ struct ButtonList {
         bool enabled = true; // a disabled item draws grayed and never raises its signal
     };
     std::vector<Item> items;
+    WidgetGroup m_group;
 
     // Append a labelled button; returns its index for later signal polling.
     int Add(const std::string& label);
@@ -33,7 +34,7 @@ struct ButtonList {
     void Update(Vector2 mouse, bool pressed, bool& clicked);
 
     // Draw every button and its label in one shared style.
-    void Draw(int fontSize, Color labelColor) const;
+    void Draw(int fontSize, Color labelColor);
 
     // Consume the one-shot signal for item i.
     bool Consume(int i) { return items[i].signal.Consume(); }
