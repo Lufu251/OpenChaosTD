@@ -15,11 +15,15 @@ struct ButtonList {
     struct Item {
         Button button;
         HudSignal signal;
+        bool enabled = true; // a disabled item draws grayed and never raises its signal
     };
     std::vector<Item> items;
 
     // Append a labelled button; returns its index for later signal polling.
     int Add(const std::string& label);
+
+    // Enable/disable an item (disabled = grayed and inert).
+    void SetEnabled(int i, bool enabled) { items[i].enabled = enabled; }
 
     // Lay the buttons out as a centered vertical stack: button i at (x, firstY + spacing*i).
     void LayoutVertical(float x, float firstY, float w, float h, float spacing);

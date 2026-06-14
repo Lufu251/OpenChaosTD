@@ -22,11 +22,6 @@ void Resources::PopSearchPath() {
         m_searchPaths.erase(m_searchPaths.begin());
 }
 
-const std::string& Resources::GetAssetPath() const {
-    static const std::string empty;
-    return m_searchPaths.empty() ? empty : m_searchPaths.back();
-}
-
 // Path resolution
 std::string Resources::ResolvePath(const std::string& relativePath) const {
     // Internal invariant: SetAssetPath() establishes the base root during startup before
@@ -173,18 +168,6 @@ std::expected<void, std::string> Resources::LoadSound(const std::string& key, co
     return {};
 }
 
-std::expected<void, std::string> Resources::LoadFont(const std::string& key, const std::string& relativePath, int fontSize) {
-    if (m_fonts.count(key)) return {};
-
-    std::string fullPath = ResolvePath(relativePath);
-    Font font = ::LoadFontEx(fullPath.c_str(), fontSize, nullptr, 0);
-    if (font.texture.id == 0)
-        return std::unexpected("Resources: failed to load font '" + fullPath + "'");
-
-    m_fonts[key] = font;
-    return {};
-}
-
 std::expected<void, std::string> Resources::LoadMusic(const std::string& key, const std::string& relativePath) {
     if (m_music.count(key)) return {};
 
@@ -212,12 +195,6 @@ Sound& Resources::GetSound(const std::string& key) {
     return it->second;
 }
 
-Font& Resources::GetFont(const std::string& key) {
-    auto it = m_fonts.find(key);
-    assert(it != m_fonts.end() && "Resources: font key not found");
-    return it->second;
-}
-
 Music& Resources::GetMusic(const std::string& key) {
     auto it = m_music.find(key);
     assert(it != m_music.end() && "Resources: music key not found");
@@ -227,7 +204,6 @@ Music& Resources::GetMusic(const std::string& key) {
 //  Query
 bool Resources::HasTexture(const std::string& key) const { return m_textures.count(key) > 0; }
 bool Resources::HasSound(const std::string& key)   const { return m_sounds.count(key)   > 0; }
-bool Resources::HasFont(const std::string& key)    const { return m_fonts.count(key)    > 0; }
 bool Resources::HasMusic(const std::string& key)   const { return m_music.count(key)    > 0; }
 
 // Per-key unload
@@ -245,13 +221,6 @@ void Resources::UnloadSoundKey(const std::string& key) {
     m_sounds.erase(it);
 }
 
-void Resources::UnloadFontKey(const std::string& key) {
-    auto it = m_fonts.find(key);
-    if (it == m_fonts.end()) return;
-    UnloadFont(it->second);
-    m_fonts.erase(it);
-}
-
 void Resources::UnloadMusicKey(const std::string& key) {
     auto it = m_music.find(key);
     if (it == m_music.end()) return;
@@ -263,11 +232,9 @@ void Resources::UnloadMusicKey(const std::string& key) {
 void Resources::Shutdown() {
     for (auto& [key, tex]  : m_textures) UnloadTexture(tex);
     for (auto& [key, sfx]  : m_sounds)   UnloadSound(sfx);
-    for (auto& [key, font] : m_fonts)    UnloadFont(font);
     for (auto& [key, music]: m_music)    UnloadMusicStream(music);
 
     m_textures.clear();
     m_sounds.clear();
-    m_fonts.clear();
     m_music.clear();
 }

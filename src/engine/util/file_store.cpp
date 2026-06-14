@@ -308,23 +308,6 @@ bool FileStore::Exists(const std::string& path) {
 #endif
 }
 
-// Delete
-void FileStore::Delete(const std::string& path) {
-#if defined(PLATFORM_WEB)
-
-    EM_ASM({
-        localStorage.removeItem(UTF8ToString($0));
-    }, path.c_str());
-
-#else
-
-    std::string fullPath = ResolvePath(path);
-    if (std::filesystem::exists(fullPath))
-        std::filesystem::remove(fullPath);
-
-#endif
-}
-
 // ListSubfolders — immediate child directory names, sorted
 std::vector<std::string> FileStore::ListSubfolders(const std::string& path) {
 #if defined(PLATFORM_WEB)
@@ -371,17 +354,6 @@ std::vector<std::string> FileStore::ListSubfolders(const std::string& path) {
     std::sort(folders.begin(), folders.end());
     return folders;
 
-#endif
-}
-
-// CreateFolder
-void FileStore::CreateFolder(const std::string& path) {
-#if defined(PLATFORM_WEB)
-    // No-op: localStorage has no directories; SaveJson/SaveToml materialize the
-    // folder implicitly the moment a file is written under it.
-    (void)path;
-#else
-    std::filesystem::create_directories(ResolvePath(path));
 #endif
 }
 

@@ -3,6 +3,7 @@
 #include <states/play_state.hpp>
 #include <states/editor_select_state.hpp>
 #include <states/map_select_state.hpp>
+#include <states/card_list.hpp>
 #include <content/datapack.hpp>
 #include <engine/core/text_renderer.hpp>
 #include <hud/hud_theme.hpp>
@@ -97,13 +98,11 @@ void DatapackSelectState::Draw(Game& game) {
         if (card.y + card.height < listTop || card.y > listBottom) continue;
 
         bool hovered = (i == m_list.Hovered());
-        DrawRectangleRec(card, hovered ? kDefaultStyle.m_bgHovered : kDefaultStyle.m_bgNormal);
-        DrawRectangleLinesEx(card, hovered ? kDefaultStyle.m_borderWidthActive : kDefaultStyle.m_borderWidth,
-                             hovered ? kDefaultStyle.m_borderSel : kDefaultStyle.m_border);
+        DrawCardFrame(card, hovered);
 
         // Icon (or a placeholder when the pack ships none).
-        float iconSize = card.height - 2.0f * kIconPad;
-        Rectangle iconRect = { card.x + kIconPad, card.y + kIconPad, iconSize, iconSize };
+        float iconSize = card.height - 2.0f * kCardIconPad;
+        Rectangle iconRect = { card.x + kCardIconPad, card.y + kCardIconPad, iconSize, iconSize };
         if (pack.m_icon.id != 0) {
             Rectangle src = { 0.0f, 0.0f,
                               static_cast<float>(pack.m_icon.width),
@@ -132,13 +131,8 @@ void DatapackSelectState::Draw(Game& game) {
     // Scrollbar (only when there is something to scroll).
     m_list.DrawScrollbar(count, screenW, screenH, Hud::kWorldBackground, kDefaultStyle.m_border);
 
-    // Header mask + title (drawn over any card that scrolled up into this band).
-    DrawRectangle(0, 0, static_cast<int>(screenW), static_cast<int>(listTop), Hud::kWorldBackground);
-    DrawCenteredText("SELECT DATAPACK", screenW / 2.0f, 40.0f, static_cast<int>(Hud::kFontStateTitle), Hud::kTextPrimary);
-
-    // Footer mask + back button.
-    DrawRectangle(0, static_cast<int>(listBottom), static_cast<int>(screenW),
-                  static_cast<int>(screenH - listBottom), Hud::kWorldBackground);
+    // Header/footer masks + title, then the back button over the footer mask.
+    DrawListChrome(screenW, screenH, listTop, listBottom, "SELECT DATAPACK");
     m_backButton.Draw();
     m_backButton.DrawLabel(static_cast<int>(Hud::kFontMenuButton), Hud::kTextPrimary);
 }

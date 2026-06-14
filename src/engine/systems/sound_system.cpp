@@ -1,4 +1,5 @@
 #include <engine/systems/sound_system.hpp>
+#include <engine/core/resources.hpp>
 
 void SoundSystem::Init(Resources& resources) {
     m_resources = &resources;
@@ -35,14 +36,6 @@ void SoundSystem::StopMusic() {
     StopMusicStream(*m_activeMusic);
     m_activeMusic = nullptr;
     m_activeKey.clear();
-}
-
-void SoundSystem::PauseMusic() {
-    if (m_activeMusic) PauseMusicStream(*m_activeMusic);
-}
-
-void SoundSystem::ResumeMusic() {
-    if (m_activeMusic) ResumeMusicStream(*m_activeMusic);
 }
 
 // Volume

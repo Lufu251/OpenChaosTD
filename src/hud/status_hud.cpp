@@ -120,8 +120,8 @@ void StatusHUD::DrawWaveReadout(const StatusView& view, int centerX) {
 
     // Numeric win target: one plain centered string.
     if (view.m_victoryWave > 0) {
-        DrawTextCenteredX(TextFormat("Wave: %s / %d", num, view.m_victoryWave),
-                          centerX, m_textY, font, Hud::kTextPrimary, Text::Kind::Number);
+        DrawCenteredText(TextFormat("Wave: %s / %d", num, view.m_victoryWave),
+                         static_cast<float>(centerX), static_cast<float>(m_textY), font, Hud::kTextPrimary, Text::Kind::Number);
         return;
     }
 

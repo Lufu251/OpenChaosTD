@@ -1,7 +1,7 @@
 #pragma once
 
 #include <states/game_state.hpp>
-#include <engine/systems/ui_widgets.hpp>
+#include <hud/button_list.hpp>
 
 // Intermediate screen between DatapackSelectState and an editor, reached after
 // the player selects a datapack. Offers the choice between the Particle Editor
@@ -16,7 +16,6 @@ public:
     void Draw(Game& game) override;
 
 private:
-    Button m_particleEditorButton;
-    Button m_mapEditorButton;
-    Button m_backButton;
+    Hud::ButtonList m_buttons;
+    enum Btn { Particle, MapEd, Back }; // indices into m_buttons (Add order)
 };

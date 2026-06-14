@@ -89,14 +89,14 @@ void TowerBuildHUD::Draw(const BuildBarView& view, Resources& assets) {
                             btn.m_rect.y + (btn.m_rect.height - th) / 2.0f - m_iconYOffset }, Hud::kIconTint);
 
         int centerX = static_cast<int>(btn.m_rect.x + btn.m_rect.width / 2.0f);
-        DrawTextCenteredX(name.c_str(), centerX,
-            static_cast<int>(btn.m_rect.y + btn.m_rect.height - m_nameYOffset),
+        DrawCenteredText(name.c_str(), static_cast<float>(centerX),
+            btn.m_rect.y + btn.m_rect.height - m_nameYOffset,
             fontSize, Hud::kTextSecondary);
 
         const char* costStr = TextFormat("$%d", entry.m_cost);
         Color costColor = (view.m_gold >= entry.m_cost) ? Hud::kStatusPositive : Hud::kStatusNegative;
-        DrawTextCenteredX(costStr, centerX,
-            static_cast<int>(btn.m_rect.y + btn.m_rect.height - m_costYOffset),
+        DrawCenteredText(costStr, static_cast<float>(centerX),
+            btn.m_rect.y + btn.m_rect.height - m_costYOffset,
             fontSize, costColor, Text::Kind::Number);
     }
 }

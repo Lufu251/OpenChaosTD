@@ -1,7 +1,7 @@
 #pragma once
 
 #include <states/game_state.hpp>
-#include <engine/systems/ui_widgets.hpp>
+#include <hud/button_list.hpp>
 
 class MenuState : public GameState {
 public:
@@ -18,9 +18,6 @@ private:
 
     bool m_hasSave = false; // whether saves/savegame.json exists (Continue enabled)
 
-    Button m_continueButton;
-    Button m_playButton;
-    Button m_settingsButton;
-    Button m_editorButton;
-    Button m_exitButton;
+    Hud::ButtonList m_buttons;
+    enum Btn { Play, Continue, Settings, Editor, Exit }; // indices into m_buttons (Add order)
 };

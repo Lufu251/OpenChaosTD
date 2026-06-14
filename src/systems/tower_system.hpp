@@ -13,9 +13,9 @@ class TowerSystem{
 public:
     void Update(float dt, DenseSlotMap<Tower>& towers, DenseSlotMap<Enemy>& enemies, std::vector<Attack>& attacks, ParticleSystem& particles, SoundSystem& sound);
     void TickAttacks(float dt, DenseSlotMap<Enemy>& enemies, std::vector<Attack>& attacks, ParticleSystem& particles);
-    std::vector<DenseSlotMap<Enemy>::Key> FindTargets(const Tower& tower, DenseSlotMap<Enemy>& enemies, int maxTargets);
 
 private:
+    std::vector<DenseSlotMap<Enemy>::Key> FindTargets(const Tower& tower, DenseSlotMap<Enemy>& enemies, int maxTargets);
     void RecomputeStats(Tower& tower, float dt);
     void DecayAttackFlash(Tower& tower, float dt);
     void Fire(Tower& tower, const std::vector<DenseSlotMap<Enemy>::Key>& targetKeys, DenseSlotMap<Enemy>& enemies, std::vector<Attack>& attacks, ParticleSystem& particles, SoundSystem& sound);

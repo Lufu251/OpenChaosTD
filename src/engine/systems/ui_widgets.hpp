@@ -131,7 +131,6 @@ public:
 
     float ListTop() const { return m_cfg.m_listTop; }
     float ListBottom(float screenH) const { return screenH - m_cfg.m_footerH; }
-    float MaxScroll(int count, float screenH) const;
     // On-screen rect of card `index`, accounting for the current scroll offset.
     Rectangle CardRect(int index, float screenW, float screenH) const;
 
@@ -147,6 +146,8 @@ public:
                        Color trackColor, Color thumbColor) const;
 
 private:
+    float MaxScroll(int count, float screenH) const; // max scroll offset; internal to scroll/scrollbar math
+
     ScrollableListConfig m_cfg;
     float m_scroll = 0.0f;
     int m_hovered = -1; // index of the card under the cursor, or -1

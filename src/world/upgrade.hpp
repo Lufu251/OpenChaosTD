@@ -76,6 +76,8 @@ inline void ParseUpgradeFields(const toml::table& j, UpgradeDef& up) {
 // --- Tower upgrades ----------------------------------------------------------
 
 // Readable name for an upgrade key (combat stats and module parameters); falls back to the raw key.
+// NOTE: on a table miss the result aliases `key` (key.c_str()), so it is valid only while `key` lives —
+// use it immediately (the formatters pass it straight to snprintf), never store the pointer.
 inline const char* StatLabel(const std::string& key) {
     static const std::unordered_map<std::string, const char*> labels = {
         {"damage", "Damage"},          {"shotsPerMinute", "Rate"},       {"range", "Range"},
@@ -116,6 +118,7 @@ struct TowerUpgrade : UpgradeDef {
 // --- Enemy upgrades ----------------------------------------------------------
 
 // Readable name for an enemy upgrade key (base stats and module parameters); falls back to the raw key.
+// NOTE: same borrow as StatLabel — on a miss the result aliases `key`, valid only while `key` lives.
 inline const char* EnemyStatLabel(const std::string& key) {
     static const std::unordered_map<std::string, const char*> labels = {
         {"maxHealth", "Health"}, {"speed", "Speed"},      {"reward", "Reward"},

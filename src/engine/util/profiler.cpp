@@ -48,12 +48,6 @@ double Profiler::GetLastMs(const std::string& name) const {
     return it->second.samples.back();
 }
 
-double Profiler::GetPeakMs(const std::string& name) const {
-    auto it = m_entries.find(name);
-    if (it == m_entries.end()) return 0.0;
-    return it->second.peak;
-}
-
 // Print
 void Profiler::Print() const {
     std::cout << "\n=== Profiler ===\n";

@@ -83,9 +83,6 @@ private:
     Button m_newMapBtn;
     Button m_catalogBackBtn;
 
-    static constexpr float kIconPad = 16.0f; // inset of the preview inside a card
-    static constexpr float kThumbW = 160.0f; // preview column width inside a card
-
     // --- New-map modal ---
     bool m_modalOpen = false;
     Rectangle m_modalRect = {};

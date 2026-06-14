@@ -34,6 +34,8 @@ public:
         m_objects[index] = std::move(m_objects[--m_size]);
     }
 
+    // operator[]/ReleaseAt assert the index in debug only; under NDEBUG the assert is gone, so an
+    // out-of-range index is undefined behaviour — callers must keep index < Size().
     T& operator[](size_t index) {
         assert(index < m_size);
         return m_objects[index];
@@ -51,8 +53,6 @@ public:
     const T* end()   const { return m_objects.data() + m_size; }
 
     size_t Size()     const { return m_size; }
-    size_t Capacity() const { return m_objects.size(); }
-    bool   Full()     const { return m_size >= m_objects.size(); }
 
     // Marks all slots as free without touching their contents.
     void Clear() { m_size = 0; }

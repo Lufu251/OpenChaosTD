@@ -24,14 +24,12 @@ public:
     void SetAssetPath(const std::string& root);
     void PushSearchPath(const std::string& root);
     void PopSearchPath();
-    const std::string& GetAssetPath() const; // the base (lowest-priority) root
 
     // Load. Returns an error message describing the failure (file missing under every
     // search root, or a decode error) instead of crashing — caller decides whether a
     // missing asset is fatal. A key already loaded is a no-op success.
     std::expected<void, std::string> LoadTexture(const std::string& key, const std::string& relativePath);
     std::expected<void, std::string> LoadSound(const std::string& key, const std::string& relativePath);
-    std::expected<void, std::string> LoadFont(const std::string& key, const std::string& relativePath, int fontSize = 20);
     std::expected<void, std::string> LoadMusic(const std::string& key, const std::string& relativePath);
 
     // Bulk load from a subdirectory across every search root (key = filename stem).
@@ -44,20 +42,17 @@ public:
     // Retrieve
     Texture2D& GetTexture(const std::string& key);
     Sound&     GetSound(const std::string& key);
-    Font&      GetFont(const std::string& key);
     Music&     GetMusic(const std::string& key);
 
     // Query
     bool HasTexture(const std::string& key) const;
     bool HasSound(const std::string& key)   const;
-    bool HasFont(const std::string& key)    const;
     bool HasMusic(const std::string& key)   const;
 
     // Per-key unload — frees a single asset so a caller can release the subset it
     // loaded without tearing down everything else. No-op for an unknown key.
     void UnloadTextureKey(const std::string& key);
     void UnloadSoundKey(const std::string& key);
-    void UnloadFontKey(const std::string& key);
     void UnloadMusicKey(const std::string& key);
 
     // Lifecycle
@@ -73,6 +68,5 @@ private:
 
     std::unordered_map<std::string, Texture2D> m_textures;
     std::unordered_map<std::string, Sound>     m_sounds;
-    std::unordered_map<std::string, Font>      m_fonts;
     std::unordered_map<std::string, Music>     m_music;
 };

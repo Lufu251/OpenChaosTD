@@ -159,10 +159,15 @@ void WorldSystem::SpawnFromRequest(const SpawnRequest& req, Vector2 pos, int nes
                                    GameData& gameData, EnemyFactory& enemyFactory, int tier){
     if (!enemyFactory.Has(req.m_type)) return; // unknown type (edited datapack) -> spawn nothing
 
+    // Guard the nest index before indexing, mirroring SpawnEnemy: a stale nest (e.g. after a map
+    // change) would otherwise be an out-of-bounds vector access.
+    const auto& paths = gameData.m_map.GetPaths();
+    if (nest < 0 || nest >= static_cast<int>(paths.size())) return;
+
     // Unit vector pointing back along the path (away from the core), used to fan the children out.
     // Children are only ever pushed backward, so they never skip ahead or reach the core early.
     Vector2 back = {0.0f, 0.0f};
-    const auto& path = gameData.m_map.GetPaths()[nest];
+    const auto& path = paths[nest];
     if (waypoint >= 0 && waypoint < static_cast<int>(path.size())) {
         Vector2 toWp = Vector2Subtract(path[waypoint], pos);
         float dist = Vector2Length(toWp);

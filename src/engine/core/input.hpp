@@ -20,7 +20,6 @@ public:
 
     bool IsPressed(const std::string& action) const;
     bool IsDown(const std::string& action) const;
-    bool IsReleased(const std::string& action) const;
 
     float GetMouseWheelDelta() const;
     Vector2 GetMousePosition() const { return m_virtualMouse; }
@@ -29,7 +28,6 @@ public:
     // Raw mouse button queries — bypass the action binding system.
     bool IsMousePressed(MouseButton btn) const;
     bool IsMouseDown(MouseButton btn) const;
-    bool IsMouseReleased(MouseButton btn) const;
 
     void ConsumeMouseInput();
     bool IsMouseInputConsumed() const { return m_mouseConsumed; }

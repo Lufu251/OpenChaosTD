@@ -26,16 +26,12 @@ public:
 
     void Run();
 
-    // Search path of a directory
-    std::filesystem::path SearchFolderParentPath(const std::string& folderName, size_t searchDepth);
-
     // Datapack lifecycle
     // Activating a pack mounts its resources (highest priority) and loads its
     // gameplay data/factories; deactivating frees everything the pack loaded and
     // is safe to call when no pack is active. The selection screen drives this.
     void ActivateDatapack(const Datapack& pack);
     void DeactivateDatapack();
-    bool HasActiveDatapack() const { return m_packActive; }
     const std::string& GetActiveDataDir() const { return m_activeDataDir; }
     // Maps live beside the pack's data dir, at "<packRoot>/maps". Derived from the
     // active data dir ("<packRoot>/data") so the map editor needn't track the root.
@@ -71,6 +67,9 @@ public:
 
 private:
     bool m_running = true;
+
+    // Search path of a directory
+    std::filesystem::path SearchFolderParentPath(const std::string& folderName, size_t searchDepth);
 
     void LoadResources();
 

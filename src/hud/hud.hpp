@@ -17,9 +17,6 @@ private:
     bool m_pending = false;
 };
 
-void DrawTextCenteredX(const char* text, int centerX, int y, int fontSize, Color color,
-                       Text::Kind kind = Text::Kind::Body);
-
 // Base for every HUD component: shared scaling, panel helpers, and visibility state. Concrete
 // HUDs expose their own typed ProcessInput/Draw methods fed by read-only views (see hud_views.hpp)
 // and an Input& for clicks — they never receive Game or query gameplay state directly.

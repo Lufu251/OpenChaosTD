@@ -252,12 +252,18 @@ void Game::ApplyPendingState() {
         case PendingOp::None:
             return;
         case PendingOp::Replace:
+            // Defensive (symmetric with Pop): never tear down the current state for a null payload,
+            // which would leave the app stateless and deref null in OnEnter.
+            assert(m_pendingState && "Replace with no pending state");
+            if (!m_pendingState) break;
             if (m_currentState)
                 m_currentState->OnExit(*this);
             m_currentState = std::move(m_pendingState);
             m_currentState->OnEnter(*this);
             break;
         case PendingOp::Push:
+            assert(m_pendingState && "Push with no pending state");
+            if (!m_pendingState) break;
             // Suspend the active state (no OnExit so it keeps its live data and music).
             if (m_currentState)
                 m_suspended.push_back(std::move(m_currentState));

@@ -1,6 +1,7 @@
 #include <states/map_select_state.hpp>
 #include <states/datapack_select_state.hpp>
 #include <states/play_state.hpp>
+#include <states/card_list.hpp>
 #include <engine/core/text_renderer.hpp>
 #include <hud/hud_theme.hpp>
 #include <app/game.hpp>
@@ -8,10 +9,6 @@
 #include <raylib.h>
 #include <memory>
 #include <string>
-
-namespace {
-    constexpr float kThumbW = 160.0f; // preview column width inside a card
-}
 
 // --- Lifecycle ---------------------------------------------------------------
 
@@ -143,26 +140,18 @@ void MapSelectState::Draw(Game& game) {
         if (card.y + card.height < listTop || card.y > listBottom) continue;
 
         bool hovered = (i == m_list.Hovered());
-        DrawRectangleRec(card, hovered ? kDefaultStyle.m_bgHovered : kDefaultStyle.m_bgNormal);
-        DrawRectangleLinesEx(card, hovered ? kDefaultStyle.m_borderWidthActive : kDefaultStyle.m_borderWidth,
-                             hovered ? kDefaultStyle.m_borderSel : kDefaultStyle.m_border);
+        DrawCardFrame(card, hovered);
 
-        // Thumbnail column.
-        Rectangle thumb = {card.x + kIconPad, card.y + kIconPad, kThumbW, card.height - 2.0f * kIconPad};
+        // Thumbnail column. The procedural "Auto" card gets a distinct tint; real maps use the
+        // shared preview/"no preview" thumbnail.
+        Rectangle thumb = {card.x + kCardIconPad, card.y + kCardIconPad, kCardThumbW, card.height - 2.0f * kCardIconPad};
         if (entry.m_isAuto) {
             DrawRectangleRec(thumb, Hud::g_selectTheme.autoCardTint);
             DrawRectangleLinesEx(thumb, 1.0f, kDefaultStyle.m_border);
             DrawCenteredText("AUTO", thumb.x + thumb.width / 2.0f,
                              thumb.y + thumb.height / 2.0f - 12.0f, 24, kDefaultStyle.m_accent);
-        } else if (entry.m_hasPreview) {
-            DrawRectangleRec(thumb, Hud::kBgDark);
-            DrawTextureFitted(entry.m_preview, thumb);
-            DrawRectangleLinesEx(thumb, 1.0f, kDefaultStyle.m_border);
         } else {
-            DrawRectangleRec(thumb, Hud::kWorldBackground);
-            DrawRectangleLinesEx(thumb, 1.0f, kDefaultStyle.m_border);
-            DrawCenteredText("no preview", thumb.x + thumb.width / 2.0f,
-                             thumb.y + thumb.height / 2.0f - 8.0f, 16, Hud::kTextSecondary);
+            DrawCardThumbnail(thumb, entry.m_hasPreview ? &entry.m_preview : nullptr);
         }
 
         // Text column.
@@ -181,13 +170,8 @@ void MapSelectState::Draw(Game& game) {
     // Scrollbar (only when there is something to scroll).
     m_list.DrawScrollbar(count, screenW, screenH, Hud::kWorldBackground, kDefaultStyle.m_border);
 
-    // Header mask + title (covers any card scrolled up into this band).
-    DrawRectangle(0, 0, static_cast<int>(screenW), static_cast<int>(listTop), Hud::kWorldBackground);
-    DrawCenteredText("SELECT MAP", screenW / 2.0f, 40.0f, static_cast<int>(Hud::kFontStateTitle), Hud::kTextPrimary);
-
-    // Footer mask + back button.
-    DrawRectangle(0, static_cast<int>(listBottom), static_cast<int>(screenW),
-                  static_cast<int>(screenH - listBottom), Hud::kWorldBackground);
+    // Header/footer masks + title, then the back button over the footer mask.
+    DrawListChrome(screenW, screenH, listTop, listBottom, "SELECT MAP");
     m_backButton.Draw();
     m_backButton.DrawLabel(static_cast<int>(Hud::kFontMenuButton), Hud::kTextPrimary);
 }

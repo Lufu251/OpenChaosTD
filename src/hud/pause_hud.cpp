@@ -67,7 +67,7 @@ void PauseHUD::Draw() {
 
     int centerX = static_cast<int>(m_panelRect.x + m_panelRect.width / 2.0f);
     int titleY = static_cast<int>(m_panelRect.y + m_titleOffset);
-    DrawTextCenteredX("PAUSED", centerX, titleY, m_metrics.fontTitle, Hud::kTextHeader);
+    DrawCenteredText("PAUSED", static_cast<float>(centerX), static_cast<float>(titleY), m_metrics.fontTitle, Hud::kTextHeader);
 
     m_buttons.Draw(m_metrics.fontLabel, Hud::kTextPrimary);
 }

@@ -37,6 +37,4 @@ private:
     std::vector<MapEntry> m_entries;
     ScrollableList m_list; // scroll/hover state + card geometry (default layout)
     Button m_backButton;
-
-    static constexpr float kIconPad = 16.0f; // inset of the preview inside a card
 };

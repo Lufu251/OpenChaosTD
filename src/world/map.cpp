@@ -96,7 +96,9 @@ void Map::RestoreFromSave(Grid2D<Tile> grid, int tileSize,
                           std::pair<int, int> core,
                           std::vector<std::pair<int, int>> nests) {
     m_grid     = std::move(grid);
-    m_tileSize = tileSize;
+    // Guard a non-positive tileSize from a corrupt/hand-edited save: WorldToTile divides by it, so 0
+    // would be a float divide-by-zero and static_cast<int>(inf) UB. Clamp to a sane positive minimum.
+    m_tileSize = std::max(1, tileSize);
     m_core     = core;
     m_nests    = std::move(nests);
 

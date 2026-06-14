@@ -40,25 +40,12 @@ bool Input::IsDown(const std::string& action) const {
     }, it->second);
 }
 
-bool Input::IsReleased(const std::string& action) const {
-    auto it = m_bindings.find(action);
-    if (it == m_bindings.end()) return false;
-    return std::visit([](auto&& b) -> bool {
-        using T = std::decay_t<decltype(b)>;
-        if constexpr (std::is_same_v<T, KeyboardKey>)
-            return b != KEY_NULL && IsKeyReleased(b);
-        else
-            return IsMouseButtonReleased(b);
-    }, it->second);
-}
-
 float Input::GetMouseWheelDelta() const {
     return GetMouseWheelMove();
 }
 
 bool Input::IsMousePressed(MouseButton btn) const  { return IsMouseButtonPressed(btn); }
 bool Input::IsMouseDown(MouseButton btn) const     { return IsMouseButtonDown(btn); }
-bool Input::IsMouseReleased(MouseButton btn) const { return IsMouseButtonReleased(btn); }
 
 void Input::ConsumeMouseInput() {
     m_mouseConsumed = true;

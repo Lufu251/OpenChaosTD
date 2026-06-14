@@ -112,18 +112,24 @@ void from_json(const nlohmann::json& j, Grid2D<T>& g) {
 }
 
 // --- Tower / DenseSlotMap<Tower> ---
-// Towers are serialized identity-only (metadata); their polymorphic module lists are
-// rebuilt through TowerFactory on load, never persisted. The slotmap's sparse bookkeeping
-// is persisted verbatim so DenseSlotMap<Tower>::Key handles (e.g. Tile::m_towerKey) survive.
+// Towers are serialized identity-only (metadata); their polymorphic module lists are rebuilt
+// through TowerFactory on load. The one piece of per-tower module state that isn't reproducible
+// from the factory + upgrade replay is the player's chosen targeting mode, so that single override
+// is persisted and re-applied on load. The slotmap's sparse bookkeeping is persisted verbatim so
+// DenseSlotMap<Tower>::Key handles (e.g. Tile::m_towerKey) survive.
 
 inline nlohmann::json SaveTower(const Tower& t) {
-    return nlohmann::json{
+    nlohmann::json j{
         {"name", t.m_name},
         {"position", t.m_position},
         {"level", t.m_level},
         {"cooldown", t.m_cooldown},
         {"cost", t.m_cost},
     };
+    // Wall towers have no AttackModule, so guard before recording the targeting override.
+    if (const AttackModule* atk = t.GetAttack())
+        j["targeting"] = static_cast<int>(atk->m_targetingMode);
+    return j;
 }
 
 inline nlohmann::json SaveTowers(const DenseSlotMap<Tower>& towers) {

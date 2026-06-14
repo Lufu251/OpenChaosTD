@@ -1,8 +1,9 @@
 #pragma once
 
 #include <raylib.h>
-#include <engine/core/resources.hpp>
 #include <string>
+
+class Resources;
 
 class SoundSystem {
 public:
@@ -18,14 +19,10 @@ public:
     // active stops it first
     void PlayMusic(const std::string& key);
     void StopMusic();
-    void PauseMusic();
-    void ResumeMusic();
 
     // Volume [0.0, 1.0]; music volume applies immediately to the active track
     void SetMusicVolume(float volume);
     void SetSfxVolume(float volume);
-    float GetMusicVolume() const { return m_musicVolume; }
-    float GetSfxVolume() const { return m_sfxVolume; }
 
     // Call once per frame — feeds the active music stream
     void Tick(float dt);

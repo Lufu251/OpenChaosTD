@@ -235,6 +235,13 @@ bool LoadTowers(const nlohmann::json& j, DenseSlotMap<Tower>& out,
         tw.m_cost     = v.value("cost", tw.m_cost);
         tw.m_level    = level;
 
+        // Restore the persisted targeting-mode override (clamp guards a corrupt/out-of-range value).
+        if (AttackModule* atk = tw.GetAttack(); atk && v.contains("targeting")) {
+            int mode = v.value("targeting", 0);
+            if (mode < 0 || mode >= kTargetingModeCount) mode = 0;
+            atk->m_targetingMode = static_cast<TargetingMode>(mode);
+        }
+
         values.push_back(std::move(tw));
     }
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <algorithm>
 #include <vector>
 #include <cassert>
 
@@ -35,6 +34,8 @@ public:
         return m_data;
     }
 
+    // Get/Set assert bounds in debug only; under NDEBUG the assert is compiled out, so an
+    // out-of-range (x, y) is undefined behaviour — callers must guarantee bounds (e.g. via InBounds).
     T& Get(int x, int y) {
         CheckBounds(x, y);
         return m_data[Index(x, y)];
@@ -57,12 +58,6 @@ public:
 
     int GetWidth()  const { return m_width;  }
     int GetHeight() const { return m_height; }
-    int GetSize()   const { return m_width * m_height; }
-
-    // Fill entire grid
-    void Fill(const T& value) {
-        std::fill(m_data.begin(), m_data.end(), value);
-    }
 
     // Iterators — allows range-based for loops
     typename std::vector<T>::iterator begin() { return m_data.begin(); }

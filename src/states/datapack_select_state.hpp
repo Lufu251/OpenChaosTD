@@ -29,6 +29,4 @@ private:
     Intent m_intent;
     ScrollableList m_list; // scroll/hover state + card geometry (default layout)
     Button m_backButton;
-
-    static constexpr float kIconPad = 16.0f; // inset of the icon inside a card
 };

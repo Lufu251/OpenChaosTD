@@ -13,15 +13,14 @@ public:
     void Begin(const std::string& name);
     void End(const std::string& name);
 
-    // Results
-    double GetAvgMs(const std::string& name)  const;
-    double GetLastMs(const std::string& name) const;
-    double GetPeakMs(const std::string& name) const;
-
     // Prints all tracked scopes to stdout
     void Print() const;
 
 private:
+    // Per-scope results, read by Print().
+    double GetAvgMs(const std::string& name)  const;
+    double GetLastMs(const std::string& name) const;
+
     using Clock     = std::chrono::high_resolution_clock;
     using TimePoint = std::chrono::time_point<Clock>;
 

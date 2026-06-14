@@ -96,6 +96,8 @@ bool GameData::LoadState(FileStore& fileStore, const std::string& path, const To
 
         Grid2D<Tile> grid = jm.at("grid").get<Grid2D<Tile>>();
         int tileSize = jm.value("tileSize", 32);
+        if (tileSize <= 0) // reject a corrupt save cleanly rather than relying on the downstream clamp
+            throw std::runtime_error("save: tileSize must be positive");
         auto core    = jm.at("core").get<std::pair<int, int>>();
         auto nests   = jm.at("nests").get<std::vector<std::pair<int, int>>>();
 

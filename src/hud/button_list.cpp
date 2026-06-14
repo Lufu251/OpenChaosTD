@@ -1,4 +1,5 @@
 #include <hud/button_list.hpp>
+#include <hud/hud_theme.hpp> // kTextDisabled
 
 namespace Hud {
 
@@ -16,9 +17,9 @@ void ButtonList::LayoutVertical(float x, float firstY, float w, float h, float s
 
 void ButtonList::Update(Vector2 mouse, bool pressed, bool& clicked) {
     for (auto& item : items)
-        item.button.Update(mouse, pressed);
+        if (item.enabled) item.button.Update(mouse, pressed);
     for (auto& item : items) {
-        if (item.button.IsClicked()) {
+        if (item.enabled && item.button.IsClicked()) {
             item.signal.Raise();
             clicked = true;
         }
@@ -27,8 +28,10 @@ void ButtonList::Update(Vector2 mouse, bool pressed, bool& clicked) {
 
 void ButtonList::Draw(int fontSize, Color labelColor) const {
     for (const auto& item : items) {
-        item.button.Draw();
-        item.button.DrawLabel(fontSize, labelColor);
+        // A disabled item draws with the muted style and disabled label color (mirrors how
+        // MenuState's "Continue" used to gray itself out by hand).
+        item.button.Draw(false, item.enabled ? kDefaultStyle : kDisabledStyle);
+        item.button.DrawLabel(fontSize, item.enabled ? labelColor : kTextDisabled);
     }
 }
 
