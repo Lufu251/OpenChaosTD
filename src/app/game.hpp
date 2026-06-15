@@ -13,6 +13,7 @@
 #include <app/game_config.hpp>
 #include <engine/util/profiler.hpp>
 #include <content/emitter_presets.hpp>
+#include <content/tile_factory.hpp>
 #include <content/tower_factory.hpp>
 #include <content/enemy_factory.hpp>
 #include <content/datapack.hpp>
@@ -62,6 +63,7 @@ public:
     ParticleSystem& GetParticles() {return m_particles;}
     SoundSystem& GetSoundSystem() {return m_soundSystem;}
     EmitterPresets& GetEmitterPresets() {return m_emitterPresets;}
+    TileFactory& GetTileFactory() {return m_tileFactory;}
     TowerFactory& GetTowerFactory() {return m_towerFactory;}
     EnemyFactory& GetEnemyFactory() {return m_enemyFactory;}
 
@@ -95,6 +97,7 @@ private:
     FileStore m_fileStore;
     Profiler m_profiler;
     EmitterPresets m_emitterPresets;
+    TileFactory m_tileFactory;
     TowerFactory m_towerFactory;
     EnemyFactory m_enemyFactory;
 

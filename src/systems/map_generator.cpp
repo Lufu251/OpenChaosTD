@@ -1,35 +1,39 @@
 #include <systems/map_generator.hpp>
+#include <content/tile_factory.hpp>
 #include <world/tile.hpp>
 #include <algorithm>
+#include <iostream>
 
-namespace {
-    // Round-robin set of terrain buffs; one is assigned per placed buff tile in order.
-    struct BuffSpec { const char* m_statKey; float m_value; bool m_mul; };
-    constexpr BuffSpec kBuffSpecs[] = {
-        { "range",          30.0f, false }, // flat +range
-        { "damage",          1.5f, true  }, // mul *damage
-        { "shotsPerMinute", 1.5f, true  }, // mul *fire rate
-    };
-    constexpr int kBuffSpecCount = static_cast<int>(sizeof(kBuffSpecs) / sizeof(kBuffSpecs[0]));
-}
+void MapGenerator::Generate(Map& map, const TileFactory& tileFactory,
+                            int cols, int rows, int nestCount, int obstacleCount,
+                            const MapGenCfg& cfg){
+    m_groundId = "grass";
+    m_obstacleId = "rock";
+    m_buffIds = tileFactory.GetBuffIds();
 
-void MapGenerator::Generate(Map& map, int cols, int rows, int nestCount, int obstacleCount, const MapGenCfg& cfg){
-    map.Create(cols, rows);
+    if (!tileFactory.Has(m_groundId) || !tileFactory.Has(m_obstacleId)
+        || !tileFactory.Has("core") || !tileFactory.Has("nest")) {
+        std::cerr << "MapGenerator: missing required tile IDs (grass/rock/core/nest)\n";
+        return;
+    }
+
+    map.Create(cols, rows, tileFactory, m_groundId);
 
     // Core: centered on the bottom edge, one tile in from the border
+    map.ApplyTileDef((cols - 1) / 2, rows - 2, tileFactory, "core");
     map.SetCore((cols - 1) / 2, rows - 2);
 
-    PlaceNests(map, nestCount);
-    PlaceObstacles(map, obstacleCount, cfg);
+    PlaceNests(map, tileFactory, nestCount);
+    PlaceObstacles(map, tileFactory, obstacleCount, cfg);
 
-    // Range-buff terrain: count scales with map size. Buff tiles stay walkable, so they never
+    // Buff terrain: count scales with map size. Buff tiles stay walkable, so they never
     // affect pathing and need no validation.
-    PlaceBuffTiles(map, std::max(1, (cols * rows) / cfg.tilesPerBuffTile), cfg);
+    PlaceBuffTiles(map, tileFactory, std::max(1, (cols * rows) / cfg.tilesPerBuffTile), cfg);
 
     map.BuildPathMesh(); // final, clean path mesh for the chosen layout
 }
 
-void MapGenerator::PlaceNests(Map& map, int nestCount){
+void MapGenerator::PlaceNests(Map& map, const TileFactory& tileFactory, int nestCount){
     int cols = map.GetCols();
     // Clamp so every nest fits along the top edge without overlapping
     nestCount = std::clamp(nestCount, 1, std::max(1, cols - 2));
@@ -38,55 +42,62 @@ void MapGenerator::PlaceNests(Map& map, int nestCount){
     for (int i = 0; i < nestCount; i++) {
         // Evenly space across the width with a margin at both ends.
         // (i+1)*cols/(nestCount+1) centers a single nest and spreads many symmetrically.
-        map.AddNest((i + 1) * cols / (nestCount + 1), row);
+        int nx = (i + 1) * cols / (nestCount + 1);
+        map.ApplyTileDef(nx, row, tileFactory, "nest");
+        map.AddNest(nx, row);
     }
 }
 
-void MapGenerator::PlaceObstacles(Map& map, int obstacleCount, const MapGenCfg& cfg){
+void MapGenerator::PlaceObstacles(Map& map, const TileFactory& tileFactory,
+                                   int obstacleCount, const MapGenCfg& cfg){
     // Grow clusters until the fixed obstacle target is met. A guard bounds the loop
     // in case the map is too small/saturated to ever reach the target.
     int placed = 0;
     int guard = 0;
     const int maxGuard = obstacleCount * 4 + 32;
     while (placed < obstacleCount && guard++ < maxGuard)
-        GrowCluster(map, placed, obstacleCount, cfg);
+        GrowCluster(map, tileFactory, placed, obstacleCount, cfg);
 }
 
-void MapGenerator::PlaceBuffTiles(Map& map, int count, const MapGenCfg& cfg){
+void MapGenerator::PlaceBuffTiles(Map& map, const TileFactory& tileFactory,
+                                   int count, const MapGenCfg& cfg){
     int cols = map.GetCols();
     int rows = map.GetRows();
 
-    // Convert random open grass tiles into buff terrain, cycling through the buff specs so each
+    if (m_buffIds.empty()) return;
+
+    // Convert random open ground tiles into buff terrain, cycling through the buff IDs so each
     // map gets an even mix of range/damage/speed tiles. Buff tiles stay walkable+buildable, so no
-    // path validation is needed; only grass is eligible (core/nests/rocks are skipped).
+    // path validation is needed; only ground tiles are eligible (goal/spawn/obstacle are skipped).
     int placed = 0;
     while (placed < count) {
         int sx = -1, sy = -1;
         for (int t = 0; t < cfg.seedTries; t++) {
             int x = RandInt(0, cols - 1);
             int y = RandInt(0, rows - 1);
-            if (map.Get(x, y).m_type == TileType::Grass) { sx = x; sy = y; break; }
+            if (map.Get(x, y).m_tileId == m_groundId) { sx = x; sy = y; break; }
         }
         if (sx < 0) break; // map too saturated to seed another buff tile
 
-        const BuffSpec& spec = kBuffSpecs[placed % kBuffSpecCount];
-        map.SetBuff(sx, sy, spec.m_statKey, spec.m_value, spec.m_mul);
+        const std::string& buffId = m_buffIds[placed % m_buffIds.size()];
+        map.SetBuff(sx, sy, tileFactory, buffId);
         placed++;
     }
 }
 
-void MapGenerator::GrowCluster(Map& map, int& placed, int target, const MapGenCfg& cfg){
+void MapGenerator::GrowCluster(Map& map, const TileFactory& tileFactory,
+                                int& placed, int target, const MapGenCfg& cfg){
     int cols = map.GetCols();
     int rows = map.GetRows();
 
-    // Seed the cluster on a random free tile
+    // Seed the cluster on a random free ground tile
     int sx = -1, sy = -1;
     for (int t = 0; t < cfg.seedTries; t++) {
         int x = RandInt(0, cols - 1);
         int y = RandInt(0, rows - 1);
-        if (map.Get(x, y).m_type == TileType::Grass) { sx = x; sy = y; break; }
+        if (map.Get(x, y).m_tileId == m_groundId) { sx = x; sy = y; break; }
     }
-    if (sx < 0 || !TryPlaceRock(map, sx, sy)) return;
+    if (sx < 0 || !TryPlaceRock(map, tileFactory, sx, sy)) return;
 
     std::vector<std::pair<int, int>> cluster{ {sx, sy} };
     placed++;
@@ -105,33 +116,28 @@ void MapGenerator::GrowCluster(Map& map, int& placed, int target, const MapGenCf
             int ny = cy + dy[d];
 
             if (nx < 0 || nx >= cols || ny < 0 || ny >= rows) continue;
-            if (map.Get(nx, ny).m_type != TileType::Grass) continue;
+            if (map.Get(nx, ny).m_tileId != m_groundId) continue;
 
-            if (TryPlaceRock(map, nx, ny)) {
+            if (TryPlaceRock(map, tileFactory, nx, ny)) {
                 cluster.push_back({nx, ny});
                 placed++;
                 extended = true;
                 break;
             }
-            // rock rejected (would trap a nest) — leave it grass, try another neighbor
+            // rock rejected (would trap a nest) — leave it ground, try another neighbor
         }
         if (!extended) break; // cluster boxed in; let the next seed start elsewhere
     }
 }
 
-bool MapGenerator::TryPlaceRock(Map& map, int x, int y){
-    Tile& tile = map.Get(x, y);
-    tile.m_type = TileType::Rock;
-    tile.m_walkable = false;
-    tile.m_buildable = false;
+bool MapGenerator::TryPlaceRock(Map& map, const TileFactory& tileFactory, int x, int y){
+    map.ApplyTileDef(x, y, tileFactory, m_obstacleId);
 
     map.BuildPathMesh();
     if (map.ValidatePathMesh()) return true;
 
     // Reverting: this rock would cut a nest off from the core
-    tile.m_type = TileType::Grass;
-    tile.m_walkable = true;
-    tile.m_buildable = true;
+    map.ApplyTileDef(x, y, tileFactory, m_groundId);
     return false;
 }
 

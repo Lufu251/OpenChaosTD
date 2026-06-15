@@ -21,6 +21,7 @@
 class Map;
 class FileStore;
 class TowerFactory;
+class TileFactory;
 
 // ============================================================================
 // Map serialization (TOML)
@@ -45,7 +46,8 @@ bool Save(FileStore& fileStore, const std::string& mapDir, const Map& map, const
 
 // Read "<mapDir>/map.toml" and reconstruct outMap (grid + geometry + path mesh) and
 // outMeta. Returns false on a missing/malformed file.
-bool Load(FileStore& fileStore, const std::string& mapDir, Map& outMap, MapMeta& outMeta);
+bool Load(FileStore& fileStore, const std::string& mapDir, Map& outMap, MapMeta& outMeta,
+          const TileFactory& tileFactory, const std::string& groundId);
 
 } // namespace MapSerialization
 
@@ -74,18 +76,28 @@ inline void from_json(const nlohmann::json& j, TileModifier& m) {
 
 inline void to_json(nlohmann::json& j, const Tile& t) {
     j = nlohmann::json{
-        {"type", static_cast<int>(t.m_type)},
+        {"tileId", t.m_tileId},
         {"walkable", t.m_walkable},
         {"buildable", t.m_buildable},
+        {"textureIndex", t.m_textureIndex},
         {"modifier", t.m_modifier},
         {"towerKey", {{"index", t.m_towerKey.index}, {"generation", t.m_towerKey.generation}}},
     };
 }
 inline void from_json(const nlohmann::json& j, Tile& t) {
-    t.m_type      = static_cast<TileType>(j.value("type", 0));
-    t.m_walkable  = j.value("walkable", true);
-    t.m_buildable = j.value("buildable", true);
-    t.m_modifier  = j.value("modifier", TileModifier{});
+    // Backward compat: old saves used integer "type" (0=Grass, 1=Rock, 2=Core, 3=Nest, 4=Buff).
+    if (j.contains("type") && j["type"].is_number_integer() && !j.contains("tileId")) {
+        static const char* kLegacyMap[] = {"grass", "rock", "core", "nest", "buff"};
+        int legacy = j.value("type", 0);
+        int idx = (legacy >= 0 && legacy < 5) ? legacy : 0;
+        t.m_tileId = kLegacyMap[idx];
+    } else {
+        t.m_tileId = j.value("tileId", std::string("grass"));
+    }
+    t.m_walkable     = j.value("walkable", true);
+    t.m_buildable    = j.value("buildable", true);
+    t.m_textureIndex = j.value("textureIndex", 0);
+    t.m_modifier     = j.value("modifier", TileModifier{});
     const auto& k = j.at("towerKey");
     t.m_towerKey  = { k.at("index").get<uint32_t>(), k.at("generation").get<uint32_t>() };
 }

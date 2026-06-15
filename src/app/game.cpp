@@ -179,6 +179,7 @@ void Game::ActivateDatapack(const Datapack& pack) {
     // Load gameplay data from the pack. Presets first: the factories resolve
     // emitter preset names while building their templates.
     m_emitterPresets.Load(m_fileStore, m_activeDataDir);
+    m_tileFactory.Load(m_fileStore, m_activeDataDir);
     m_gameData.Load(m_fileStore, m_activeDataDir);
     m_towerFactory.Load(m_fileStore, m_emitterPresets, m_activeDataDir);
     m_enemyFactory.Load(m_fileStore, m_emitterPresets, m_activeDataDir);
@@ -203,6 +204,7 @@ void Game::DeactivateDatapack() {
     m_resources.PopSearchPath();
 
     // Drop loaded templates/presets.
+    m_tileFactory.Clear();
     m_towerFactory.Clear();
     m_enemyFactory.Clear();
     m_emitterPresets.Clear();

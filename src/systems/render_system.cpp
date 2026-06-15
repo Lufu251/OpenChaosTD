@@ -1,4 +1,5 @@
 #include <systems/render_system.hpp>
+#include <content/tile_factory.hpp>
 #include <engine/core/text_renderer.hpp>
 #include <engine/util/file_store.hpp>
 #include <toml++/toml.hpp>
@@ -21,6 +22,18 @@ void RenderSystem::Load(FileStore& fileStore) {
                     static_cast<unsigned char>((*c)[1].value_or(0)),
                     static_cast<unsigned char>((*c)[2].value_or(0)),
                     static_cast<unsigned char>((*c)[3].value_or(255))};
+            if (const toml::array* sc = (*hb)["shieldColor"].as_array(); sc && sc->size() >= 4)
+                m_hbShieldColor = {
+                    static_cast<unsigned char>((*sc)[0].value_or(0)),
+                    static_cast<unsigned char>((*sc)[1].value_or(0)),
+                    static_cast<unsigned char>((*sc)[2].value_or(0)),
+                    static_cast<unsigned char>((*sc)[3].value_or(255))};
+            if (const toml::array* bc = (*hb)["barrierColor"].as_array(); bc && bc->size() >= 4)
+                m_hbBarrierColor = {
+                    static_cast<unsigned char>((*bc)[0].value_or(0)),
+                    static_cast<unsigned char>((*bc)[1].value_or(0)),
+                    static_cast<unsigned char>((*bc)[2].value_or(0)),
+                    static_cast<unsigned char>((*bc)[3].value_or(255))};
         }
     }
 
@@ -37,35 +50,25 @@ void RenderSystem::Load(FileStore& fileStore) {
     }
 }
 
-void RenderSystem::DrawMap(const Map& map, Resources& assets){
+void RenderSystem::DrawMap(const Map& map, const TileFactory& tileFactory, Resources& assets){
     for (int y = 0; y < map.GetRows(); y++) {
         for (int x = 0; x < map.GetCols(); x++) {
-            switch (map.Get(x,y).m_type) {
-                case TileType::Grass:
-                    DrawTexture(assets.GetTexture("tile_grass"), map.TileToWorld(x, y).x, map.TileToWorld(x, y).y, WHITE);
-                    break;
-                case TileType::Core:
-                    DrawTexture(assets.GetTexture("tile_core"), map.TileToWorld(x, y).x, map.TileToWorld(x, y).y, WHITE);
-                    break;
-                case TileType::Nest:
-                    DrawTexture(assets.GetTexture("tile_nest"), map.TileToWorld(x, y).x, map.TileToWorld(x, y).y, WHITE);
-                    break;
-                case TileType::Rock:
-                    DrawTexture(assets.GetTexture("tile_rock"), map.TileToWorld(x, y).x, map.TileToWorld(x, y).y, WHITE);
-                    break;
-                case TileType::Buff: {
-                    // Pick the grass-variant texture that matches this tile's buff; fall back to
-                    // plain grass if the art asset is missing so rendering never throws.
-                    const TileModifier& mod = map.Get(x, y).m_modifier;
-                    const char* texKey = "tile_grass";
-                    if (mod.m_statKey == "range")               texKey = "tile_grass_range";
-                    else if (mod.m_statKey == "damage")         texKey = "tile_grass_damage";
-                    else if (mod.m_statKey == "shotsPerMinute") texKey = "tile_grass_attackspeed";
-                    if (!assets.HasTexture(texKey)) texKey = "tile_grass";
-                    DrawTexture(assets.GetTexture(texKey), map.TileToWorld(x, y).x, map.TileToWorld(x, y).y, WHITE);
-                    break;
-                }
-            }
+            const Tile& tile = map.Get(x, y);
+
+            // Look up the tile definition; skip tiles whose ID is not in the registry
+            // (e.g. from a stale save after a datapack change).
+            if (!tileFactory.Has(tile.m_tileId))
+                continue;
+            const auto& def = tileFactory.Get(tile.m_tileId);
+
+            // Pick from the definition's texture array using this tile's stored index.
+            int idx = def.textures.empty() ? 0 : tile.m_textureIndex % static_cast<int>(def.textures.size());
+            std::string texKey = def.textures.empty() ? std::string{} : def.textures[idx];
+
+            if (!assets.HasTexture(texKey))
+                continue;
+
+            DrawTexture(assets.GetTexture(texKey), map.TileToWorld(x, y).x, map.TileToWorld(x, y).y, WHITE);
         }
     }
 }
@@ -163,8 +166,18 @@ void RenderSystem::DrawEnemies(const DenseSlotMap<Enemy>& enemies, Resources& as
 
         DrawTextureV(texture, {enemy.m_position.x - hw, enemy.m_position.y - hh}, WHITE);
 
+        // Sum defensive state from all modules so the health bar can show shield and barrier layers
+        float totalShield = 0.0f;
+        int totalBarrier = 0;
+        for (const auto& mod : enemy.m_modules) {
+            totalShield += mod->GetShield();
+            totalBarrier += mod->GetBarrierHits();
+        }
+
         // Health bar floats above the sprite; dimensions come from config/hud.toml
-        DrawHealthBar({enemy.m_position.x, enemy.m_position.y + hh + 2.0f}, enemy.m_currentHealth, enemy.GetBaseStats()->m_maxHealth);
+        DrawHealthBar({enemy.m_position.x, enemy.m_position.y + hh + 2.0f},
+                      enemy.m_currentHealth, enemy.GetBaseStats()->m_maxHealth,
+                      totalShield, totalBarrier);
     }
 }
 
@@ -273,14 +286,35 @@ static Color HealthBarColor(float ratio) {
     }
 }
 
-void RenderSystem::DrawHealthBar(Vector2 worldPos, float current, float max) {
-    float ratio = Clamp(current / max, 0.0f, 1.0f);
+void RenderSystem::DrawHealthBar(Vector2 worldPos, float currentHealth, float maxHealth,
+                                  float totalShield, int totalBarrierHits) {
+    if (maxHealth <= 0.0f) return;
+
     float x = worldPos.x - m_hbWidth / 2.0f;
     float y = worldPos.y - m_hbHeight / 2.0f;
 
+    // Barrier is the outermost defensive layer: draw a thin gold outline around the bar
+    if (totalBarrierHits > 0)
+        DrawRectangleRounded({x - 1.0f, y - 1.0f, m_hbWidth + 2.0f, m_hbHeight + 2.0f},
+                             m_hbRound, m_hbSegs, m_hbBarrierColor);
+
+    // Dark background
     DrawRectangleRounded({x, y, m_hbWidth, m_hbHeight}, m_hbRound, m_hbSegs, m_hbBgColor);
 
-    float fillWidth = (m_hbWidth - m_hbPadding * 2.0f) * ratio;
-    if (fillWidth > 0.0f)
-        DrawRectangleRec({x + m_hbPadding, y + m_hbPadding, fillWidth, m_hbHeight - m_hbPadding * 2.0f}, HealthBarColor(ratio));
+    float innerW = m_hbWidth - m_hbPadding * 2.0f;
+    float innerH = m_hbHeight - m_hbPadding * 2.0f;
+
+    // Shield fill (blue) — absorbs damage before health
+    float shieldRatio = Clamp(totalShield / maxHealth, 0.0f, 1.0f);
+    float shieldW = innerW * shieldRatio;
+    if (shieldW > 0.0f)
+        DrawRectangleRec({x + m_hbPadding, y + m_hbPadding, shieldW, innerH}, m_hbShieldColor);
+
+    // Health fill (green→yellow→red) — innermost layer, drawn after shield
+    float healthRatio = Clamp(currentHealth / maxHealth, 0.0f, 1.0f);
+    float remainingW = innerW - shieldW;
+    float healthW = remainingW * healthRatio;
+    if (healthW > 0.0f)
+        DrawRectangleRec({x + m_hbPadding + shieldW, y + m_hbPadding, healthW, innerH},
+                         HealthBarColor(healthRatio));
 }

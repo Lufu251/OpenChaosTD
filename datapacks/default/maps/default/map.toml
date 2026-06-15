@@ -13,1521 +13,1638 @@ name = 'default'
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 2
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Nest'
+tileId = 'nest'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 1
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 1
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 2
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 1
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Nest'
+tileId = 'nest'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 1
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 2
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 2
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
 mul = true
 statKey = 'damage'
-type = 'Buff'
+tileId = 'buff_damage'
 value = 1.5
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 1
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 2
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 2
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 1
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
+textureIndex = 1
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 3
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 1
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 3
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 3
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 1
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 1
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 3
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 1
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 1
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
 mul = true
 statKey = 'shotsPerMinute'
-type = 'Buff'
+tileId = 'buff_attackspeed'
 value = 1.5
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 2
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 1
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
+textureIndex = 1
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 1
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 1
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = true
+textureIndex = 1
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
 mul = true
 statKey = 'damage'
-type = 'Buff'
+tileId = 'buff_damage'
 value = 1.5
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
 mul = false
 statKey = 'range'
-type = 'Buff'
+tileId = 'buff_range'
 value = 30.0
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 2
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 1
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 3
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 1
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 1
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 3
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 1
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
+
+[[tiles]]
+buildable = true
+textureIndex = 3
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 1
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 1
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+mul = true
+statKey = 'shotsPerMinute'
+tileId = 'buff_attackspeed'
+value = 1.5
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 3
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 3
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 3
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
 
 [[tiles]]
 buildable = true
 mul = false
 statKey = 'range'
-type = 'Buff'
+tileId = 'buff_range'
 value = 30.0
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 1
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 2
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-mul = true
-statKey = 'shotsPerMinute'
-type = 'Buff'
-value = 1.5
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 1
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 2
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 3
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 1
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 3
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 3
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = true
 mul = true
 statKey = 'shotsPerMinute'
-type = 'Buff'
+tileId = 'buff_attackspeed'
 value = 1.5
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 1
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 1
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 1
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 2
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 1
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 2
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 1
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 1
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Core'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 2
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 2
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 1
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = true
-type = 'Grass'
+tileId = 'core'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = true
-type = 'Grass'
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
-walkable = true
-
-[[tiles]]
-buildable = true
-type = 'Grass'
+textureIndex = 1
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
-walkable = false
-
-[[tiles]]
-buildable = false
-type = 'Rock'
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 3
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+textureIndex = 1
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = true
-type = 'Grass'
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 3
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
 walkable = true
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
 walkable = false
 
 [[tiles]]
 buildable = false
-type = 'Rock'
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 3
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 3
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = true
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = true
+textureIndex = 2
+tileId = 'grass'
+walkable = true
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
+walkable = false
+
+[[tiles]]
+buildable = false
+tileId = 'rock'
 walkable = false

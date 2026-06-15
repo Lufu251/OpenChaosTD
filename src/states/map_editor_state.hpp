@@ -25,13 +25,10 @@ public:
 
 private:
     enum class Mode { Catalog, Edit };
-    enum class Brush { Grass, Rock, Core, Nest, Buff };
 
     // --- Setup / layout ---
     void Layout(Game& game);
     void RebuildCatalog(Game& game);     // scan maps/, parse meta, load previews, build card entries
-    void SyncBuffControls();             // value range + mul default for the active buff stat
-    void SyncBuffValueRange();           // re-derive the value slider's range from the add/mul mode
 
     // --- Catalog actions ---
     void UnloadPreviews();
@@ -40,7 +37,7 @@ private:
     void ConfirmNewMap(Game& game);
 
     // --- Edit actions ---
-    void PaintAt(int tx, int ty);
+    void PaintAt(Game& game, int tx, int ty);
     bool Validate();                     // rebuild geometry + path checks; sets status
     void Save(Game& game);               // validate -> save toml -> export png (blocks on fail)
     void ExportPng(Game& game, const std::string& mapDir);
@@ -100,15 +97,15 @@ private:
     RenderSystem m_render;     // owns the editor camera + reuses DrawMap
     bool m_lastValidateOk = false;
 
-    // --- Edit: brush palette ---
-    Brush m_brush = Brush::Grass;
-    Button m_brushButtons[5];
+    // --- Edit: dynamic brush palette built from TileFactory ---
+    struct BrushDef {
+        std::string m_tileId;
+        std::string m_label;
+        Button m_button;
+    };
+    std::vector<BrushDef> m_brushes;
+    int m_brushIndex = 0; // index into m_brushes
     WidgetGroup m_brushGroup;
-    Button m_buffStatButtons[3]; // range / damage / shotsPerMinute
-    WidgetGroup m_buffStatGroup;
-    int m_buffStatIndex = 0;
-    Slider m_buffValue;
-    Toggle m_buffMul;
 
     // --- Edit: canvas ---
     Rectangle m_canvasRect = {};

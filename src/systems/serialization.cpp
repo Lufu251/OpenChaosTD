@@ -3,6 +3,7 @@
 #include <world/map.hpp>
 #include <world/tile.hpp>
 #include <content/tower_factory.hpp>
+#include <content/tile_factory.hpp>
 #include <engine/util/file_store.hpp>
 
 #include <cstdint>
@@ -15,22 +16,21 @@
 
 namespace {
 
-const char* TileTypeName(TileType type) {
-    switch (type) {
-        case TileType::Rock: return "Rock";
-        case TileType::Core: return "Core";
-        case TileType::Nest: return "Nest";
-        case TileType::Buff: return "Buff";
-        default:             return "Grass";
-    }
+// Backward compat: map legacy "type" enum to tile IDs. Legacy "Buff" is resolved later
+// from the saved statKey so the correct buff variant is picked.
+const char* LegacyTileId(const std::string& typeName) {
+    if (typeName == "Rock") return "rock";
+    if (typeName == "Core") return "core";
+    if (typeName == "Nest") return "nest";
+    if (typeName == "Buff") return "buff_range"; // fallback; overridden if statKey present
+    return "grass";
 }
 
-TileType ParseTileType(const std::string& s) {
-    if (s == "Rock") return TileType::Rock;
-    if (s == "Core") return TileType::Core;
-    if (s == "Nest") return TileType::Nest;
-    if (s == "Buff") return TileType::Buff;
-    return TileType::Grass;
+// Map a legacy statKey to the correct buff tile ID.
+const char* BuffIdFromStatKey(const std::string& key) {
+    if (key == "damage")          return "buff_damage";
+    if (key == "shotsPerMinute")  return "buff_attackspeed";
+    return "buff_range"; // default (also handles "range")
 }
 
 } // namespace
@@ -74,10 +74,12 @@ toml::table BuildMapTable(const Map& map, const MapMeta& meta) {
         for (int x = 0; x < cols; x++) {
             const Tile& tile = map.Get(x, y);
             toml::table t{
-                {"type", TileTypeName(tile.m_type)},
+                {"tileId", tile.m_tileId},
                 {"walkable", tile.m_walkable},
                 {"buildable", tile.m_buildable},
             };
+            if (tile.m_textureIndex != 0)
+                t.insert("textureIndex", static_cast<int64_t>(tile.m_textureIndex));
             if (tile.m_modifier.Active()) {
                 t.insert("statKey", tile.m_modifier.m_statKey);
                 t.insert("value", std::stod(FormatFloat(tile.m_modifier.m_value)));
@@ -97,7 +99,8 @@ bool Save(FileStore& fileStore, const std::string& mapDir, const Map& map, const
     return true;
 }
 
-bool Load(FileStore& fileStore, const std::string& mapDir, Map& outMap, MapMeta& outMeta) {
+bool Load(FileStore& fileStore, const std::string& mapDir, Map& outMap, MapMeta& outMeta,
+          const TileFactory& tileFactory, const std::string& groundId) {
     toml::table table = fileStore.LoadToml(mapDir + "/map.toml");
     if (table.empty()) {
         std::cerr << "MapSerialization: failed to load '" << mapDir << "/map.toml'\n";
@@ -114,10 +117,10 @@ bool Load(FileStore& fileStore, const std::string& mapDir, Map& outMap, MapMeta&
     outMeta.m_name        = table["meta"]["name"].value_or(std::string{});
     outMeta.m_description = table["meta"]["description"].value_or(std::string{});
 
-    outMap.Create(cols, rows);
+    outMap.Create(cols, rows, tileFactory, groundId);
 
     // Paint each tile from the saved row-major array; geometry (core/nests) and the
-    // path mesh are re-derived afterwards from the painted types.
+    // path mesh are re-derived afterwards from the painted tile IDs.
     const toml::array* tiles = table["tiles"].as_array();
     if (tiles && static_cast<int>(tiles->size()) == cols * rows) {
         for (int i = 0; i < cols * rows; i++) {
@@ -126,16 +129,34 @@ bool Load(FileStore& fileStore, const std::string& mapDir, Map& outMap, MapMeta&
             int x = i % cols;
             int y = i / cols;
             Tile& tile = outMap.Get(x, y);
-            tile.m_type = ParseTileType((*t)["type"].value_or(std::string("Grass")));
-            tile.m_walkable = (*t)["walkable"].value_or(true);
-            tile.m_buildable = (*t)["buildable"].value_or(true);
-            if (tile.m_type == TileType::Buff) {
+
+            // Backward compat: old maps use "type" (enum string); new maps use "tileId".
+            if ((*t).contains("type") && !(*t).contains("tileId")) {
+                tile.m_tileId = LegacyTileId((*t)["type"].value_or(std::string("Grass")));
+            } else {
+                tile.m_tileId = (*t)["tileId"].value_or(std::string("grass"));
+            }
+
+            // Load modifier fields (written for buff tiles in both old and new formats).
+            std::string statKey = (*t)["statKey"].value_or(std::string{});
+            if (!statKey.empty()) {
+                // Resolve the correct modern buff tile ID from the stat key so legacy
+                // "buff" tile IDs are upgraded to "buff_range"/"buff_damage"/"buff_attackspeed".
+                tile.m_tileId = BuffIdFromStatKey(statKey);
                 tile.m_modifier = {
-                    (*t)["statKey"].value_or(std::string{}),
+                    statKey,
                     (*t)["value"].value_or(0.0f),
                     (*t)["mul"].value_or(false),
                 };
             }
+
+            // Upgrade legacy "buff" tile ID (no modifier fields) to a concrete buff variant.
+            if (tile.m_tileId == "buff")
+                tile.m_tileId = "buff_range";
+
+            tile.m_walkable = (*t)["walkable"].value_or(true);
+            tile.m_buildable = (*t)["buildable"].value_or(true);
+            tile.m_textureIndex = static_cast<int>((*t)["textureIndex"].value_or(int64_t{0}));
         }
     }
 

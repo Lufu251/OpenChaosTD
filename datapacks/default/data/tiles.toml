@@ -1,0 +1,56 @@
+[[tile]]
+id = "grass"
+walkable = true
+buildable = true
+textures = ["tile_grass1", "tile_grass2", "tile_grass3", "tile_grass4"]
+
+[[tile]]
+id = "rock"
+walkable = false
+buildable = false
+textures = ["tile_rock"]
+
+[[tile]]
+id = "core"
+walkable = true
+buildable = false
+textures = ["tile_core"]
+
+[[tile]]
+id = "nest"
+walkable = true
+buildable = false
+textures = ["tile_nest"]
+
+[[tile]]
+id = "buff_range"
+walkable = true
+buildable = true
+textures = ["tile_grass_range"]
+
+[tile.modifier]
+stat_key = "range"
+value = 30.0
+mul = false
+
+[[tile]]
+id = "buff_damage"
+walkable = true
+buildable = true
+textures = ["tile_grass_damage"]
+
+[tile.modifier]
+stat_key = "damage"
+value = 1.5
+mul = true
+
+[[tile]]
+id = "buff_attackspeed"
+walkable = true
+buildable = true
+textures = ["tile_grass_attackspeed"]
+
+[tile.modifier]
+stat_key = "shotsPerMinute"
+value = 1.5
+mul = true

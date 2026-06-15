@@ -95,9 +95,11 @@ infoAnchorGap          = 20.0
 
 # In-world enemy health bar (drawn by the render system, themed alongside the rest of the UI).
 [health_bar]
-width     = 20.0
-height    = 4.0
-padding   = 1.0
-roundness = 0.2
-segments  = 8
-bgColor   = [40, 40, 40, 255]
+width        = 20.0
+height       = 4.0
+padding      = 1.0
+roundness    = 0.2
+segments     = 8
+bgColor      = [40, 40, 40, 255]
+shieldColor  = [50, 120, 255, 255]   # blue — shield pool fill
+barrierColor = [255, 215, 0, 255]    # gold — barrier hit outline

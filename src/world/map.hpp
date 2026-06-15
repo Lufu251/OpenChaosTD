@@ -5,6 +5,8 @@
 #include <world/tile.hpp>
 #include <world/pathfinding.hpp>
 
+class TileFactory;
+
 class Map{
 public:
     Map() = default;
@@ -26,10 +28,19 @@ public:
     Vector2 TileToWorld(int x, int y) const;
     bool WorldToTile(Vector2 worldPos, int& outX, int& outY) const;
 
-    void Create(int cols, int rows);
+    void Create(int cols, int rows, const TileFactory& factory, const std::string& groundId);
+
+    // Centralized tile placement: looks up the TileDef from the factory, picks a
+    // random texture index, and applies all properties (id, walkable, buildable,
+    // textureIndex, modifier). The modifier is copied from the tile definition.
+    void ApplyTileDef(int cols, int rows, const TileFactory& factory, const std::string& tileId);
+
+    // Tracking-only: update m_core / m_nests. Callers should ApplyTileDef first.
     void SetCore(int cols, int rows);
     void AddNest(int cols, int rows);
-    void SetBuff(int cols, int rows, std::string statKey, float value, bool mul);
+
+    // Convenience: applies a buff tile definition by its ID (modifier comes from the def).
+    void SetBuff(int cols, int rows, const TileFactory& factory, const std::string& buffId);
 
     // Editor support: the map editor paints tile types freely, so m_core/m_nests can
     // drift from the grid (e.g. a nest tile painted over with grass). RebuildGeometryFromGrid

@@ -11,11 +11,12 @@
 #include <vector>
 
 class FileStore;
+class TileFactory;
 
 class RenderSystem{
 public:
     // Draw calls
-    void DrawMap(const Map& map, Resources& assets);
+    void DrawMap(const Map& map, const TileFactory& tileFactory, Resources& assets);
     void DrawPaths(const Map& map);
     void DebugDrawMap(const Map& Map);
     void DebugDrawEnemies(const DenseSlotMap<Enemy>& enemies);
@@ -49,6 +50,8 @@ private:
     float m_hbRound    = 0.2f;
     int   m_hbSegs     = 8;
     Color m_hbBgColor  = {40, 40, 40, 255};
+    Color m_hbShieldColor = BLUE;
+    Color m_hbBarrierColor = GOLD;
 
-    void DrawHealthBar(Vector2 worldPos, float current, float max);
+    void DrawHealthBar(Vector2 worldPos, float currentHealth, float maxHealth, float totalShield, int totalBarrierHits);
 };

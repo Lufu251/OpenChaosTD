@@ -29,10 +29,11 @@ void PlayingState::OnEnter(Game& game) {
     } else if (!gd.m_selectedMapDir.empty()) {
         // Build the chosen custom map; fall back to generation if it can't be parsed.
         MapSerialization::MapMeta meta;
-        if (!MapSerialization::Load(game.GetFileStore(), gd.m_selectedMapDir, gd.m_map, meta))
-            m_mapGenerator.Generate(gd.m_map, 15, 19, 3, 40, gd.m_mapGenCfg);
+        if (!MapSerialization::Load(game.GetFileStore(), gd.m_selectedMapDir, gd.m_map, meta,
+                                    game.GetTileFactory(), "grass"))
+            m_mapGenerator.Generate(gd.m_map, game.GetTileFactory(), 15, 19, 3, 40, gd.m_mapGenCfg);
     } else {
-        m_mapGenerator.Generate(gd.m_map, 15, 19, 3, 40, gd.m_mapGenCfg);
+        m_mapGenerator.Generate(gd.m_map, game.GetTileFactory(), 15, 19, 3, 40, gd.m_mapGenCfg);
     }
 
     m_renderSystem.Load(game.GetFileStore());
@@ -167,7 +168,7 @@ void PlayingState::Draw(Game& game) {
     Vector2 mouseWorld = game.GetInput().GetWorldMousePosition(m_renderSystem.GetCamera());
 
     BeginMode2D(m_renderSystem.GetCamera());
-    m_renderSystem.DrawMap(game.GetGameData().m_map, game.GetResources());
+    m_renderSystem.DrawMap(game.GetGameData().m_map, game.GetTileFactory(), game.GetResources());
     m_renderSystem.DrawPaths(game.GetGameData().m_map);
     if (m_debug) {
         m_renderSystem.DebugDrawMap(game.GetGameData().m_map);

@@ -97,10 +97,12 @@ void TowerBuildHUD::Draw(const BuildBarView& view, Resources& assets) {
         btn.Draw(selected);
 
         Texture2D& tex = assets.GetTexture(entry.m_textureKey);
-        float tw = static_cast<float>(tex.width);
-        float th = static_cast<float>(tex.height);
-        DrawTextureV(tex, { btn.m_rect.x + (btn.m_rect.width  - tw) / 2.0f,
-                            btn.m_rect.y + (btn.m_rect.height - th) / 2.0f - m_iconYOffset }, Hud::kIconTint);
+        float pad = m_metrics.margin;
+        Rectangle iconRect = { btn.m_rect.x + pad,
+                               btn.m_rect.y + pad,
+                               btn.m_rect.width - 2.0f * pad,
+                               btn.m_rect.height - m_nameYOffset - 2.0f * pad };
+        DrawTextureFitted(tex, iconRect);
 
         int centerX = static_cast<int>(btn.m_rect.x + btn.m_rect.width / 2.0f);
         DrawCenteredText(name.c_str(), static_cast<float>(centerX),

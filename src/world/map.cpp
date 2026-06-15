@@ -1,4 +1,5 @@
 #include <world/map.hpp>
+#include <content/tile_factory.hpp>
 
 #include <systems/pathfinder.hpp>
 #include <algorithm>
@@ -22,15 +23,29 @@ bool Map::WorldToTile(Vector2 worldPos, int& outX, int& outY) const {
     return m_grid.InBounds(outX, outY);
 }
 
-void Map::Create(int cols, int rows) {
+void Map::Create(int cols, int rows, const TileFactory& factory, const std::string& groundId) {
     m_grid.Resize(cols, rows);
+    for (int y = 0; y < rows; y++)
+        for (int x = 0; x < cols; x++)
+            ApplyTileDef(x, y, factory, groundId);
+}
+
+void Map::ApplyTileDef(int cols, int rows, const TileFactory& factory, const std::string& tileId) {
+    const auto& def = factory.Get(tileId);
+    int texIndex = 0;
+    if (!def.textures.empty())
+        texIndex = GetRandomValue(0, static_cast<int>(def.textures.size()) - 1);
+
+    Tile& tile = m_grid.Get(cols, rows);
+    tile.m_tileId = tileId;
+    tile.m_walkable = def.walkable;
+    tile.m_buildable = def.buildable;
+    tile.m_textureIndex = texIndex;
+    tile.m_modifier = def.modifier;
 }
 
 void Map::SetCore(int cols, int rows) {
     m_core = {cols, rows};
-    m_grid.Get(cols, rows).m_type = TileType::Core;
-    m_grid.Get(cols, rows).m_buildable = false;
-    m_grid.Get(cols, rows).m_walkable = true;
 }
 
 void Map::AddNest(int cols, int rows) {
@@ -40,18 +55,11 @@ void Map::AddNest(int cols, int rows) {
     }
 
     m_nests.push_back({cols, rows});
-    m_grid.Get(cols, rows).m_type = TileType::Nest;
-    m_grid.Get(cols, rows).m_buildable = false;
-    m_grid.Get(cols, rows).m_walkable = true;
     m_paths.push_back({}); // reserve slot for this nest's path
 }
 
-void Map::SetBuff(int cols, int rows, std::string statKey, float value, bool mul) {
-    Tile& tile = m_grid.Get(cols, rows);
-    tile.m_type = TileType::Buff;
-    tile.m_walkable = true;  // towers place normally and pathing is unaffected
-    tile.m_buildable = true;
-    tile.m_modifier = {std::move(statKey), value, mul};
+void Map::SetBuff(int cols, int rows, const TileFactory& factory, const std::string& buffId) {
+    ApplyTileDef(cols, rows, factory, buffId);
 }
 
 void Map::ClearNests() {
@@ -65,16 +73,16 @@ void Map::RebuildGeometryFromGrid() {
     int width  = m_grid.GetWidth();
     int height = m_grid.GetHeight();
 
-    // Re-derive the goal and spawns purely from the painted tile types. The first
-    // Core tile wins (the editor enforces a single core when painting).
+    // Re-derive the goal and spawns purely from the painted tile IDs. The first
+    // goal tile wins (the editor enforces a single core when painting).
     bool coreFound = false;
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
-            TileType type = m_grid.Get(x, y).m_type;
-            if (type == TileType::Core && !coreFound) {
+            const std::string& tileId = m_grid.Get(x, y).m_tileId;
+            if (tileId == "core" && !coreFound) {
                 m_core = {x, y};
                 coreFound = true;
-            } else if (type == TileType::Nest) {
+            } else if (tileId == "nest") {
                 AddNest(x, y); // also reserves a path slot, keeping m_paths in lock-step
             }
         }

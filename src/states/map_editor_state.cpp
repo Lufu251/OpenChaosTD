@@ -4,6 +4,7 @@
 #include <engine/core/text_renderer.hpp>
 #include <hud/hud_theme.hpp>
 #include <world/tile.hpp>
+#include <content/tile_factory.hpp>
 #include <app/game.hpp>
 #include <toml++/toml.hpp>
 #include <raylib.h>
@@ -18,24 +19,18 @@
 #endif
 
 namespace {
-    // Stat keys a Buff tile can apply, parallel to the three buff brush buttons.
-    const char* kBuffStats[3] = {"range", "damage", "shotsPerMinute"};
-
     // Alpha for the translucent brush ghost and the faint grid overlay.
     constexpr unsigned char kBrushGhostAlpha = 140;
     constexpr unsigned char kGridAlpha = 30;
 
-    // Tint for the active brush ghost / hover highlight, derived from semantic palette roles so it
-    // tracks the theme rather than carrying its own colors. Index = Brush value.
-    Color BrushTint(int brush) {
+    // Tint for the active brush ghost / hover highlight, keyed by tile ID.
+    Color BrushTint(const std::string& tileId) {
         Color c;
-        switch (brush) {
-            case 1:  c = Hud::kPanelBorder;    break; // ROCK  — neutral slate
-            case 2:  c = Hud::kHighlight;      break; // CORE  — focus gold
-            case 3:  c = Hud::kStatusNegative; break; // NEST  — danger red
-            case 4:  c = Hud::kAccent;         break; // BUFF  — informational accent
-            default: c = Hud::kStatusPositive; break; // GRASS — positive green
-        }
+        if (tileId == "rock")                c = Hud::kPanelBorder;    // neutral slate
+        else if (tileId == "core")           c = Hud::kHighlight;      // focus gold
+        else if (tileId == "nest")           c = Hud::kStatusNegative; // danger red
+        else if (tileId.find("buff") == 0)   c = Hud::kAccent;         // informational accent
+        else                                 c = Hud::kStatusPositive; // ground — positive green
         c.a = kBrushGhostAlpha;
         return c;
     }
@@ -44,15 +39,15 @@ namespace {
 // --- Lifecycle ---------------------------------------------------------------
 
 void MapEditorState::OnEnter(Game& game) {
-    const char* brushNames[5] = {"GRASS", "ROCK", "CORE", "NEST", "BUFF"};
-    for (int i = 0; i < 5; i++)
-        m_brushButtons[i].m_label = brushNames[i];
-
-    // Labels parallel to kBuffStats: the third maps to shotsPerMinute, so "FIRE RATE", not "SPEED".
-    const char* statNames[3] = {"RANGE", "DAMAGE", "FIRE RATE"};
-    for (int i = 0; i < 3; i++)
-        m_buffStatButtons[i].m_label = statNames[i];
-    m_buffMul.m_label = "Multiply";
+    // Build the dynamic brush palette from the TileFactory.
+    auto& factory = game.GetTileFactory();
+    m_brushes.clear();
+    for (const auto& id : factory.GetIds()) {
+        BrushDef bd;
+        bd.m_tileId = id;
+        bd.m_label = id; // use the tile ID as the button label
+        m_brushes.push_back(std::move(bd));
+    }
 
     m_newMapBtn.m_label      = "NEW MAP";
     m_catalogBackBtn.m_label = "BACK";
@@ -69,7 +64,6 @@ void MapEditorState::OnEnter(Game& game) {
     m_modalCols.m_value = kDefaultCols;
     m_modalRows.m_value = kDefaultRows;
 
-    SyncBuffControls();
     Layout(game);
     m_mode = Mode::Catalog;
     RebuildCatalog(game);
@@ -111,42 +105,26 @@ void MapEditorState::Layout(Game& game) {
     m_modalCancelBtn.m_fontSize = 18;
     m_modalCancelBtn.m_labelColor = Hud::kTextPrimary;
 
-    // Edit palette — brush buttons (left column).
-    m_brushGroup.SetCount(5);
+    // Edit palette — brush buttons (left column), sized dynamically from the factory.
+    int brushCount = static_cast<int>(m_brushes.size());
+    if (brushCount == 0) brushCount = 1; // avoid zero-sized group if factory is empty
+    m_brushGroup.SetCount(brushCount);
     m_brushGroup.m_config.m_mode = WidgetGroupConfig::Mode::Vertical;
     m_brushGroup.m_config.m_pack = WidgetGroupConfig::Pack::Start;
     m_brushGroup.m_config.m_align = WidgetGroupConfig::Align::Stretch;
-    m_brushGroup.m_config.m_bounds = {kPaletteX, kTopY + 30.0f, kPaletteW, 5.0f * kBrushBtnH + 4.0f * kRowGap};
+    m_brushGroup.m_config.m_bounds = {
+        kPaletteX, kTopY + 30.0f, kPaletteW,
+        static_cast<float>(brushCount) * kBrushBtnH + static_cast<float>(brushCount - 1) * kRowGap
+    };
     m_brushGroup.m_config.m_defaultItemH = kBrushBtnH;
     m_brushGroup.m_config.m_gapY = kRowGap;
     m_brushGroup.Layout();
-    for (int i = 0; i < 5; i++) {
-        m_brushButtons[i].m_rect = m_brushGroup[i].m_rect;
-        m_brushButtons[i].m_fontSize = 18;
-        m_brushButtons[i].m_labelColor = Hud::kTextPrimary;
+    for (int i = 0; i < brushCount; i++) {
+        m_brushes[i].m_button.m_rect = m_brushGroup[i].m_rect;
+        m_brushes[i].m_button.m_label = m_brushes[i].m_label;
+        m_brushes[i].m_button.m_fontSize = 18;
+        m_brushes[i].m_button.m_labelColor = Hud::kTextPrimary;
     }
-
-    float py = kTopY + 30.0f + 5.0f * (kBrushBtnH + kRowGap); // after brush buttons
-    py += 26.0f; // gap before the buff sub-controls
-    float sw = (kPaletteW - 2.0f * 6.0f) / 3.0f;
-    m_buffStatGroup.SetCount(3);
-    m_buffStatGroup.m_config.m_mode = WidgetGroupConfig::Mode::Horizontal;
-    m_buffStatGroup.m_config.m_pack = WidgetGroupConfig::Pack::Start;
-    m_buffStatGroup.m_config.m_align = WidgetGroupConfig::Align::Start;
-    m_buffStatGroup.m_config.m_bounds = {kPaletteX, py, kPaletteW, 30.0f};
-    m_buffStatGroup.m_config.m_defaultItemW = sw;
-    m_buffStatGroup.m_config.m_defaultItemH = 30.0f;
-    m_buffStatGroup.m_config.m_gapX = 6.0f;
-    m_buffStatGroup.Layout();
-    for (int i = 0; i < 3; i++) {
-        m_buffStatButtons[i].m_rect = m_buffStatGroup[i].m_rect;
-        m_buffStatButtons[i].m_fontSize = 12;
-        m_buffStatButtons[i].m_labelColor = Hud::kTextPrimary;
-    }
-    py += 56.0f;
-    m_buffValue.m_rect = {kPaletteX, py, kPaletteW, 24.0f};
-    py += 38.0f;
-    m_buffMul.m_rect = {kPaletteX, py, 26.0f, 26.0f};
 
     // Edit canvas + bottom action bar.
     m_canvasRect = {kCanvasX, kTopY, gw - kMargin - kCanvasX, footerY - kTopY};
@@ -221,30 +199,6 @@ void MapEditorState::UnloadPreviews() {
     }
 }
 
-void MapEditorState::SyncBuffControls() {
-    // Pick the natural add/mul default and value for the chosen stat, then derive the slider range
-    // from that mode. range is a flat bonus; damage / fire rate are multipliers.
-    if (m_buffStatIndex == 0) {
-        m_buffMul.m_value = false;
-        m_buffValue.m_value = 30.0f;
-    } else {
-        m_buffMul.m_value = true;
-        m_buffValue.m_value = 1.5f;
-    }
-    SyncBuffValueRange();
-}
-
-void MapEditorState::SyncBuffValueRange() {
-    // The slider range tracks the add/mul mode (not the stat), so toggling Multiply re-scales it and
-    // a flat-add buff can't keep a multiplier range (or vice versa). Clamp the current value into it.
-    if (m_buffMul.m_value) {
-        m_buffValue.m_min = 0.0f; m_buffValue.m_max = 3.0f; m_buffValue.m_step = 0.1f;
-    } else {
-        m_buffValue.m_min = 0.0f; m_buffValue.m_max = 200.0f; m_buffValue.m_step = 5.0f;
-    }
-    m_buffValue.m_value = std::clamp(m_buffValue.m_value, m_buffValue.m_min, m_buffValue.m_max);
-}
-
 // --- Helpers -----------------------------------------------------------------
 
 void MapEditorState::SetStatus(const std::string& msg, bool ok) {
@@ -272,13 +226,14 @@ void MapEditorState::OpenMap(Game& game, int index) {
     if (index < 0 || index >= static_cast<int>(m_entries.size())) return;
     const std::string& folder = m_entries[index].m_folder;
 
-    if (!MapSerialization::Load(game.GetFileStore(), MapDir(game, folder), m_map, m_meta)) {
+    if (!MapSerialization::Load(game.GetFileStore(), MapDir(game, folder), m_map, m_meta,
+                                game.GetTileFactory(), "grass")) {
         SetStatus("Could not load '" + folder + "'", false);
         return;
     }
     m_openFolder = folder;
     m_mode = Mode::Edit;
-    m_brush = Brush::Grass;
+    m_brushIndex = 0;
     m_lastValidateOk = false;
     m_hoverX = m_hoverY = -1;
     m_render.CenterCamera(m_map, m_canvasRect);
@@ -306,7 +261,7 @@ void MapEditorState::ConfirmNewMap(Game& game) {
 
     int cols = static_cast<int>(std::lround(m_modalCols.m_value));
     int rows = static_cast<int>(std::lround(m_modalRows.m_value));
-    m_map.Create(cols, rows); // all-grass, walkable/buildable by default
+    m_map.Create(cols, rows, game.GetTileFactory(), "grass");
 
     m_meta.m_name = name;
     m_meta.m_description = m_modalDesc.m_text;
@@ -314,7 +269,7 @@ void MapEditorState::ConfirmNewMap(Game& game) {
 
     m_modalOpen = false;
     m_mode = Mode::Edit;
-    m_brush = Brush::Grass;
+    m_brushIndex = 0;
     m_lastValidateOk = false;
     m_hoverX = m_hoverY = -1;
     m_render.CenterCamera(m_map, m_canvasRect);
@@ -323,42 +278,33 @@ void MapEditorState::ConfirmNewMap(Game& game) {
 
 // --- Edit actions ------------------------------------------------------------
 
-void MapEditorState::PaintAt(int tx, int ty) {
-    Tile& tile = m_map.Get(tx, ty);
-    switch (m_brush) {
-        case Brush::Grass:
-            tile.m_type = TileType::Grass;
-            tile.m_walkable = true;
-            tile.m_buildable = true;
-            tile.m_modifier = {};
-            break;
-        case Brush::Rock:
-            tile.m_type = TileType::Rock;
-            tile.m_walkable = false;
-            tile.m_buildable = false;
-            tile.m_modifier = {};
-            break;
-        case Brush::Core: {
-            // Enforce a single core: clear the previous core tile back to grass first.
-            std::pair<int, int> core = m_map.GetCore();
-            if (m_map.GetGrid().InBounds(core.first, core.second)) {
-                Tile& old = m_map.Get(core.first, core.second);
-                if (old.m_type == TileType::Core) {
-                    old.m_type = TileType::Grass;
-                    old.m_walkable = true;
-                    old.m_buildable = true;
-                }
-            }
-            m_map.SetCore(tx, ty);
-            break;
+void MapEditorState::PaintAt(Game& game, int tx, int ty) {
+    if (m_brushIndex < 0 || m_brushIndex >= static_cast<int>(m_brushes.size())) return;
+    const BrushDef& brush = m_brushes[m_brushIndex];
+    const std::string& tileId = brush.m_tileId;
+
+    if (tileId == "core") {
+        // Enforce a single core: clear the previous core tile back to ground first.
+        std::pair<int, int> core = m_map.GetCore();
+        if (m_map.GetGrid().InBounds(core.first, core.second)) {
+            Tile& old = m_map.Get(core.first, core.second);
+            if (old.m_tileId == "core")
+                m_map.ApplyTileDef(core.first, core.second, game.GetTileFactory(), "grass");
         }
-        case Brush::Nest:
-            m_map.AddNest(tx, ty); // idempotent — AddNest dedups
-            break;
-        case Brush::Buff:
-            m_map.SetBuff(tx, ty, kBuffStats[m_buffStatIndex], m_buffValue.m_value, m_buffMul.m_value);
-            break;
+        m_map.ApplyTileDef(tx, ty, game.GetTileFactory(), tileId);
+        m_map.SetCore(tx, ty);
+        return;
     }
+
+    if (tileId == "nest") {
+        m_map.ApplyTileDef(tx, ty, game.GetTileFactory(), tileId);
+        m_map.AddNest(tx, ty);
+        return;
+    }
+
+    // All other tiles (grass, rock, buff_*): ApplyTileDef copies the modifier from
+    // the tile definition automatically.
+    m_map.ApplyTileDef(tx, ty, game.GetTileFactory(), tileId);
 }
 
 bool MapEditorState::Validate() {
@@ -407,7 +353,7 @@ void MapEditorState::ExportPng(Game& game, const std::string& mapDir) {
     RenderTexture2D target = LoadRenderTexture(w, h);
     BeginTextureMode(target);
     ClearBackground(Hud::g_mapEditorTheme.exportBg);
-    m_render.DrawMap(m_map, game.GetResources());
+    m_render.DrawMap(m_map, game.GetTileFactory(), game.GetResources());
     EndTextureMode();
 
     Image img = LoadImageFromTexture(target.texture);
@@ -532,30 +478,15 @@ void MapEditorState::ProcessEditInput(Game& game, float dt) {
     bool pressed = input.IsMousePressed(MOUSE_LEFT_BUTTON);
     bool down = input.IsMouseDown(MOUSE_LEFT_BUTTON);
 
-    // Brush palette.
-    for (int i = 0; i < 5; i++) {
-        m_brushButtons[i].Update(mouse, pressed);
-        if (m_brushButtons[i].IsClicked()) {
+    // Brush palette — dynamic button count.
+    int brushCount = static_cast<int>(m_brushes.size());
+    for (int i = 0; i < brushCount; i++) {
+        m_brushes[i].m_button.Update(mouse, pressed);
+        if (m_brushes[i].m_button.IsClicked()) {
             game.GetSoundSystem().PlaySfx("button_click");
-            m_brush = static_cast<Brush>(i);
+            m_brushIndex = i;
         }
     }
-    if (m_brush == Brush::Buff) {
-        for (int i = 0; i < 3; i++) {
-            m_buffStatButtons[i].Update(mouse, pressed);
-            if (m_buffStatButtons[i].IsClicked()) {
-                game.GetSoundSystem().PlaySfx("button_click");
-                m_buffStatIndex = i;
-                SyncBuffControls();
-            }
-        }
-        m_buffValue.Update(mouse, down);
-        bool mulBefore = m_buffMul.m_value;
-        m_buffMul.Update(mouse, pressed);
-        if (m_buffMul.m_value != mulBefore)
-            SyncBuffValueRange(); // toggling add/mul re-scales (and re-clamps) the value range
-    }
-
     // Bottom action bar.
     m_validateBtn.Update(mouse, pressed);
     m_saveBtn.Update(mouse, pressed);
@@ -595,7 +526,7 @@ void MapEditorState::ProcessEditInput(Game& game, float dt) {
             m_hoverX = tx;
             m_hoverY = ty;
             if (down) {
-                PaintAt(tx, ty);
+                PaintAt(game, tx, ty);
                 m_lastValidateOk = false;
             }
         }
@@ -713,21 +644,9 @@ void MapEditorState::DrawNewMapModal(Game& /*game*/) {
 void MapEditorState::DrawPalette(Game& /*game*/) {
     Text::Draw("BRUSH", static_cast<int>(kPaletteX), static_cast<int>(kTopY), 24, Hud::kTextHeader);
 
-    for (int i = 0; i < 5; i++)
-        m_brushButtons[i].Draw(m_brush == static_cast<Brush>(i));
-
-    if (m_brush != Brush::Buff)
-        return;
-
-    float headerY = m_buffStatButtons[0].m_rect.y - 24.0f;
-    Text::Draw("BUFF", static_cast<int>(kPaletteX), static_cast<int>(headerY), 18, Hud::kTextHeader);
-    for (int i = 0; i < 3; i++)
-        m_buffStatButtons[i].Draw(m_buffStatIndex == i);
-    m_buffValue.Draw();
-    DrawLabelInRow(TextFormat("%.1f", m_buffValue.m_value),
-                   m_buffValue.m_rect.x, m_buffValue.m_rect.y - 22.0f, 20.0f, 14, Hud::kTextPrimary);
-    m_buffMul.m_label = m_buffMul.m_value ? "Multiply" : "Add";
-    m_buffMul.Draw();
+    int brushCount = static_cast<int>(m_brushes.size());
+    for (int i = 0; i < brushCount; i++)
+        m_brushes[i].m_button.Draw(m_brushIndex == i);
 }
 
 void MapEditorState::DrawEditCanvas(Game& game) {
@@ -736,7 +655,7 @@ void MapEditorState::DrawEditCanvas(Game& game) {
     game.GetScreen().BeginScissor(m_canvasRect);
     BeginMode2D(m_render.GetCamera());
 
-    m_render.DrawMap(m_map, game.GetResources());
+    m_render.DrawMap(m_map, game.GetTileFactory(), game.GetResources());
 
     // Grid lines over the whole map.
     int cols = m_map.GetCols();
@@ -750,10 +669,11 @@ void MapEditorState::DrawEditCanvas(Game& game) {
         DrawLine(0, y * ts, cols * ts, y * ts, gridColor);
 
     // Active-brush ghost on the hovered tile.
-    if (m_map.GetGrid().InBounds(m_hoverX, m_hoverY)) {
+    if (m_map.GetGrid().InBounds(m_hoverX, m_hoverY) && m_brushIndex >= 0
+        && m_brushIndex < static_cast<int>(m_brushes.size())) {
         Vector2 wp = m_map.TileToWorld(m_hoverX, m_hoverY);
         DrawRectangle(static_cast<int>(wp.x), static_cast<int>(wp.y), ts, ts,
-                      BrushTint(static_cast<int>(m_brush)));
+                      BrushTint(m_brushes[m_brushIndex].m_tileId));
         DrawRectangleLines(static_cast<int>(wp.x), static_cast<int>(wp.y), ts, ts,
                            Hud::kTextPrimary);
     }

@@ -272,6 +272,8 @@ public:
     virtual std::optional<SpawnRequest> OnDeath() const { return std::nullopt; }
     virtual bool ShouldBlock(EffectType) const { return false; }
     virtual float GetShield() const { return 0.0f; }
+    virtual int GetBarrierHits() const { return 0; }
+    virtual int GetBarrierMaxHits() const { return 0; }
 };
 
 // The "core" enemy module: owns an enemy's base stats (formerly the Enemy scalars + EnemyStats).
@@ -396,6 +398,8 @@ public:
     std::unique_ptr<EnemyModule> Clone() const override { return std::make_unique<BarrierModule>(*this); }
     float InterceptDamage(float incoming) override;
     int InterceptOrder() const override { return kInterceptNegate; }
+    int GetBarrierHits() const override { return m_hitsLeft; }
+    int GetBarrierMaxHits() const override { return m_maxHits; }
     void DescribeStats(std::vector<DescLine>& out) const override;
     void PatchStats(const std::string& key, float v, bool mul) override;
 };

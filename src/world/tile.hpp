@@ -8,14 +8,6 @@
 // template alone; consumers that dereference a tower include <world/tower.hpp> directly.
 class Tower;
 
-enum class TileType {
-    Grass,
-    Rock,
-    Core,
-    Nest,
-    Buff
-};
-
 // A terrain stat modifier applied to whatever tower is built on the tile. Reuses the engine-wide
 // key->delta convention (see Tower::PatchStats / TowerUpgrade): an inactive modifier (empty key)
 // leaves the tower untouched, so ordinary tiles behave exactly as before.
@@ -27,9 +19,10 @@ struct TileModifier {
 };
 
 struct Tile{
-    TileType m_type = TileType::Grass;
+    std::string m_tileId = "grass";    // references TileFactory::TileDef::id
     bool m_walkable = true;
     bool m_buildable = true;
+    int m_textureIndex = 0; // index into TileDef::textures, picked randomly on placement
 
     TileModifier m_modifier; // terrain buff applied to a tower placed here (inactive by default)
 
