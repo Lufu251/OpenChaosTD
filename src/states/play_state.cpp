@@ -30,10 +30,16 @@ void PlayingState::OnEnter(Game& game) {
         // Build the chosen custom map; fall back to generation if it can't be parsed.
         MapSerialization::MapMeta meta;
         if (!MapSerialization::Load(game.GetFileStore(), gd.m_selectedMapDir, gd.m_map, meta,
-                                    game.GetTileFactory(), "grass"))
-            m_mapGenerator.Generate(gd.m_map, game.GetTileFactory(), 15, 19, 3, 40, gd.m_mapGenCfg);
+                                    game.GetTileFactory(), gd.m_mapGenCfg.groundId))
+            m_mapGenerator.Generate(gd.m_map, game.GetTileFactory(),
+                                    gd.m_mapGenCfg.cols, gd.m_mapGenCfg.rows,
+                                    gd.m_mapGenCfg.nestCount, gd.m_mapGenCfg.obstacleCount,
+                                    gd.m_mapGenCfg);
     } else {
-        m_mapGenerator.Generate(gd.m_map, game.GetTileFactory(), 15, 19, 3, 40, gd.m_mapGenCfg);
+        m_mapGenerator.Generate(gd.m_map, game.GetTileFactory(),
+                                gd.m_mapGenCfg.cols, gd.m_mapGenCfg.rows,
+                                gd.m_mapGenCfg.nestCount, gd.m_mapGenCfg.obstacleCount,
+                                gd.m_mapGenCfg);
     }
 
     m_renderSystem.Load(game.GetFileStore());

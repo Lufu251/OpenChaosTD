@@ -7,23 +7,23 @@
 void MapGenerator::Generate(Map& map, const TileFactory& tileFactory,
                             int cols, int rows, int nestCount, int obstacleCount,
                             const MapGenCfg& cfg){
-    m_groundId = "grass";
-    m_obstacleId = "rock";
     m_buffIds = tileFactory.GetBuffIds();
 
-    if (!tileFactory.Has(m_groundId) || !tileFactory.Has(m_obstacleId)
-        || !tileFactory.Has("core") || !tileFactory.Has("nest")) {
-        std::cerr << "MapGenerator: missing required tile IDs (grass/rock/core/nest)\n";
+    if (!tileFactory.Has(cfg.groundId) || !tileFactory.Has(cfg.obstacleId)
+        || !tileFactory.Has(cfg.coreId) || !tileFactory.Has(cfg.nestId)) {
+        std::cerr << "MapGenerator: missing required tile IDs ("
+                  << cfg.groundId << "/" << cfg.obstacleId << "/"
+                  << cfg.coreId << "/" << cfg.nestId << ")\n";
         return;
     }
 
-    map.Create(cols, rows, tileFactory, m_groundId);
+    map.Create(cols, rows, tileFactory, cfg.groundId);
 
     // Core: centered on the bottom edge, one tile in from the border
-    map.ApplyTileDef((cols - 1) / 2, rows - 2, tileFactory, "core");
+    map.ApplyTileDef((cols - 1) / 2, rows - 2, tileFactory, cfg.coreId);
     map.SetCore((cols - 1) / 2, rows - 2);
 
-    PlaceNests(map, tileFactory, nestCount);
+    PlaceNests(map, tileFactory, nestCount, cfg);
     PlaceObstacles(map, tileFactory, obstacleCount, cfg);
 
     // Buff terrain: count scales with map size. Buff tiles stay walkable, so they never
@@ -33,7 +33,8 @@ void MapGenerator::Generate(Map& map, const TileFactory& tileFactory,
     map.BuildPathMesh(); // final, clean path mesh for the chosen layout
 }
 
-void MapGenerator::PlaceNests(Map& map, const TileFactory& tileFactory, int nestCount){
+void MapGenerator::PlaceNests(Map& map, const TileFactory& tileFactory,
+                               int nestCount, const MapGenCfg& cfg){
     int cols = map.GetCols();
     // Clamp so every nest fits along the top edge without overlapping
     nestCount = std::clamp(nestCount, 1, std::max(1, cols - 2));
@@ -43,7 +44,7 @@ void MapGenerator::PlaceNests(Map& map, const TileFactory& tileFactory, int nest
         // Evenly space across the width with a margin at both ends.
         // (i+1)*cols/(nestCount+1) centers a single nest and spreads many symmetrically.
         int nx = (i + 1) * cols / (nestCount + 1);
-        map.ApplyTileDef(nx, row, tileFactory, "nest");
+        map.ApplyTileDef(nx, row, tileFactory, cfg.nestId);
         map.AddNest(nx, row);
     }
 }
@@ -75,7 +76,7 @@ void MapGenerator::PlaceBuffTiles(Map& map, const TileFactory& tileFactory,
         for (int t = 0; t < cfg.seedTries; t++) {
             int x = RandInt(0, cols - 1);
             int y = RandInt(0, rows - 1);
-            if (map.Get(x, y).m_tileId == m_groundId) { sx = x; sy = y; break; }
+            if (map.Get(x, y).m_tileId == cfg.groundId) { sx = x; sy = y; break; }
         }
         if (sx < 0) break; // map too saturated to seed another buff tile
 
@@ -95,9 +96,9 @@ void MapGenerator::GrowCluster(Map& map, const TileFactory& tileFactory,
     for (int t = 0; t < cfg.seedTries; t++) {
         int x = RandInt(0, cols - 1);
         int y = RandInt(0, rows - 1);
-        if (map.Get(x, y).m_tileId == m_groundId) { sx = x; sy = y; break; }
+        if (map.Get(x, y).m_tileId == cfg.groundId) { sx = x; sy = y; break; }
     }
-    if (sx < 0 || !TryPlaceRock(map, tileFactory, sx, sy)) return;
+    if (sx < 0 || !TryPlaceRock(map, tileFactory, sx, sy, cfg)) return;
 
     std::vector<std::pair<int, int>> cluster{ {sx, sy} };
     placed++;
@@ -116,9 +117,9 @@ void MapGenerator::GrowCluster(Map& map, const TileFactory& tileFactory,
             int ny = cy + dy[d];
 
             if (nx < 0 || nx >= cols || ny < 0 || ny >= rows) continue;
-            if (map.Get(nx, ny).m_tileId != m_groundId) continue;
+            if (map.Get(nx, ny).m_tileId != cfg.groundId) continue;
 
-            if (TryPlaceRock(map, tileFactory, nx, ny)) {
+            if (TryPlaceRock(map, tileFactory, nx, ny, cfg)) {
                 cluster.push_back({nx, ny});
                 placed++;
                 extended = true;
@@ -130,14 +131,15 @@ void MapGenerator::GrowCluster(Map& map, const TileFactory& tileFactory,
     }
 }
 
-bool MapGenerator::TryPlaceRock(Map& map, const TileFactory& tileFactory, int x, int y){
-    map.ApplyTileDef(x, y, tileFactory, m_obstacleId);
+bool MapGenerator::TryPlaceRock(Map& map, const TileFactory& tileFactory,
+                                 int x, int y, const MapGenCfg& cfg){
+    map.ApplyTileDef(x, y, tileFactory, cfg.obstacleId);
 
     map.BuildPathMesh();
     if (map.ValidatePathMesh()) return true;
 
     // Reverting: this rock would cut a nest off from the core
-    map.ApplyTileDef(x, y, tileFactory, m_groundId);
+    map.ApplyTileDef(x, y, tileFactory, cfg.groundId);
     return false;
 }
 

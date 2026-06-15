@@ -1,4 +1,17 @@
 [map]
+# Tile IDs resolved from the TileFactory on generation.
+groundId    = "grass"
+obstacleId  = "rock"
+coreId      = "core"
+nestId      = "nest"
+
+# Map geometry and content counts.
+cols          = 15
+rows          = 19
+nestCount     = 3
+obstacleCount = 40
+
+# Cluster tuning.
 minCluster       = 3   # smallest rock cluster blob
 maxCluster       = 7   # largest rock cluster blob
 seedTries        = 64  # attempts to find a free seed tile per cluster

@@ -32,6 +32,14 @@ void GameData::Load(FileStore& fileStore, const std::string& dataDir) {
     if (fileStore.Exists(mapPath)) {
         auto mapData = fileStore.LoadToml(mapPath);
         if (const toml::table* mp = mapData["map"].as_table()) {
+            m_mapGenCfg.groundId        = (*mp)["groundId"].value_or(m_mapGenCfg.groundId);
+            m_mapGenCfg.obstacleId      = (*mp)["obstacleId"].value_or(m_mapGenCfg.obstacleId);
+            m_mapGenCfg.coreId          = (*mp)["coreId"].value_or(m_mapGenCfg.coreId);
+            m_mapGenCfg.nestId          = (*mp)["nestId"].value_or(m_mapGenCfg.nestId);
+            m_mapGenCfg.cols            = (*mp)["cols"].value_or(m_mapGenCfg.cols);
+            m_mapGenCfg.rows            = (*mp)["rows"].value_or(m_mapGenCfg.rows);
+            m_mapGenCfg.nestCount       = (*mp)["nestCount"].value_or(m_mapGenCfg.nestCount);
+            m_mapGenCfg.obstacleCount   = (*mp)["obstacleCount"].value_or(m_mapGenCfg.obstacleCount);
             m_mapGenCfg.minCluster       = (*mp)["minCluster"].value_or(m_mapGenCfg.minCluster);
             m_mapGenCfg.maxCluster       = (*mp)["maxCluster"].value_or(m_mapGenCfg.maxCluster);
             m_mapGenCfg.seedTries        = (*mp)["seedTries"].value_or(m_mapGenCfg.seedTries);
@@ -39,7 +47,12 @@ void GameData::Load(FileStore& fileStore, const std::string& dataDir) {
             m_mapGenCfg.tilesPerBuffTile = (*mp)["tilesPerBuffTile"].value_or(m_mapGenCfg.tilesPerBuffTile);
 
             // Keep generation params sane: cluster sizes ordered and positive, try-counts non-negative,
-            // and tilesPerBuffTile >= 1 since it is used as a divisor for buff-tile budgeting.
+            // tilesPerBuffTile >= 1 since it is used as a divisor for buff-tile budgeting,
+            // and map dimensions / content counts at least 1.
+            m_mapGenCfg.cols            = std::max(3, m_mapGenCfg.cols);
+            m_mapGenCfg.rows            = std::max(3, m_mapGenCfg.rows);
+            m_mapGenCfg.nestCount       = std::max(1, m_mapGenCfg.nestCount);
+            m_mapGenCfg.obstacleCount   = std::max(0, m_mapGenCfg.obstacleCount);
             m_mapGenCfg.minCluster       = std::max(1, m_mapGenCfg.minCluster);
             m_mapGenCfg.maxCluster       = std::max(m_mapGenCfg.minCluster, m_mapGenCfg.maxCluster);
             m_mapGenCfg.seedTries        = std::max(1, m_mapGenCfg.seedTries);
